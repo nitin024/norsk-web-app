@@ -1,0 +1,17 @@
+{
+  "id": "jobben",
+  "title": "Jobben min",
+  "level": "A2",
+  "topic": "muntlig — arbeid",
+  "gloss": "My job",
+  "examNote": "Del 2: en kort presentasjon om arbeid. Bruk gjerne «jeg trives med» og «det som er fint, er at ...».",
+  "body": [
+    "Jeg {jobber:jobbe} i en barnehage i sentrum.",
+    "Jeg begynte der for to år {siden:siden}.",
+    "Arbeidsdagen min begynner {klokka:klokka} sju.",
+    "Jeg tar imot barna og snakker med foreldrene.",
+    "Kollegaene mine er hyggelige, og sjefen min er tydelig og rolig.",
+    "Noen ganger er det travelt, og da må vi hjelpe hverandre.",
+    "Jeg liker jobben min, fordi jeg {lærer:lære} norsk mens jeg {jobber:jobbe}."
+  ]
+}

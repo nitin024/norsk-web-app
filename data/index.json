@@ -1,0 +1,40 @@
+{
+  "$comment": "Paragraph manifest. `file` is relative to data/paragraphs/. Levels follow the CEFR bands used by Norskprøven; the muntlig exam is normally sat at A1-A2, A2-B1 or B1-B2.",
+  "levels": [
+    {
+      "level": "A1",
+      "label": "A1 — presentere seg",
+      "description": "Korte setninger om deg selv, familien og hverdagen."
+    },
+    {
+      "level": "A2",
+      "label": "A2 — hverdag og jobb",
+      "description": "Fortelle om jobb, helse og hvor du bor."
+    },
+    {
+      "level": "B1",
+      "label": "B1 — meninger og begrunnelser",
+      "description": "Gi meninger, begrunne dem og veie fordeler mot ulemper."
+    },
+    {
+      "level": "B2",
+      "label": "B2 — drøfting",
+      "description": "Drøfte samfunnstema med nyansert argumentasjon."
+    }
+  ],
+  "paragraphs": [
+    { "id": "presentasjon", "title": "Å presentere seg selv", "level": "A1", "file": "presentasjon.json" },
+    { "id": "familien", "title": "Familien min", "level": "A1", "file": "familien.json" },
+    { "id": "hverdagen", "title": "Hverdagen min", "level": "A1", "file": "hverdagen.json" },
+    { "id": "barnehagen", "title": "I barnehagen", "level": "A2", "file": "barnehagen.json" },
+    { "id": "jobben", "title": "Jobben min", "level": "A2", "file": "jobben.json" },
+    { "id": "hos-legen", "title": "Hos legen", "level": "A2", "file": "hos-legen.json" },
+    { "id": "der-jeg-bor", "title": "Der jeg bor", "level": "A2", "file": "der-jeg-bor.json" },
+    { "id": "hjemmekontor", "title": "Fordeler og ulemper med hjemmekontor", "level": "B1", "file": "hjemmekontor.json" },
+    { "id": "utdanning", "title": "Utdanning og videre planer", "level": "B1", "file": "utdanning.json" },
+    { "id": "transport", "title": "Kollektivtransport eller bil?", "level": "B1", "file": "transport.json" },
+    { "id": "integrering", "title": "Integrering i det norske samfunnet", "level": "B2", "file": "integrering.json" },
+    { "id": "miljo", "title": "Miljø og personlig ansvar", "level": "B2", "file": "miljo.json" },
+    { "id": "arbeidsliv", "title": "Det norske arbeidslivet", "level": "B2", "file": "arbeidsliv.json" }
+  ]
+}

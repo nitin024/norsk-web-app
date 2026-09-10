@@ -1,0 +1,17 @@
+{
+  "id": "presentasjon",
+  "title": "Å presentere seg selv",
+  "level": "A1",
+  "topic": "muntlig — oppvarming",
+  "gloss": "Introducing yourself",
+  "examNote": "Del 1 av muntlig prøve: sensor spør hvem du er, hvor du kommer fra og hvor lenge du har vært i Norge. Svar i hele setninger.",
+  "body": [
+    "Hei, jeg heter <Alex>.",
+    "Jeg er tretti år.",
+    "Jeg kommer fra <Spain>, men nå bor jeg i <Norge>.",
+    "Jeg har bodd her i fem år.",
+    "Jeg snakker <somali>, <arabisk> og litt norsk.",
+    "Jeg {lærer:lære} norsk på skolen hver dag.",
+    "Det er vanskelig, men veldig viktig for meg."
+  ]
+}
