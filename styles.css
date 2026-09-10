@@ -239,6 +239,162 @@ body[data-view='list'] .reader {
 
 .punct { white-space: pre-wrap; }
 
+/* --- dictionary ------------------------------------------------------ */
+
+.dict-entry-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--tap-min);
+  margin-top: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 16px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dict-entry-link::after {
+  content: '›';
+  font-size: 20px;
+}
+
+.dict-controls {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 12px 20px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--rule);
+}
+
+.dict-search {
+  width: 100%;
+  min-height: var(--tap-min);
+  padding: 10px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  /* 16px minimum stops iOS Safari zooming the viewport on focus. */
+  font: inherit;
+  font-size: 16px;
+}
+
+.dict-search::placeholder {
+  color: var(--ink-faint);
+}
+
+.dict-filters {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.dict-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.chip.is-on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--surface);
+}
+
+@media (prefers-color-scheme: dark) {
+  .chip.is-on {
+    color: var(--bg);
+  }
+}
+
+.dict-letter {
+  position: sticky;
+  top: 0;
+  margin: 20px 0 0;
+  padding: 6px 0;
+  background: var(--bg);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.dict-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--rule);
+}
+
+.dict-list li {
+  border-bottom: 1px solid var(--rule);
+}
+
+.dict-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 12px;
+  width: 100%;
+  min-height: var(--tap-min);
+  padding: 12px 4px;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dict-row:active {
+  background: var(--accent-soft);
+}
+
+.dict-head {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.dict-pos {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 12px;
+  color: var(--ink-faint);
+  font-style: italic;
+  white-space: nowrap;
+}
+
+.dict-gloss {
+  grid-column: 1 / -1;
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+
+.dict-empty {
+  margin: 24px 0;
+  color: var(--ink-faint);
+}
+
 /* --- Word card ------------------------------------------------------- */
 
 .scrim {
@@ -332,6 +488,42 @@ body[data-view='list'] .reader {
   margin: 10px 0 0;
   font-size: 14px;
   color: var(--ink-faint);
+}
+
+/* An occurrence from elsewhere in the corpus — reference, not the headline,
+   so it sits below the gloss and reads quieter than the table. */
+.card-example {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+
+.card-example-src {
+  display: inline-block;
+  min-height: var(--tap-min);
+  padding: 12px 0 4px;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.card-example-src::after {
+  content: ' ›';
+}
+
+.card-example-text {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.card-example-text strong {
+  color: var(--ink);
+  font-weight: 600;
+  font-style: normal;
 }
 
 .table {

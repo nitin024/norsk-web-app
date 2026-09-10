@@ -6,11 +6,11 @@
   "gloss": "My everyday life",
   "examNote": "Øv på klokkeslett og rekkefølge: først, så, etterpå, til slutt.",
   "body": [
-    "Jeg [står opp](stå opp) klokka seks hver morgen.",
+    "Jeg [står opp](stå opp) {klokka:klokka} seks hver morgen.",
     "Først lager jeg mat til barna.",
     "{Så:så} går vi til skolen og barnehagen.",
     "Etterpå tar jeg bussen til skolen mi.",
-    "Jeg er på kurset fra klokka ni til klokka to.",
+    "Jeg er på kurset fra {klokka:klokka} ni til {klokka:klokka} to.",
     "Om kvelden leser jeg og ser på <tv>.",
     "Jeg [legger meg](legge seg) ganske tidlig, fordi jeg alltid er sliten."
   ]

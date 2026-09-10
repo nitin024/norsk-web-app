@@ -17,6 +17,21 @@
         <p id="doc-meta" class="meta"></p>
       </header>
 
+      <div id="dict-controls" class="dict-controls" hidden>
+        <input
+          id="dict-search"
+          class="dict-search"
+          type="search"
+          lang="nb"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          placeholder="Søk etter ord…"
+          aria-label="Søk i ordboka"
+        />
+        <div id="dict-filters" class="dict-filters" role="group" aria-label="Filtrer på ordklasse"></div>
+      </div>
+
       <main id="reader" class="reader" tabindex="-1"></main>
     </div>
 

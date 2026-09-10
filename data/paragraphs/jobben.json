@@ -8,7 +8,7 @@
   "body": [
     "Jeg {jobber:jobbe} i en barnehage i sentrum.",
     "Jeg begynte der for to år siden.",
-    "Arbeidsdagen min begynner klokka sju.",
+    "Arbeidsdagen min begynner {klokka:klokka} sju.",
     "Jeg tar imot barna og snakker med foreldrene.",
     "Kollegaene mine er hyggelige, og sjefen min er tydelig og rolig.",
     "Noen ganger er det travelt, og da må vi hjelpe hverandre.",

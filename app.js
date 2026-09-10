@@ -51,6 +51,15 @@ let index = null;
 let activeGroupEls = [];
 let cardOpener = null;
 
+// entryId -> [{ paraId, title, key, text }] for every sentence in the corpus
+// that uses the entry. Built once, lazily, the first time a card is opened.
+let occurrences = null;
+let occurrencesPromise = null;
+
+// Which sentence the reader is currently looking at, so the card never offers
+// the sentence you are already reading as an "example".
+let currentParaId = null;
+
 async function main() {
   const [lexRes, idxRes] = await Promise.all([fetch(LEXICON_URL), fetch(INDEX_URL)]);
   if (!lexRes.ok || !idxRes.ok) {
@@ -71,6 +80,7 @@ async function main() {
 function route() {
   closeCard();
   const id = location.hash.replace(/^#\/?/, '');
+  if (id === 'ordbok') return showDictionary();
   if (id) {
     const meta = index.paragraphs.find((p) => p.id === id);
     if (meta) return showParagraph(meta);
@@ -80,6 +90,8 @@ function route() {
 
 function showList() {
   document.body.dataset.view = 'list';
+  currentParaId = null;
+  document.getElementById('dict-controls').hidden = true;
   setHeader('Norsk', 'Muntlig — lesetekster');
 
   // Move focus off the back button before hiding it, or focus falls to <body>
@@ -93,6 +105,12 @@ function showList() {
 
   const lastRead = readLastRead();
   announce('Alle tekster');
+
+  const dictLink = document.createElement('a');
+  dictLink.className = 'dict-entry-link';
+  dictLink.href = '#/ordbok';
+  dictLink.textContent = `Ordbok — ${Object.keys(lexicon.entries).length} ord`;
+  main.append(dictLink);
 
   for (const level of index.levels) {
     const items = index.paragraphs.filter((p) => p.level === level.level);
@@ -135,9 +153,161 @@ function showList() {
   }
 }
 
+// --- dictionary -------------------------------------------------------
+
+// Norwegian alphabetical order: æ ø å sort after z, not as a/o. Intl handles
+// this; the fallback keeps things sane in the rare engine without 'nb'.
+const collator = new Intl.Collator('nb', { sensitivity: 'base' });
+
+const POS_FILTERS = [
+  ['', 'Alle'],
+  ['noun', 'Subst.'],
+  ['verb', 'Verb'],
+  ['adjective', 'Adj.'],
+  ['phrase', 'Uttrykk'],
+  ['other', 'Andre'],
+];
+// Everything not given its own chip is grouped behind "Andre".
+const CHIPPED = new Set(['noun', 'verb', 'adjective', 'phrase']);
+
+let dictQuery = '';
+let dictPos = '';
+
+/** All entries as a sorted array, built once. */
+let dictEntries = null;
+function allEntries() {
+  dictEntries ??= Object.entries(lexicon.entries)
+    .map(([lemma, entry]) => ({ lemma, entry }))
+    .sort((a, b) => collator.compare(a.lemma, b.lemma));
+  return dictEntries;
+}
+
+/** Does this entry match the current search and part-of-speech filter? */
+function dictMatches({ lemma, entry }) {
+  if (dictPos === 'other' ? CHIPPED.has(entry.pos) : dictPos && entry.pos !== dictPos) {
+    return false;
+  }
+  if (!dictQuery) return true;
+
+  const q = dictQuery.toLowerCase();
+  if (lemma.toLowerCase().includes(q)) return true;
+  if (entry.gloss?.toLowerCase().includes(q)) return true;
+  // Search inflected forms too, so looking up "gikk" finds "gå".
+  return Object.values(entry.forms ?? {}).some((f) => f.toLowerCase().includes(q));
+}
+
+function showDictionary() {
+  document.body.dataset.view = 'dict';
+  currentParaId = null; // examples may come from anywhere
+  document.getElementById('back').hidden = false;
+  document.getElementById('dict-controls').hidden = false;
+
+  setHeader('Ordbok', `${Object.keys(lexicon.entries).length} oppslagsord`);
+
+  const search = document.getElementById('dict-search');
+  search.value = dictQuery;
+  search.oninput = () => {
+    dictQuery = search.value.trim();
+    renderDictList();
+  };
+
+  renderFilters();
+  renderDictList();
+  window.scrollTo(0, 0);
+  announce('Ordbok');
+}
+
+function renderFilters() {
+  const wrap = document.getElementById('dict-filters');
+  wrap.replaceChildren();
+  for (const [value, label] of POS_FILTERS) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'chip' + (dictPos === value ? ' is-on' : '');
+    btn.textContent = label;
+    btn.setAttribute('aria-pressed', String(dictPos === value));
+    btn.addEventListener('click', () => {
+      dictPos = value;
+      renderFilters();
+      renderDictList();
+    });
+    wrap.append(btn);
+  }
+}
+
+function renderDictList() {
+  const reader = document.getElementById('reader');
+  reader.replaceChildren();
+
+  const matches = allEntries().filter(dictMatches);
+
+  if (matches.length === 0) {
+    const p = document.createElement('p');
+    p.className = 'dict-empty';
+    p.textContent = `Ingen treff på «${dictQuery}».`;
+    reader.append(p);
+    announce('Ingen treff');
+    return;
+  }
+
+  // Group by initial letter, honouring Norwegian collation.
+  let letter = null;
+  let list = null;
+  for (const item of matches) {
+    const initial = item.lemma[0].toUpperCase();
+    if (initial !== letter) {
+      letter = initial;
+      const h = document.createElement('h2');
+      h.className = 'dict-letter';
+      h.textContent = letter;
+      reader.append(h);
+      list = document.createElement('ul');
+      list.className = 'dict-list';
+      reader.append(list);
+    }
+    list.append(dictRow(item));
+  }
+
+  announce(`${matches.length} ord`);
+}
+
+function dictRow({ lemma, entry }) {
+  const li = document.createElement('li');
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'dict-row';
+  btn.setAttribute('aria-expanded', 'false');
+  if (entry.id) btn.dataset.entryId = entry.id;
+
+  const head = document.createElement('span');
+  head.className = 'dict-head';
+  head.lang = 'nb';
+  head.textContent = headword(lemma, entry);
+
+  const pos = document.createElement('span');
+  pos.className = 'dict-pos';
+  pos.textContent = [POS_LABEL[entry.pos] || entry.pos, entry.gender].filter(Boolean).join(' · ');
+
+  const gloss = document.createElement('span');
+  gloss.className = 'dict-gloss';
+  gloss.textContent = entry.gloss;
+
+  btn.append(head, pos, gloss);
+  // Reuse the reader's card. A synthetic node stands in for a parsed token:
+  // the dictionary shows the base form, so there is no inflection to name.
+  btn.addEventListener('click', () =>
+    openCard({ surface: lemma, lemma, entryId: entry.id, formName: null, groupId: null }, btn)
+  );
+
+  li.append(btn);
+  return li;
+}
+
 async function showParagraph(meta) {
   document.body.dataset.view = 'reader';
   document.getElementById('back').hidden = false;
+  document.getElementById('dict-controls').hidden = true;
 
   const res = await fetch(PARAGRAPH_DIR + meta.file);
   if (!res.ok) {
@@ -150,6 +320,7 @@ async function showParagraph(meta) {
   const { sentences, diagnostics } = parseParagraph(doc, lexicon);
   reportDiagnostics(diagnostics, doc.id);
 
+  currentParaId = meta.id;
   setHeader(doc.title, [doc.level, doc.gloss].filter(Boolean).join(' · '));
   writeLastRead(meta.id);
   render(sentences);
@@ -242,6 +413,148 @@ function render(sentences) {
   }
 }
 
+// --- corpus occurrences ------------------------------------------------
+
+/**
+ * Reconstruct plain Norwegian from parsed nodes. The source carries annotation
+ * syntax ({x:y}, [phrase](lemma), <Name>), so the sentence has to be rebuilt
+ * from tokens rather than read off the raw string.
+ */
+function sentenceText(nodes) {
+  let out = '';
+  nodes.forEach((node, i) => {
+    const prev = nodes[i - 1];
+    if (i > 0 && node.kind === 'word' && prev?.kind === 'word') out += ' ';
+    out += node.surface;
+  });
+  return out.trim();
+}
+
+/**
+ * Fetch every paragraph once and index which sentences use which entry.
+ *
+ * The reader loads paragraphs lazily, so at the moment a card opens the app
+ * has usually seen only the current text. The whole corpus is ~16KB, so
+ * pulling it in full is cheaper than maintaining a precomputed index file —
+ * and it stays correct automatically as paragraphs are added.
+ */
+async function buildOccurrences() {
+  const map = new Map();
+
+  const docs = await Promise.all(
+    index.paragraphs.map(async (meta) => {
+      try {
+        const res = await fetch(PARAGRAPH_DIR + meta.file);
+        return res.ok ? { meta, doc: await res.json() } : null;
+      } catch {
+        return null;
+      }
+    })
+  );
+
+  for (const entry of docs) {
+    if (!entry) continue;
+    const { meta, doc } = entry;
+    const { sentences } = parseParagraph(doc, lexicon);
+
+    sentences.forEach((nodes, si) => {
+      const text = sentenceText(nodes);
+      // One record per entry per sentence, even if the word repeats in it.
+      const ids = new Set(
+        nodes.filter((n) => n.kind === 'word' && n.entryId).map((n) => n.entryId)
+      );
+      for (const id of ids) {
+        if (!map.has(id)) map.set(id, []);
+        map.get(id).push({ paraId: meta.id, title: doc.title, key: `${meta.id}:${si}`, text });
+      }
+    });
+  }
+  return map;
+}
+
+function ensureOccurrences() {
+  if (occurrences) return Promise.resolve(occurrences);
+  occurrencesPromise ??= buildOccurrences().then((m) => (occurrences = m));
+  return occurrencesPromise;
+}
+
+/**
+ * Pick an example sentence for an entry, never one from the paragraph being
+ * read. Returns null when the corpus has no other occurrence — better to show
+ * nothing than to echo the sentence already on screen.
+ */
+function pickExample(entryId) {
+  const all = occurrences?.get(entryId);
+  if (!all) return null;
+  const elsewhere = all.filter((o) => o.paraId !== currentParaId);
+  if (elsewhere.length === 0) return null;
+  // Prefer the shortest: least surrounding vocabulary to trip over.
+  return elsewhere.reduce((a, b) => (b.text.length < a.text.length ? b : a));
+}
+
+/**
+ * Locate the entry in an example sentence. The example usually carries a
+ * different inflection than the one tapped ("er" here, "var" there), so match
+ * any of the entry's forms — seeing the other form highlighted is the point.
+ * Returns [start, length] or null.
+ */
+function findFormIn(text, surface, entry) {
+  const candidates = [surface, ...Object.values(entry?.forms ?? {})]
+    // Longest first, so "gått" wins over "gå" inside it.
+    .sort((a, b) => b.length - a.length);
+
+  const lower = text.toLowerCase();
+  for (const form of candidates) {
+    for (const word of form.toLowerCase().split(/\s+/)) {
+      // Whole words only: "min" must not match inside "minutter".
+      const re = new RegExp(`(?<!\\p{L})${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?!\\p{L})`, 'u');
+      const m = re.exec(lower);
+      if (m) return [m.index, word.length];
+    }
+  }
+  return null;
+}
+
+/** Render the example into an already-open card, if one is available. */
+function renderExample(entryId, surface) {
+  const body = document.getElementById('card-body');
+  if (!body || body.dataset.entryId !== entryId) return; // card moved on
+  body.querySelector('.card-example')?.remove();
+
+  const example = pickExample(entryId);
+  if (!example) return;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'card-example';
+
+  const label = document.createElement('a');
+  label.className = 'card-example-src';
+  label.href = `#/${example.paraId}`;
+  label.textContent = `Også i «${example.title}»`;
+  label.addEventListener('click', closeCard);
+  wrap.append(label);
+
+  const quote = document.createElement('p');
+  quote.className = 'card-example-text';
+  quote.lang = 'nb';
+  // Bold whichever form of the entry this sentence uses.
+  const hit = findFormIn(example.text, surface, lookupEntry(lexicon, entryId)?.entry);
+  if (!hit) {
+    quote.textContent = example.text;
+  } else {
+    const [at, len] = hit;
+    quote.append(
+      document.createTextNode(example.text.slice(0, at)),
+      Object.assign(document.createElement('strong'), {
+        textContent: example.text.slice(at, at + len),
+      }),
+      document.createTextNode(example.text.slice(at + len))
+    );
+  }
+  wrap.append(quote);
+  body.append(wrap);
+}
+
 // --- word card --------------------------------------------------------
 
 function openCard(node, el) {
@@ -256,6 +569,7 @@ function openCard(node, el) {
 
   const body = document.getElementById('card-body');
   body.replaceChildren();
+  body.dataset.entryId = entry.id ?? '';
 
   // 1. What the form IS.
   const formLabel = FORM_LABEL[node.formName];
@@ -294,6 +608,12 @@ function openCard(node, el) {
     note.className = 'card-note';
     note.textContent = entry.note;
     body.append(note);
+  }
+
+  // 5. An example from elsewhere in the corpus. Appended when the index is
+  // ready so the card never waits on a fetch to open.
+  if (entry.id) {
+    ensureOccurrences().then(() => renderExample(entry.id, node.surface));
   }
 
   document.getElementById('card').hidden = false;
@@ -350,12 +670,23 @@ function setBackgroundInert(on) {
 }
 
 function describeForm(formLabel, lemma, entry) {
-  if (entry.pos === 'verb' || entry.phrase) return `${formLabel} of å ${lemma}`;
-  return `${formLabel} of ${lemma}`;
+  const name = displayLemma(lemma, entry);
+  if (entry.pos === 'verb' || entry.phrase) return `${formLabel} of å ${name}`;
+  return `${formLabel} of ${name}`;
+}
+
+/**
+ * Display name for an entry. Multi-sense entries are keyed "tre (substantiv)"
+ * to keep two senses of one lemma apart; that suffix disambiguates the key and
+ * must never reach the screen, so those entries carry an explicit `headword`.
+ */
+function displayLemma(lemma, entry) {
+  return entry.headword ?? lemma;
 }
 
 function headword(lemma, entry) {
-  return entry.pos === 'verb' || entry.phrase ? `å ${lemma}` : lemma;
+  const name = displayLemma(lemma, entry);
+  return entry.pos === 'verb' || entry.phrase ? `å ${name}` : name;
 }
 
 function buildTable(entry, currentForm) {

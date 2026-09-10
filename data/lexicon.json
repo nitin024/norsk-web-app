@@ -4415,6 +4415,2171 @@
         "neuter": "enkelt",
         "plural": "enkelte"
       }
+    },
+    "brød": {
+      "id": "brød-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "bread",
+      "forms": {
+        "indefinite_sg": "brød",
+        "definite_sg": "brødet",
+        "indefinite_pl": "brød",
+        "definite_pl": "brødene"
+      }
+    },
+    "ost": {
+      "id": "ost-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "cheese",
+      "forms": {
+        "indefinite_sg": "ost",
+        "definite_sg": "osten",
+        "indefinite_pl": "oster",
+        "definite_pl": "ostene"
+      }
+    },
+    "melk": {
+      "id": "melk-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "milk",
+      "forms": {
+        "indefinite_sg": "melk",
+        "definite_sg": "melka",
+        "indefinite_pl": "melker",
+        "definite_pl": "melkene"
+      }
+    },
+    "smør": {
+      "id": "smør-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "butter",
+      "forms": {
+        "indefinite_sg": "smør",
+        "definite_sg": "smøret",
+        "indefinite_pl": "smør",
+        "definite_pl": "smørene"
+      }
+    },
+    "egg": {
+      "id": "egg-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "egg",
+      "forms": {
+        "indefinite_sg": "egg",
+        "definite_sg": "egget",
+        "indefinite_pl": "egg",
+        "definite_pl": "eggene"
+      },
+      "note": "Irregular: unchanged in the indefinite plural."
+    },
+    "fisk": {
+      "id": "fisk-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "fish",
+      "forms": {
+        "indefinite_sg": "fisk",
+        "definite_sg": "fisken",
+        "indefinite_pl": "fisker",
+        "definite_pl": "fiskene"
+      }
+    },
+    "suppe": {
+      "id": "suppe-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "soup",
+      "forms": {
+        "indefinite_sg": "suppe",
+        "definite_sg": "suppa",
+        "indefinite_pl": "supper",
+        "definite_pl": "suppene"
+      }
+    },
+    "salat": {
+      "id": "salat-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "salad",
+      "forms": {
+        "indefinite_sg": "salat",
+        "definite_sg": "salaten",
+        "indefinite_pl": "salater",
+        "definite_pl": "salatene"
+      }
+    },
+    "frukt": {
+      "id": "frukt-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "fruit",
+      "forms": {
+        "indefinite_sg": "frukt",
+        "definite_sg": "frukta",
+        "indefinite_pl": "frukter",
+        "definite_pl": "fruktene"
+      }
+    },
+    "eple": {
+      "id": "eple-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "apple",
+      "forms": {
+        "indefinite_sg": "eple",
+        "definite_sg": "eplet",
+        "indefinite_pl": "epler",
+        "definite_pl": "eplene"
+      }
+    },
+    "banan": {
+      "id": "banan-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "banana",
+      "forms": {
+        "indefinite_sg": "banan",
+        "definite_sg": "bananen",
+        "indefinite_pl": "bananer",
+        "definite_pl": "bananene"
+      }
+    },
+    "potet": {
+      "id": "potet-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "potato",
+      "forms": {
+        "indefinite_sg": "potet",
+        "definite_sg": "poteten",
+        "indefinite_pl": "poteter",
+        "definite_pl": "potetene"
+      }
+    },
+    "grønnsak": {
+      "id": "grønnsak-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "vegetable",
+      "forms": {
+        "indefinite_sg": "grønnsak",
+        "definite_sg": "grønnsaken",
+        "indefinite_pl": "grønnsaker",
+        "definite_pl": "grønnsakene"
+      }
+    },
+    "kaffe": {
+      "id": "kaffe-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "coffee",
+      "forms": {
+        "indefinite_sg": "kaffe",
+        "definite_sg": "kaffen",
+        "indefinite_pl": "kaffer",
+        "definite_pl": "kaffene"
+      }
+    },
+    "te": {
+      "id": "te-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "tea",
+      "forms": {
+        "indefinite_sg": "te",
+        "definite_sg": "teen",
+        "indefinite_pl": "teer",
+        "definite_pl": "teene"
+      }
+    },
+    "juice": {
+      "id": "juice-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "juice",
+      "forms": {
+        "indefinite_sg": "juice",
+        "definite_sg": "juicen",
+        "indefinite_pl": "juicer",
+        "definite_pl": "juicene"
+      }
+    },
+    "sukker": {
+      "id": "sukker-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "sugar",
+      "forms": {
+        "indefinite_sg": "sukker",
+        "definite_sg": "sukkeret",
+        "indefinite_pl": "sukker",
+        "definite_pl": "sukrene"
+      }
+    },
+    "salt": {
+      "id": "salt-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "salt",
+      "forms": {
+        "indefinite_sg": "salt",
+        "definite_sg": "saltet",
+        "indefinite_pl": "salt",
+        "definite_pl": "saltene"
+      }
+    },
+    "middag": {
+      "id": "middag-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "dinner",
+      "forms": {
+        "indefinite_sg": "middag",
+        "definite_sg": "middagen",
+        "indefinite_pl": "middager",
+        "definite_pl": "middagene"
+      }
+    },
+    "frokost": {
+      "id": "frokost-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "breakfast",
+      "forms": {
+        "indefinite_sg": "frokost",
+        "definite_sg": "frokosten",
+        "indefinite_pl": "frokoster",
+        "definite_pl": "frokostene"
+      }
+    },
+    "lunsj": {
+      "id": "lunsj-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "lunch",
+      "forms": {
+        "indefinite_sg": "lunsj",
+        "definite_sg": "lunsjen",
+        "indefinite_pl": "lunsjer",
+        "definite_pl": "lunsjene"
+      }
+    },
+    "kake": {
+      "id": "kake-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "cake",
+      "forms": {
+        "indefinite_sg": "kake",
+        "definite_sg": "kaka",
+        "indefinite_pl": "kaker",
+        "definite_pl": "kakene"
+      }
+    },
+    "butikk": {
+      "id": "butikk-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "shop",
+      "forms": {
+        "indefinite_sg": "butikk",
+        "definite_sg": "butikken",
+        "indefinite_pl": "butikker",
+        "definite_pl": "butikkene"
+      }
+    },
+    "smake": {
+      "id": "smake-v",
+      "pos": "verb",
+      "gloss": "to taste",
+      "forms": {
+        "infinitive": "smake",
+        "present": "smaker",
+        "preterite": "smakte",
+        "perfect": "smakt"
+      }
+    },
+    "koke": {
+      "id": "koke-v",
+      "pos": "verb",
+      "gloss": "to boil, to cook",
+      "forms": {
+        "infinitive": "koke",
+        "present": "koker",
+        "preterite": "kokte",
+        "perfect": "kokt"
+      }
+    },
+    "steke": {
+      "id": "steke-v",
+      "pos": "verb",
+      "gloss": "to fry, to roast",
+      "forms": {
+        "infinitive": "steke",
+        "present": "steker",
+        "preterite": "stekte",
+        "perfect": "stekt"
+      }
+    },
+    "bake": {
+      "id": "bake-v",
+      "pos": "verb",
+      "gloss": "to bake",
+      "forms": {
+        "infinitive": "bake",
+        "present": "baker",
+        "preterite": "bakte",
+        "perfect": "bakt"
+      }
+    },
+    "sulten": {
+      "id": "sulten-adj",
+      "pos": "adjective",
+      "gloss": "hungry",
+      "forms": {
+        "positive": "sulten",
+        "neuter": "sultent",
+        "plural": "sultne",
+        "comparative": "sultnere",
+        "superlative": "sultnest"
+      }
+    },
+    "tørst": {
+      "id": "tørst-adj",
+      "pos": "adjective",
+      "gloss": "thirsty",
+      "forms": {
+        "positive": "tørst",
+        "neuter": "tørst",
+        "plural": "tørste",
+        "comparative": "tørstere",
+        "superlative": "tørstest"
+      }
+    },
+    "deilig": {
+      "id": "deilig-adj",
+      "pos": "adjective",
+      "gloss": "delicious",
+      "forms": {
+        "positive": "deilig",
+        "neuter": "deilig",
+        "plural": "deilige",
+        "comparative": "deiligere",
+        "superlative": "deiligst"
+      }
+    },
+    "arm": {
+      "id": "arm-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "arm",
+      "forms": {
+        "indefinite_sg": "arm",
+        "definite_sg": "armen",
+        "indefinite_pl": "armer",
+        "definite_pl": "armene"
+      }
+    },
+    "hånd": {
+      "id": "hånd-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "hand",
+      "forms": {
+        "indefinite_sg": "hånd",
+        "definite_sg": "hånda",
+        "indefinite_pl": "hender",
+        "definite_pl": "hendene"
+      },
+      "note": "Irregular plural: hender."
+    },
+    "fot": {
+      "id": "fot-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "foot",
+      "forms": {
+        "indefinite_sg": "fot",
+        "definite_sg": "foten",
+        "indefinite_pl": "føtter",
+        "definite_pl": "føttene"
+      },
+      "note": "Irregular plural: føtter."
+    },
+    "bein": {
+      "id": "bein-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "leg; bone",
+      "forms": {
+        "indefinite_sg": "bein",
+        "definite_sg": "beinet",
+        "indefinite_pl": "bein",
+        "definite_pl": "beina"
+      }
+    },
+    "øye": {
+      "id": "øye-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "eye",
+      "forms": {
+        "indefinite_sg": "øye",
+        "definite_sg": "øyet",
+        "indefinite_pl": "øyne",
+        "definite_pl": "øynene"
+      },
+      "note": "Irregular plural: øyne."
+    },
+    "øre": {
+      "id": "øre-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "ear",
+      "forms": {
+        "indefinite_sg": "øre",
+        "definite_sg": "øret",
+        "indefinite_pl": "ører",
+        "definite_pl": "ørene"
+      }
+    },
+    "munn": {
+      "id": "munn-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "mouth",
+      "forms": {
+        "indefinite_sg": "munn",
+        "definite_sg": "munnen",
+        "indefinite_pl": "munner",
+        "definite_pl": "munnene"
+      }
+    },
+    "nese": {
+      "id": "nese-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "nose",
+      "forms": {
+        "indefinite_sg": "nese",
+        "definite_sg": "nesa",
+        "indefinite_pl": "neser",
+        "definite_pl": "nesene"
+      }
+    },
+    "rygg": {
+      "id": "rygg-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "back",
+      "forms": {
+        "indefinite_sg": "rygg",
+        "definite_sg": "ryggen",
+        "indefinite_pl": "rygger",
+        "definite_pl": "ryggene"
+      }
+    },
+    "tann": {
+      "id": "tann-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "tooth",
+      "forms": {
+        "indefinite_sg": "tann",
+        "definite_sg": "tanna",
+        "indefinite_pl": "tenner",
+        "definite_pl": "tennene"
+      },
+      "note": "Irregular plural: tenner."
+    },
+    "hjerte": {
+      "id": "hjerte-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "heart",
+      "forms": {
+        "indefinite_sg": "hjerte",
+        "definite_sg": "hjertet",
+        "indefinite_pl": "hjerter",
+        "definite_pl": "hjertene"
+      }
+    },
+    "blod": {
+      "id": "blod-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "blood",
+      "forms": {
+        "indefinite_sg": "blod",
+        "definite_sg": "blodet",
+        "indefinite_pl": "blod",
+        "definite_pl": "blodene"
+      }
+    },
+    "sykdom": {
+      "id": "sykdom-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "illness",
+      "forms": {
+        "indefinite_sg": "sykdom",
+        "definite_sg": "sykdommen",
+        "indefinite_pl": "sykdommer",
+        "definite_pl": "sykdommene"
+      }
+    },
+    "forkjølelse": {
+      "id": "forkjølelse-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "cold (illness)",
+      "forms": {
+        "indefinite_sg": "forkjølelse",
+        "definite_sg": "forkjølelsen",
+        "indefinite_pl": "forkjølelser",
+        "definite_pl": "forkjølelsene"
+      }
+    },
+    "hoste": {
+      "id": "hoste-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "cough",
+      "forms": {
+        "indefinite_sg": "hoste",
+        "definite_sg": "hosten",
+        "indefinite_pl": "hoster",
+        "definite_pl": "hostene"
+      }
+    },
+    "resept": {
+      "id": "resept-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "prescription",
+      "forms": {
+        "indefinite_sg": "resept",
+        "definite_sg": "resepten",
+        "indefinite_pl": "resepter",
+        "definite_pl": "reseptene"
+      }
+    },
+    "apotek": {
+      "id": "apotek-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "pharmacy",
+      "forms": {
+        "indefinite_sg": "apotek",
+        "definite_sg": "apoteket",
+        "indefinite_pl": "apotek",
+        "definite_pl": "apotekene"
+      }
+    },
+    "tannlege": {
+      "id": "tannlege-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "dentist",
+      "forms": {
+        "indefinite_sg": "tannlege",
+        "definite_sg": "tannlegen",
+        "indefinite_pl": "tannleger",
+        "definite_pl": "tannlegene"
+      }
+    },
+    "gjøre vondt": {
+      "id": "gjøre-vondt-v",
+      "pos": "verb",
+      "gloss": "to hurt",
+      "forms": {
+        "infinitive": "gjøre vondt",
+        "present": "gjør vondt",
+        "preterite": "gjorde vondt",
+        "perfect": "gjort vondt"
+      }
+    },
+    "sovne": {
+      "id": "sovne-v",
+      "pos": "verb",
+      "gloss": "to fall asleep",
+      "forms": {
+        "infinitive": "sovne",
+        "present": "sovner",
+        "preterite": "sovnet",
+        "perfect": "sovnet"
+      }
+    },
+    "hvile seg": {
+      "id": "hvile-seg-v",
+      "pos": "verb",
+      "gloss": "to rest",
+      "forms": {
+        "infinitive": "hvile seg",
+        "present": "hviler seg",
+        "preterite": "hvilte seg",
+        "perfect": "hvilt seg"
+      }
+    },
+    "trøtt": {
+      "id": "trøtt-adj",
+      "pos": "adjective",
+      "gloss": "tired",
+      "forms": {
+        "positive": "trøtt",
+        "neuter": "trøtt",
+        "plural": "trøtte",
+        "comparative": "trøttere",
+        "superlative": "trøttest"
+      }
+    },
+    "sterk": {
+      "id": "sterk-adj",
+      "pos": "adjective",
+      "gloss": "strong",
+      "forms": {
+        "positive": "sterk",
+        "neuter": "sterkt",
+        "plural": "sterke",
+        "comparative": "sterkere",
+        "superlative": "sterkest"
+      }
+    },
+    "svak": {
+      "id": "svak-adj",
+      "pos": "adjective",
+      "gloss": "weak",
+      "forms": {
+        "positive": "svak",
+        "neuter": "svakt",
+        "plural": "svake",
+        "comparative": "svakere",
+        "superlative": "svakest"
+      }
+    },
+    "dør": {
+      "id": "dør-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "door",
+      "forms": {
+        "indefinite_sg": "dør",
+        "definite_sg": "døra",
+        "indefinite_pl": "dører",
+        "definite_pl": "dørene"
+      }
+    },
+    "vindu": {
+      "id": "vindu-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "window",
+      "forms": {
+        "indefinite_sg": "vindu",
+        "definite_sg": "vinduet",
+        "indefinite_pl": "vinduer",
+        "definite_pl": "vinduene"
+      }
+    },
+    "gulv": {
+      "id": "gulv-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "floor",
+      "forms": {
+        "indefinite_sg": "gulv",
+        "definite_sg": "gulvet",
+        "indefinite_pl": "gulv",
+        "definite_pl": "gulvene"
+      }
+    },
+    "vegg": {
+      "id": "vegg-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "wall",
+      "forms": {
+        "indefinite_sg": "vegg",
+        "definite_sg": "veggen",
+        "indefinite_pl": "vegger",
+        "definite_pl": "veggene"
+      }
+    },
+    "tak": {
+      "id": "tak-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "roof, ceiling",
+      "forms": {
+        "indefinite_sg": "tak",
+        "definite_sg": "taket",
+        "indefinite_pl": "tak",
+        "definite_pl": "takene"
+      }
+    },
+    "seng": {
+      "id": "seng-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "bed",
+      "forms": {
+        "indefinite_sg": "seng",
+        "definite_sg": "senga",
+        "indefinite_pl": "senger",
+        "definite_pl": "sengene"
+      }
+    },
+    "bord": {
+      "id": "bord-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "table",
+      "forms": {
+        "indefinite_sg": "bord",
+        "definite_sg": "bordet",
+        "indefinite_pl": "bord",
+        "definite_pl": "bordene"
+      }
+    },
+    "stol": {
+      "id": "stol-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "chair",
+      "forms": {
+        "indefinite_sg": "stol",
+        "definite_sg": "stolen",
+        "indefinite_pl": "stoler",
+        "definite_pl": "stolene"
+      }
+    },
+    "sofa": {
+      "id": "sofa-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "sofa",
+      "forms": {
+        "indefinite_sg": "sofa",
+        "definite_sg": "sofaen",
+        "indefinite_pl": "sofaer",
+        "definite_pl": "sofaene"
+      }
+    },
+    "skap": {
+      "id": "skap-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "cupboard",
+      "forms": {
+        "indefinite_sg": "skap",
+        "definite_sg": "skapet",
+        "indefinite_pl": "skap",
+        "definite_pl": "skapene"
+      }
+    },
+    "lampe": {
+      "id": "lampe-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "lamp",
+      "forms": {
+        "indefinite_sg": "lampe",
+        "definite_sg": "lampa",
+        "indefinite_pl": "lamper",
+        "definite_pl": "lampene"
+      }
+    },
+    "hage": {
+      "id": "hage-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "garden",
+      "forms": {
+        "indefinite_sg": "hage",
+        "definite_sg": "hagen",
+        "indefinite_pl": "hager",
+        "definite_pl": "hagene"
+      }
+    },
+    "balkong": {
+      "id": "balkong-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "balcony",
+      "forms": {
+        "indefinite_sg": "balkong",
+        "definite_sg": "balkongen",
+        "indefinite_pl": "balkonger",
+        "definite_pl": "balkongene"
+      }
+    },
+    "kjeller": {
+      "id": "kjeller-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "basement",
+      "forms": {
+        "indefinite_sg": "kjeller",
+        "definite_sg": "kjelleren",
+        "indefinite_pl": "kjellere",
+        "definite_pl": "kjellerne"
+      }
+    },
+    "heis": {
+      "id": "heis-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "lift, elevator",
+      "forms": {
+        "indefinite_sg": "heis",
+        "definite_sg": "heisen",
+        "indefinite_pl": "heiser",
+        "definite_pl": "heisene"
+      }
+    },
+    "rydde": {
+      "id": "rydde-v",
+      "pos": "verb",
+      "gloss": "to tidy up",
+      "forms": {
+        "infinitive": "rydde",
+        "present": "rydder",
+        "preterite": "ryddet",
+        "perfect": "ryddet"
+      }
+    },
+    "vaske": {
+      "id": "vaske-v",
+      "pos": "verb",
+      "gloss": "to wash",
+      "forms": {
+        "infinitive": "vaske",
+        "present": "vasker",
+        "preterite": "vasket",
+        "perfect": "vasket"
+      }
+    },
+    "åpne": {
+      "id": "åpne-v",
+      "pos": "verb",
+      "gloss": "to open",
+      "forms": {
+        "infinitive": "åpne",
+        "present": "åpner",
+        "preterite": "åpnet",
+        "perfect": "åpnet"
+      }
+    },
+    "lukke": {
+      "id": "lukke-v",
+      "pos": "verb",
+      "gloss": "to close",
+      "forms": {
+        "infinitive": "lukke",
+        "present": "lukker",
+        "preterite": "lukket",
+        "perfect": "lukket"
+      }
+    },
+    "sitte ned": {
+      "id": "sitte-ned-v",
+      "pos": "verb",
+      "gloss": "to sit down",
+      "forms": {
+        "infinitive": "sitte ned",
+        "present": "sitter ned",
+        "preterite": "satt ned",
+        "perfect": "sittet ned"
+      }
+    },
+    "klokke": {
+      "id": "klokke-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "clock, watch",
+      "forms": {
+        "indefinite_sg": "klokke",
+        "definite_sg": "klokka",
+        "indefinite_pl": "klokker",
+        "definite_pl": "klokkene"
+      }
+    },
+    "sekund": {
+      "id": "sekund-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "second",
+      "forms": {
+        "indefinite_sg": "sekund",
+        "definite_sg": "sekundet",
+        "indefinite_pl": "sekunder",
+        "definite_pl": "sekundene"
+      }
+    },
+    "natt": {
+      "id": "natt-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "night",
+      "forms": {
+        "indefinite_sg": "natt",
+        "definite_sg": "natta",
+        "indefinite_pl": "netter",
+        "definite_pl": "nettene"
+      },
+      "note": "Irregular plural: netter."
+    },
+    "ettermiddag": {
+      "id": "ettermiddag-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "afternoon",
+      "forms": {
+        "indefinite_sg": "ettermiddag",
+        "definite_sg": "ettermiddagen",
+        "indefinite_pl": "ettermiddager",
+        "definite_pl": "ettermiddagene"
+      }
+    },
+    "sommer": {
+      "id": "sommer-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "summer",
+      "forms": {
+        "indefinite_sg": "sommer",
+        "definite_sg": "sommeren",
+        "indefinite_pl": "somrer",
+        "definite_pl": "somrene"
+      }
+    },
+    "høst": {
+      "id": "høst-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "autumn",
+      "forms": {
+        "indefinite_sg": "høst",
+        "definite_sg": "høsten",
+        "indefinite_pl": "høster",
+        "definite_pl": "høstene"
+      }
+    },
+    "bursdag": {
+      "id": "bursdag-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "birthday",
+      "forms": {
+        "indefinite_sg": "bursdag",
+        "definite_sg": "bursdagen",
+        "indefinite_pl": "bursdager",
+        "definite_pl": "bursdagene"
+      }
+    },
+    "ferie": {
+      "id": "ferie-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "holiday, vacation",
+      "forms": {
+        "indefinite_sg": "ferie",
+        "definite_sg": "ferien",
+        "indefinite_pl": "ferier",
+        "definite_pl": "feriene"
+      }
+    },
+    "avtale": {
+      "id": "avtale-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "appointment, agreement",
+      "forms": {
+        "indefinite_sg": "avtale",
+        "definite_sg": "avtalen",
+        "indefinite_pl": "avtaler",
+        "definite_pl": "avtalene"
+      },
+      "note": "Definite singular is avtalen, not avtaleen."
+    },
+    "følelse": {
+      "id": "følelse-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "feeling",
+      "forms": {
+        "indefinite_sg": "følelse",
+        "definite_sg": "følelsen",
+        "indefinite_pl": "følelser",
+        "definite_pl": "følelsene"
+      }
+    },
+    "glede": {
+      "id": "glede-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "joy",
+      "forms": {
+        "indefinite_sg": "glede",
+        "definite_sg": "gleden",
+        "indefinite_pl": "gleder",
+        "definite_pl": "gledene"
+      }
+    },
+    "sorg": {
+      "id": "sorg-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "grief",
+      "forms": {
+        "indefinite_sg": "sorg",
+        "definite_sg": "sorgen",
+        "indefinite_pl": "sorger",
+        "definite_pl": "sorgene"
+      }
+    },
+    "frykt": {
+      "id": "frykt-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "fear",
+      "forms": {
+        "indefinite_sg": "frykt",
+        "definite_sg": "frykten",
+        "indefinite_pl": "frykter",
+        "definite_pl": "fryktene"
+      }
+    },
+    "sint": {
+      "id": "sint-adj",
+      "pos": "adjective",
+      "gloss": "angry",
+      "forms": {
+        "positive": "sint",
+        "neuter": "sint",
+        "plural": "sinte",
+        "comparative": "sintere",
+        "superlative": "sintest"
+      }
+    },
+    "nervøs": {
+      "id": "nervøs-adj",
+      "pos": "adjective",
+      "gloss": "nervous",
+      "forms": {
+        "positive": "nervøs",
+        "neuter": "nervøst",
+        "plural": "nervøse",
+        "comparative": "mer nervøs",
+        "superlative": "mest nervøs"
+      }
+    },
+    "stolt": {
+      "id": "stolt-adj",
+      "pos": "adjective",
+      "gloss": "proud",
+      "forms": {
+        "positive": "stolt",
+        "neuter": "stolt",
+        "plural": "stolte",
+        "comparative": "stoltere",
+        "superlative": "stoltest"
+      }
+    },
+    "overrasket": {
+      "id": "overrasket-adj",
+      "pos": "adjective",
+      "gloss": "surprised",
+      "forms": {
+        "positive": "overrasket",
+        "neuter": "overrasket",
+        "plural": "overraskede",
+        "comparative": "mer overrasket",
+        "superlative": "mest overrasket"
+      }
+    },
+    "fornøyd": {
+      "id": "fornøyd-adj",
+      "pos": "adjective",
+      "gloss": "satisfied, pleased",
+      "forms": {
+        "positive": "fornøyd",
+        "neuter": "fornøyd",
+        "plural": "fornøyde",
+        "comparative": "mer fornøyd",
+        "superlative": "mest fornøyd"
+      }
+    },
+    "bekymret": {
+      "id": "bekymret-adj",
+      "pos": "adjective",
+      "gloss": "worried",
+      "forms": {
+        "positive": "bekymret",
+        "neuter": "bekymret",
+        "plural": "bekymrede",
+        "comparative": "mer bekymret",
+        "superlative": "mest bekymret"
+      }
+    },
+    "le": {
+      "id": "le-v",
+      "pos": "verb",
+      "gloss": "to laugh",
+      "forms": {
+        "infinitive": "le",
+        "present": "ler",
+        "preterite": "lo",
+        "perfect": "ledd"
+      },
+      "note": "Irregular: lo / ledd."
+    },
+    "smile": {
+      "id": "smile-v",
+      "pos": "verb",
+      "gloss": "to smile",
+      "forms": {
+        "infinitive": "smile",
+        "present": "smiler",
+        "preterite": "smilte",
+        "perfect": "smilt"
+      }
+    },
+    "bli sint": {
+      "id": "bli-sint-v",
+      "pos": "verb",
+      "gloss": "to get angry",
+      "forms": {
+        "infinitive": "bli sint",
+        "present": "blir sint",
+        "preterite": "ble sint",
+        "perfect": "blitt sint"
+      }
+    },
+    "vær": {
+      "id": "vær-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "weather",
+      "forms": {
+        "indefinite_sg": "vær",
+        "definite_sg": "været",
+        "indefinite_pl": "vær",
+        "definite_pl": "værene"
+      }
+    },
+    "sol": {
+      "id": "sol-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "sun",
+      "forms": {
+        "indefinite_sg": "sol",
+        "definite_sg": "sola",
+        "indefinite_pl": "soler",
+        "definite_pl": "solene"
+      }
+    },
+    "snø": {
+      "id": "snø-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "snow",
+      "forms": {
+        "indefinite_sg": "snø",
+        "definite_sg": "snøen",
+        "indefinite_pl": "snøer",
+        "definite_pl": "snøene"
+      }
+    },
+    "vind": {
+      "id": "vind-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "wind",
+      "forms": {
+        "indefinite_sg": "vind",
+        "definite_sg": "vinden",
+        "indefinite_pl": "vinder",
+        "definite_pl": "vindene"
+      }
+    },
+    "sky": {
+      "id": "sky-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "cloud",
+      "forms": {
+        "indefinite_sg": "sky",
+        "definite_sg": "skya",
+        "indefinite_pl": "skyer",
+        "definite_pl": "skyene"
+      }
+    },
+    "blomst": {
+      "id": "blomst-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "flower",
+      "forms": {
+        "indefinite_sg": "blomst",
+        "definite_sg": "blomsten",
+        "indefinite_pl": "blomster",
+        "definite_pl": "blomstene"
+      }
+    },
+    "fjell": {
+      "id": "fjell-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "mountain",
+      "forms": {
+        "indefinite_sg": "fjell",
+        "definite_sg": "fjellet",
+        "indefinite_pl": "fjell",
+        "definite_pl": "fjellene"
+      }
+    },
+    "skog": {
+      "id": "skog-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "forest",
+      "forms": {
+        "indefinite_sg": "skog",
+        "definite_sg": "skogen",
+        "indefinite_pl": "skoger",
+        "definite_pl": "skogene"
+      }
+    },
+    "sjø": {
+      "id": "sjø-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "sea, lake",
+      "forms": {
+        "indefinite_sg": "sjø",
+        "definite_sg": "sjøen",
+        "indefinite_pl": "sjøer",
+        "definite_pl": "sjøene"
+      }
+    },
+    "elv": {
+      "id": "elv-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "river",
+      "forms": {
+        "indefinite_sg": "elv",
+        "definite_sg": "elva",
+        "indefinite_pl": "elver",
+        "definite_pl": "elvene"
+      }
+    },
+    "hund": {
+      "id": "hund-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "dog",
+      "forms": {
+        "indefinite_sg": "hund",
+        "definite_sg": "hunden",
+        "indefinite_pl": "hunder",
+        "definite_pl": "hundene"
+      }
+    },
+    "katt": {
+      "id": "katt-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "cat",
+      "forms": {
+        "indefinite_sg": "katt",
+        "definite_sg": "katten",
+        "indefinite_pl": "katter",
+        "definite_pl": "kattene"
+      }
+    },
+    "fugl": {
+      "id": "fugl-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "bird",
+      "forms": {
+        "indefinite_sg": "fugl",
+        "definite_sg": "fuglen",
+        "indefinite_pl": "fugler",
+        "definite_pl": "fuglene"
+      }
+    },
+    "blåse": {
+      "id": "blåse-v",
+      "pos": "verb",
+      "gloss": "to blow",
+      "forms": {
+        "infinitive": "blåse",
+        "present": "blåser",
+        "preterite": "blåste",
+        "perfect": "blåst"
+      }
+    },
+    "skinne": {
+      "id": "skinne-v",
+      "pos": "verb",
+      "gloss": "to shine",
+      "forms": {
+        "infinitive": "skinne",
+        "present": "skinner",
+        "preterite": "skinte",
+        "perfect": "skint"
+      }
+    },
+    "kald": {
+      "id": "kald-adj",
+      "pos": "adjective",
+      "gloss": "cold",
+      "forms": {
+        "positive": "kald",
+        "neuter": "kaldt",
+        "plural": "kalde",
+        "comparative": "kaldere",
+        "superlative": "kaldest"
+      }
+    },
+    "varm": {
+      "id": "varm-adj",
+      "pos": "adjective",
+      "gloss": "warm",
+      "forms": {
+        "positive": "varm",
+        "neuter": "varmt",
+        "plural": "varme",
+        "comparative": "varmere",
+        "superlative": "varmest"
+      }
+    },
+    "mørk": {
+      "id": "mørk-adj",
+      "pos": "adjective",
+      "gloss": "dark",
+      "forms": {
+        "positive": "mørk",
+        "neuter": "mørkt",
+        "plural": "mørke",
+        "comparative": "mørkere",
+        "superlative": "mørkest"
+      }
+    },
+    "jakke": {
+      "id": "jakke-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "jacket",
+      "forms": {
+        "indefinite_sg": "jakke",
+        "definite_sg": "jakka",
+        "indefinite_pl": "jakker",
+        "definite_pl": "jakkene"
+      }
+    },
+    "bukse": {
+      "id": "bukse-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "trousers",
+      "forms": {
+        "indefinite_sg": "bukse",
+        "definite_sg": "buksa",
+        "indefinite_pl": "bukser",
+        "definite_pl": "buksene"
+      }
+    },
+    "genser": {
+      "id": "genser-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "jumper, sweater",
+      "forms": {
+        "indefinite_sg": "genser",
+        "definite_sg": "genseren",
+        "indefinite_pl": "gensere",
+        "definite_pl": "genserne"
+      }
+    },
+    "skjorte": {
+      "id": "skjorte-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "shirt",
+      "forms": {
+        "indefinite_sg": "skjorte",
+        "definite_sg": "skjorta",
+        "indefinite_pl": "skjorter",
+        "definite_pl": "skjortene"
+      }
+    },
+    "sko": {
+      "id": "sko-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "shoe",
+      "forms": {
+        "indefinite_sg": "sko",
+        "definite_sg": "skoen",
+        "indefinite_pl": "sko",
+        "definite_pl": "skoene"
+      },
+      "note": "Irregular: unchanged in the indefinite plural."
+    },
+    "lue": {
+      "id": "lue-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "hat, beanie",
+      "forms": {
+        "indefinite_sg": "lue",
+        "definite_sg": "lua",
+        "indefinite_pl": "luer",
+        "definite_pl": "luene"
+      }
+    },
+    "votter": {
+      "id": "votter-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "mittens",
+      "forms": {
+        "indefinite_sg": "vott",
+        "definite_sg": "votten",
+        "indefinite_pl": "votter",
+        "definite_pl": "vottene"
+      }
+    },
+    "kjole": {
+      "id": "kjole-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "dress",
+      "forms": {
+        "indefinite_sg": "kjole",
+        "definite_sg": "kjolen",
+        "indefinite_pl": "kjoler",
+        "definite_pl": "kjolene"
+      }
+    },
+    "kle på seg": {
+      "id": "kle-på-seg-v",
+      "pos": "verb",
+      "gloss": "to get dressed",
+      "forms": {
+        "infinitive": "kle på seg",
+        "present": "kler på seg",
+        "preterite": "kledde på seg",
+        "perfect": "kledd på seg"
+      }
+    },
+    "ta på seg": {
+      "id": "ta-på-seg-v",
+      "pos": "verb",
+      "gloss": "to put on",
+      "forms": {
+        "infinitive": "ta på seg",
+        "present": "tar på seg",
+        "preterite": "tok på seg",
+        "perfect": "tatt på seg"
+      }
+    },
+    "gate": {
+      "id": "gate-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "street",
+      "forms": {
+        "indefinite_sg": "gate",
+        "definite_sg": "gata",
+        "indefinite_pl": "gater",
+        "definite_pl": "gatene"
+      }
+    },
+    "torg": {
+      "id": "torg-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "square, marketplace",
+      "forms": {
+        "indefinite_sg": "torg",
+        "definite_sg": "torget",
+        "indefinite_pl": "torg",
+        "definite_pl": "torgene"
+      }
+    },
+    "bibliotek": {
+      "id": "bibliotek-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "library",
+      "forms": {
+        "indefinite_sg": "bibliotek",
+        "definite_sg": "biblioteket",
+        "indefinite_pl": "bibliotek",
+        "definite_pl": "bibliotekene"
+      }
+    },
+    "kino": {
+      "id": "kino-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "cinema",
+      "forms": {
+        "indefinite_sg": "kino",
+        "definite_sg": "kinoen",
+        "indefinite_pl": "kinoer",
+        "definite_pl": "kinoene"
+      }
+    },
+    "restaurant": {
+      "id": "restaurant-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "restaurant",
+      "forms": {
+        "indefinite_sg": "restaurant",
+        "definite_sg": "restauranten",
+        "indefinite_pl": "restauranter",
+        "definite_pl": "restaurantene"
+      }
+    },
+    "kirke": {
+      "id": "kirke-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "church",
+      "forms": {
+        "indefinite_sg": "kirke",
+        "definite_sg": "kirka",
+        "indefinite_pl": "kirker",
+        "definite_pl": "kirkene"
+      }
+    },
+    "museum": {
+      "id": "museum-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "museum",
+      "forms": {
+        "indefinite_sg": "museum",
+        "definite_sg": "museet",
+        "indefinite_pl": "museer",
+        "definite_pl": "museene"
+      },
+      "note": "Irregular: museet, museer."
+    },
+    "flyplass": {
+      "id": "flyplass-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "airport",
+      "forms": {
+        "indefinite_sg": "flyplass",
+        "definite_sg": "flyplassen",
+        "indefinite_pl": "flyplasser",
+        "definite_pl": "flyplassene"
+      }
+    },
+    "fly": {
+      "id": "fly-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "aeroplane",
+      "forms": {
+        "indefinite_sg": "fly",
+        "definite_sg": "flyet",
+        "indefinite_pl": "fly",
+        "definite_pl": "flyene"
+      }
+    },
+    "båt": {
+      "id": "båt-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "boat",
+      "forms": {
+        "indefinite_sg": "båt",
+        "definite_sg": "båten",
+        "indefinite_pl": "båter",
+        "definite_pl": "båtene"
+      }
+    },
+    "holdeplass": {
+      "id": "holdeplass-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "bus stop",
+      "forms": {
+        "indefinite_sg": "holdeplass",
+        "definite_sg": "holdeplassen",
+        "indefinite_pl": "holdeplasser",
+        "definite_pl": "holdeplassene"
+      }
+    },
+    "kart": {
+      "id": "kart-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "map",
+      "forms": {
+        "indefinite_sg": "kart",
+        "definite_sg": "kartet",
+        "indefinite_pl": "kart",
+        "definite_pl": "kartene"
+      }
+    },
+    "gå av": {
+      "id": "gå-av-v",
+      "pos": "verb",
+      "gloss": "to get off",
+      "forms": {
+        "infinitive": "gå av",
+        "present": "går av",
+        "preterite": "gikk av",
+        "perfect": "gått av"
+      }
+    },
+    "gå på": {
+      "id": "gå-på-v",
+      "pos": "verb",
+      "gloss": "to get on",
+      "forms": {
+        "infinitive": "gå på",
+        "present": "går på",
+        "preterite": "gikk på",
+        "perfect": "gått på"
+      }
+    },
+    "vise": {
+      "id": "vise-v",
+      "pos": "verb",
+      "gloss": "to show",
+      "forms": {
+        "infinitive": "vise",
+        "present": "viser",
+        "preterite": "viste",
+        "perfect": "vist"
+      }
+    },
+    "finne": {
+      "id": "finne-v",
+      "pos": "verb",
+      "gloss": "to find",
+      "forms": {
+        "infinitive": "finne",
+        "present": "finner",
+        "preterite": "fant",
+        "perfect": "funnet"
+      },
+      "note": "Irregular: fant / funnet."
+    },
+    "lete": {
+      "id": "lete-v",
+      "pos": "verb",
+      "gloss": "to search",
+      "forms": {
+        "infinitive": "lete",
+        "present": "leter",
+        "preterite": "lette",
+        "perfect": "lett"
+      }
+    },
+    "bok": {
+      "id": "bok-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "book",
+      "forms": {
+        "indefinite_sg": "bok",
+        "definite_sg": "boka",
+        "indefinite_pl": "bøker",
+        "definite_pl": "bøkene"
+      },
+      "note": "Irregular plural: bøker."
+    },
+    "penn": {
+      "id": "penn-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "pen",
+      "forms": {
+        "indefinite_sg": "penn",
+        "definite_sg": "pennen",
+        "indefinite_pl": "penner",
+        "definite_pl": "pennene"
+      }
+    },
+    "papir": {
+      "id": "papir-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "paper",
+      "forms": {
+        "indefinite_sg": "papir",
+        "definite_sg": "papiret",
+        "indefinite_pl": "papirer",
+        "definite_pl": "papirene"
+      }
+    },
+    "lekse": {
+      "id": "lekse-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "homework",
+      "forms": {
+        "indefinite_sg": "lekse",
+        "definite_sg": "leksa",
+        "indefinite_pl": "lekser",
+        "definite_pl": "leksene"
+      }
+    },
+    "svar": {
+      "id": "svar-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "answer",
+      "forms": {
+        "indefinite_sg": "svar",
+        "definite_sg": "svaret",
+        "indefinite_pl": "svar",
+        "definite_pl": "svarene"
+      }
+    },
+    "spørsmål": {
+      "id": "spørsmål-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "question",
+      "forms": {
+        "indefinite_sg": "spørsmål",
+        "definite_sg": "spørsmålet",
+        "indefinite_pl": "spørsmål",
+        "definite_pl": "spørsmålene"
+      }
+    },
+    "ord": {
+      "id": "ord-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "word",
+      "forms": {
+        "indefinite_sg": "ord",
+        "definite_sg": "ordet",
+        "indefinite_pl": "ord",
+        "definite_pl": "ordene"
+      }
+    },
+    "setning": {
+      "id": "setning-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "sentence",
+      "forms": {
+        "indefinite_sg": "setning",
+        "definite_sg": "setningen",
+        "indefinite_pl": "setninger",
+        "definite_pl": "setningene"
+      }
+    },
+    "feil": {
+      "id": "feil-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "mistake",
+      "forms": {
+        "indefinite_sg": "feil",
+        "definite_sg": "feilen",
+        "indefinite_pl": "feil",
+        "definite_pl": "feilene"
+      }
+    },
+    "søknad": {
+      "id": "søknad-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "application",
+      "forms": {
+        "indefinite_sg": "søknad",
+        "definite_sg": "søknaden",
+        "indefinite_pl": "søknader",
+        "definite_pl": "søknadene"
+      }
+    },
+    "intervju": {
+      "id": "intervju-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "interview",
+      "forms": {
+        "indefinite_sg": "intervju",
+        "definite_sg": "intervjuet",
+        "indefinite_pl": "intervjuer",
+        "definite_pl": "intervjuene"
+      }
+    },
+    "lønn": {
+      "id": "lønn-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "salary",
+      "forms": {
+        "indefinite_sg": "lønn",
+        "definite_sg": "lønna",
+        "indefinite_pl": "lønner",
+        "definite_pl": "lønnene"
+      }
+    },
+    "kontrakt": {
+      "id": "kontrakt-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "contract",
+      "forms": {
+        "indefinite_sg": "kontrakt",
+        "definite_sg": "kontrakten",
+        "indefinite_pl": "kontrakter",
+        "definite_pl": "kontraktene"
+      }
+    },
+    "pause": {
+      "id": "pause-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "break",
+      "forms": {
+        "indefinite_sg": "pause",
+        "definite_sg": "pausen",
+        "indefinite_pl": "pauser",
+        "definite_pl": "pausene"
+      }
+    },
+    "øve": {
+      "id": "øve-v",
+      "pos": "verb",
+      "gloss": "to practise",
+      "forms": {
+        "infinitive": "øve",
+        "present": "øver",
+        "preterite": "øvde",
+        "perfect": "øvd"
+      }
+    },
+    "gjenta": {
+      "id": "gjenta-v",
+      "pos": "verb",
+      "gloss": "to repeat",
+      "forms": {
+        "infinitive": "gjenta",
+        "present": "gjentar",
+        "preterite": "gjentok",
+        "perfect": "gjentatt"
+      }
+    },
+    "huske": {
+      "id": "huske-v",
+      "pos": "verb",
+      "gloss": "to remember",
+      "forms": {
+        "infinitive": "huske",
+        "present": "husker",
+        "preterite": "husket",
+        "perfect": "husket"
+      }
+    },
+    "glemme": {
+      "id": "glemme-v",
+      "pos": "verb",
+      "gloss": "to forget",
+      "forms": {
+        "infinitive": "glemme",
+        "present": "glemmer",
+        "preterite": "glemte",
+        "perfect": "glemt"
+      }
+    },
+    "forklare": {
+      "id": "forklare-v",
+      "pos": "verb",
+      "gloss": "to explain",
+      "forms": {
+        "infinitive": "forklare",
+        "present": "forklarer",
+        "preterite": "forklarte",
+        "perfect": "forklart"
+      }
+    },
+    "stave": {
+      "id": "stave-v",
+      "pos": "verb",
+      "gloss": "to spell",
+      "forms": {
+        "infinitive": "stave",
+        "present": "staver",
+        "preterite": "stavet",
+        "perfect": "stavet"
+      }
+    },
+    "rette": {
+      "id": "rette-v",
+      "pos": "verb",
+      "gloss": "to correct",
+      "forms": {
+        "infinitive": "rette",
+        "present": "retter",
+        "preterite": "rettet",
+        "perfect": "rettet"
+      }
+    },
+    "åpne seg": {
+      "id": "åpne-seg-v",
+      "pos": "verb",
+      "gloss": "to open up",
+      "forms": {
+        "infinitive": "åpne seg",
+        "present": "åpner seg",
+        "preterite": "åpnet seg",
+        "perfect": "åpnet seg"
+      }
+    },
+    "sende": {
+      "id": "sende-v",
+      "pos": "verb",
+      "gloss": "to send",
+      "forms": {
+        "infinitive": "sende",
+        "present": "sender",
+        "preterite": "sendte",
+        "perfect": "sendt"
+      }
+    },
+    "motta": {
+      "id": "motta-v",
+      "pos": "verb",
+      "gloss": "to receive",
+      "forms": {
+        "infinitive": "motta",
+        "present": "mottar",
+        "preterite": "mottok",
+        "perfect": "mottatt"
+      }
+    },
+    "sette": {
+      "id": "sette-v",
+      "pos": "verb",
+      "gloss": "to put, to set",
+      "forms": {
+        "infinitive": "sette",
+        "present": "setter",
+        "preterite": "satte",
+        "perfect": "satt"
+      },
+      "note": "Irregular: satte / satt."
+    },
+    "holde": {
+      "id": "holde-v",
+      "pos": "verb",
+      "gloss": "to hold",
+      "forms": {
+        "infinitive": "holde",
+        "present": "holder",
+        "preterite": "holdt",
+        "perfect": "holdt"
+      }
+    },
+    "følge": {
+      "id": "følge-v",
+      "pos": "verb",
+      "gloss": "to follow",
+      "forms": {
+        "infinitive": "følge",
+        "present": "følger",
+        "preterite": "fulgte",
+        "perfect": "fulgt"
+      },
+      "note": "Irregular: fulgte / fulgt."
+    },
+    "drive": {
+      "id": "drive-v",
+      "pos": "verb",
+      "gloss": "to run, to operate",
+      "forms": {
+        "infinitive": "drive",
+        "present": "driver",
+        "preterite": "drev",
+        "perfect": "drevet"
+      }
+    },
+    "stoppe": {
+      "id": "stoppe-v",
+      "pos": "verb",
+      "gloss": "to stop",
+      "forms": {
+        "infinitive": "stoppe",
+        "present": "stopper",
+        "preterite": "stoppet",
+        "perfect": "stoppet"
+      }
+    },
+    "fortsette": {
+      "id": "fortsette-v",
+      "pos": "verb",
+      "gloss": "to continue",
+      "forms": {
+        "infinitive": "fortsette",
+        "present": "fortsetter",
+        "preterite": "fortsatte",
+        "perfect": "fortsatt"
+      },
+      "note": "Irregular: fortsatte / fortsatt."
+    },
+    "begynne på": {
+      "id": "begynne-på-v",
+      "pos": "verb",
+      "gloss": "to start on",
+      "forms": {
+        "infinitive": "begynne på",
+        "present": "begynner på",
+        "preterite": "begynte på",
+        "perfect": "begynt på"
+      }
+    },
+    "slutte med": {
+      "id": "slutte-med-v",
+      "pos": "verb",
+      "gloss": "to stop doing",
+      "forms": {
+        "infinitive": "slutte med",
+        "present": "slutter med",
+        "preterite": "sluttet med",
+        "perfect": "sluttet med"
+      }
+    },
+    "passe": {
+      "id": "passe-v",
+      "pos": "verb",
+      "gloss": "to fit, to suit; to mind",
+      "forms": {
+        "infinitive": "passe",
+        "present": "passer",
+        "preterite": "passet",
+        "perfect": "passet"
+      }
+    },
+    "takke": {
+      "id": "takke-v",
+      "pos": "verb",
+      "gloss": "to thank",
+      "forms": {
+        "infinitive": "takke",
+        "present": "takker",
+        "preterite": "takket",
+        "perfect": "takket"
+      }
+    },
+    "be": {
+      "id": "be-v",
+      "pos": "verb",
+      "gloss": "to ask, to pray",
+      "forms": {
+        "infinitive": "be",
+        "present": "ber",
+        "preterite": "ba",
+        "perfect": "bedt"
+      },
+      "note": "Irregular: ba / bedt."
+    },
+    "tilby": {
+      "id": "tilby-v",
+      "pos": "verb",
+      "gloss": "to offer",
+      "forms": {
+        "infinitive": "tilby",
+        "present": "tilbyr",
+        "preterite": "tilbød",
+        "perfect": "tilbudt"
+      }
+    },
+    "lei seg": {
+      "id": "lei-seg-phr",
+      "pos": "phrase",
+      "phrase": true,
+      "gloss": "sad",
+      "note": "Fixed expression: «å være lei seg». Does not inflect."
+    },
+    "tre (substantiv)": {
+      "id": "tre-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "tree",
+      "forms": {
+        "indefinite_sg": "tre",
+        "definite_sg": "treet",
+        "indefinite_pl": "trær",
+        "definite_pl": "trærne"
+      },
+      "note": "Irregular plural: trær. Distinct from the numeral «tre» (three).",
+      "headword": "tre"
+    },
+    "snø (verb)": {
+      "id": "snø-v",
+      "pos": "verb",
+      "gloss": "to snow",
+      "forms": {
+        "infinitive": "snø",
+        "present": "snør",
+        "preterite": "snødde",
+        "perfect": "snødd"
+      },
+      "headword": "snø"
+    },
+    "by (verb)": {
+      "id": "by-v",
+      "pos": "verb",
+      "gloss": "to offer",
+      "forms": {
+        "infinitive": "by",
+        "present": "byr",
+        "preterite": "bød",
+        "perfect": "budt"
+      },
+      "headword": "by"
+    },
+    "hoste (verb)": {
+      "id": "hoste-v",
+      "pos": "verb",
+      "gloss": "to cough",
+      "forms": {
+        "infinitive": "hoste",
+        "present": "hoster",
+        "preterite": "hostet",
+        "perfect": "hostet"
+      },
+      "headword": "hoste"
+    },
+    "dyr (substantiv)": {
+      "id": "dyr-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "animal",
+      "forms": {
+        "indefinite_sg": "dyr",
+        "definite_sg": "dyret",
+        "indefinite_pl": "dyr",
+        "definite_pl": "dyrene"
+      },
+      "note": "Unchanged in the indefinite plural. Distinct from the adjective «dyr» (expensive).",
+      "headword": "dyr"
     }
   },
   "$idComment": "Every entry carries a stable `id` (<lemma>-<pos>). Annotations and SRS state should reference the id, not the lemma string: lemmas get renamed and can collide across parts of speech, ids do not."

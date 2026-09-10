@@ -234,6 +234,18 @@ for (const [lemma, entry] of Object.entries(lexicon.entries)) {
   }
 }
 
+// A key like "tre (substantiv)" exists only to keep two senses of one lemma
+// apart. The suffix must never be displayed, so such an entry must carry an
+// explicit `headword` — otherwise the card renders the disambiguator.
+for (const [lemma, entry] of Object.entries(lexicon.entries)) {
+  if (/\([^)]+\)\s*$/.test(lemma) && !entry.headword) {
+    err(
+      'display-name',
+      `"${lemma}" is a disambiguated key but has no "headword" — the card would show the suffix`
+    );
+  }
+}
+
 for (const [lemma, entry] of Object.entries(lexicon.entries)) {
   if (!entry.pos) {
     err('lexicon-shape', `"${lemma}" has no pos`);

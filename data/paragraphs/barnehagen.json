@@ -7,11 +7,11 @@
   "$comment": "Annotation syntax: {surface:lemma} marks a word whose surface form is not the lemma. [ ... ] wraps a multi-word phrase; every {surface:lemma} inside the bracket that names the phrase lemma becomes part of one token. Unmarked words auto-resolve against every inflected form in the lexicon.",
   "body": [
     "Hver morgen går jeg til barnehagen med dattera mi.",
-    "Vi er der klokka åtte, og hun har alltid sekken og matboksen med seg.",
+    "Vi er der {klokka:klokka} åtte, og hun har alltid sekken og matboksen med seg.",
     "Først [henger vi regntøyet opp](henge opp) i garderoben.",
     "Etterpå tar hun {farvel:ta farvel} med meg, men hun gråter ikke.",
     "De {voksne:voksen} sier at barna leker og spiser sammen hele dagen.",
     "[På grunn av] {regnet:regn} må de ofte være ute med våte klær.",
-    "Jeg henter dattera mi klokka fire, og da er hun glad og sliten."
+    "Jeg henter dattera mi {klokka:klokka} fire, og da er hun glad og sliten."
   ]
 }
