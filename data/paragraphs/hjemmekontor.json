@@ -9,7 +9,7 @@
     "Mange {jobber:jobbe} hjemmefra noen dager i uka.",
     "[For det første] sparer man mye tid, fordi man slipper å reise til kontoret.",
     "[For det andre] blir hverdagen mer fleksibel når man har barn.",
-    "[På den andre siden] kan det bli ensomt å sitte alene hele dagen.",
+    "[På den andre {siden:siden}] kan det bli ensomt å sitte alene hele dagen.",
     "Det er også vanskeligere å [bli kjent med] nye kollegaer.",
     "Noen klarer ikke å konsentrere seg hjemme, og da blir de mindre effektive.",
     "[Etter min mening] er en god løsning å være på kontoret to dager og hjemme {tre:tre} dager."

@@ -7,7 +7,7 @@
   "examNote": "Del 2: en kort presentasjon om arbeid. Bruk gjerne «jeg trives med» og «det som er fint, er at ...».",
   "body": [
     "Jeg {jobber:jobbe} i en barnehage i sentrum.",
-    "Jeg begynte der for to år siden.",
+    "Jeg begynte der for to år {siden:siden}.",
     "Arbeidsdagen min begynner {klokka:klokka} sju.",
     "Jeg tar imot barna og snakker med foreldrene.",
     "Kollegaene mine er hyggelige, og sjefen min er tydelig og rolig.",

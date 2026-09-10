@@ -128,7 +128,14 @@ if (draftFlag !== -1) {
 // (klær, folk).
 const SCHEMA = {
   noun: {
-    allowed: ['indefinite_sg', 'definite_sg', 'definite_sg_fem', 'indefinite_pl', 'definite_pl'],
+    allowed: [
+      'indefinite_sg',
+      'definite_sg',
+      'definite_sg_fem',
+      'definite_sg_masc',
+      'indefinite_pl',
+      'definite_pl',
+    ],
     required: ['definite_sg', 'definite_pl'],
     requiredIfPluralOnly: ['indefinite_pl', 'definite_pl'],
     requires: ['gender'],
@@ -231,6 +238,19 @@ for (const [lemma, entry] of Object.entries(lexicon.entries)) {
     );
   } else {
     seenEntryIds.set(entry.id, lemma);
+  }
+}
+
+// A definite singular in -a is the feminine declension. Marking such a noun
+// "en" makes the card contradict its own table, which teaches the wrong thing.
+for (const [lemma, entry] of Object.entries(lexicon.entries)) {
+  if (entry.pos !== 'noun') continue;
+  const def = entry.forms?.definite_sg;
+  if (def?.endsWith('a') && !String(entry.gender ?? '').includes('ei')) {
+    err(
+      'gender-mismatch',
+      `"${lemma}" has definite singular "${def}" (feminine) but gender "${entry.gender}" — should include "ei"`
+    );
   }
 }
 

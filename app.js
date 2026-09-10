@@ -29,6 +29,7 @@ const FORM_LABEL = {
   indefinite_sg: 'indefinite singular',
   definite_sg: 'definite singular',
   definite_sg_fem: 'definite singular (feminine)',
+  definite_sg_masc: 'definite singular (masculine form)',
   indefinite_pl: 'indefinite plural',
   definite_pl: 'definite plural',
   positive: 'positive',

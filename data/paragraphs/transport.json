@@ -9,8 +9,8 @@
     "I byen der jeg bor, bruker de fleste bussen eller toget.",
     "Kollektivtransport er billigere enn bil, og man slipper å betale for parkering.",
     "Det er også mye mer miljøvennlig, fordi mange reiser sammen.",
-    "[På den ene siden] tar det ofte lengre tid med buss.",
-    "[På den andre siden] kan jeg lese eller hvile mens jeg reiser.",
+    "[På den ene {siden:siden}] tar det ofte lengre tid med buss.",
+    "[På den andre {siden:siden}] kan jeg lese eller hvile mens jeg reiser.",
     "Om vinteren kjører bussene noen ganger for sent, og det er dårlig for dem som må på jobb.",
     "Jeg mener likevel at kommunen bør bruke mer penger på kollektivtransport enn på nye veier."
   ]

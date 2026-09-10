@@ -610,14 +610,16 @@
     "kone": {
       "id": "kone-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "wife",
       "forms": {
         "indefinite_sg": "kone",
         "definite_sg": "kona",
         "indefinite_pl": "koner",
-        "definite_pl": "konene"
-      }
+        "definite_pl": "konene",
+        "definite_sg_masc": "konen"
+      },
+      "note": "Feminine noun: definite singular is «kona» or «konen». Both are correct bokmål."
     },
     "sønn": {
       "id": "sønn-n",
@@ -646,26 +648,30 @@
     "søster": {
       "id": "søster-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "sister",
       "forms": {
         "indefinite_sg": "søster",
         "definite_sg": "søstera",
         "indefinite_pl": "søstre",
-        "definite_pl": "søstrene"
-      }
+        "definite_pl": "søstrene",
+        "definite_sg_masc": "søsteren"
+      },
+      "note": "Feminine noun: definite singular is «søstera» or «søsteren». Both are correct bokmål."
     },
     "mor": {
       "id": "mor-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "mother",
       "forms": {
         "indefinite_sg": "mor",
         "definite_sg": "mora",
         "indefinite_pl": "mødre",
-        "definite_pl": "mødrene"
-      }
+        "definite_pl": "mødrene",
+        "definite_sg_masc": "moren"
+      },
+      "note": "Feminine noun: definite singular is «mora» or «moren». Both are correct bokmål."
     },
     "far": {
       "id": "far-n",
@@ -730,14 +736,16 @@
     "uke": {
       "id": "uke-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "week",
       "forms": {
         "indefinite_sg": "uke",
         "definite_sg": "uka",
         "indefinite_pl": "uker",
-        "definite_pl": "ukene"
-      }
+        "definite_pl": "ukene",
+        "definite_sg_masc": "uken"
+      },
+      "note": "Feminine noun: definite singular is «uka» or «uken». Both are correct bokmål."
     },
     "time": {
       "id": "time-n",
@@ -766,14 +774,16 @@
     "helg": {
       "id": "helg-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "weekend",
       "forms": {
         "indefinite_sg": "helg",
         "definite_sg": "helga",
         "indefinite_pl": "helger",
-        "definite_pl": "helgene"
-      }
+        "definite_pl": "helgene",
+        "definite_sg_masc": "helgen"
+      },
+      "note": "Feminine noun: definite singular is «helga» or «helgen». Both are correct bokmål."
     },
     "jobb": {
       "id": "jobb-n",
@@ -1076,14 +1086,16 @@
     "helse": {
       "id": "helse-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "health",
       "forms": {
         "indefinite_sg": "helse",
         "definite_sg": "helsa",
         "indefinite_pl": "helser",
-        "definite_pl": "helsene"
-      }
+        "definite_pl": "helsene",
+        "definite_sg_masc": "helsen"
+      },
+      "note": "Feminine noun: definite singular is «helsa» or «helsen». Both are correct bokmål."
     },
     "trening": {
       "id": "trening-n",
@@ -1196,14 +1208,16 @@
     "husleie": {
       "id": "husleie-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "rent",
       "forms": {
         "indefinite_sg": "husleie",
         "definite_sg": "husleia",
         "indefinite_pl": "husleier",
-        "definite_pl": "husleiene"
-      }
+        "definite_pl": "husleiene",
+        "definite_sg_masc": "husleien"
+      },
+      "note": "Feminine noun: definite singular is «husleia» or «husleien». Both are correct bokmål."
     },
     "sentrum": {
       "id": "sentrum-n",
@@ -1532,14 +1546,16 @@
     "fritid": {
       "id": "fritid-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "free time",
       "forms": {
         "indefinite_sg": "fritid",
         "definite_sg": "fritida",
         "indefinite_pl": "fritider",
-        "definite_pl": "fritidene"
-      }
+        "definite_pl": "fritidene",
+        "definite_sg_masc": "fritiden"
+      },
+      "note": "Feminine noun: definite singular is «fritida» or «fritiden». Both are correct bokmål."
     },
     "venn": {
       "id": "venn-n",
@@ -1556,14 +1572,16 @@
     "tid": {
       "id": "tid-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "time",
       "forms": {
         "indefinite_sg": "tid",
         "definite_sg": "tida",
         "indefinite_pl": "tider",
-        "definite_pl": "tidene"
-      }
+        "definite_pl": "tidene",
+        "definite_sg_masc": "tiden"
+      },
+      "note": "Feminine noun: definite singular is «tida» or «tiden». Both are correct bokmål."
     },
     "del": {
       "id": "del-n",
@@ -3381,14 +3399,16 @@
     "side": {
       "id": "side-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "side",
       "forms": {
         "indefinite_sg": "side",
         "definite_sg": "sida",
         "indefinite_pl": "sider",
-        "definite_pl": "sidene"
-      }
+        "definite_pl": "sidene",
+        "definite_sg_masc": "siden"
+      },
+      "note": "Feminine noun: definite singular is «sida» or «siden». Both are correct bokmål."
     },
     "sted": {
       "id": "sted-n",
@@ -3633,14 +3653,16 @@
     "framtid": {
       "id": "framtid-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "future",
       "forms": {
         "indefinite_sg": "framtid",
         "definite_sg": "framtida",
         "indefinite_pl": "framtider",
-        "definite_pl": "framtidene"
-      }
+        "definite_pl": "framtidene",
+        "definite_sg_masc": "framtiden"
+      },
+      "note": "Feminine noun: definite singular is «framtida» or «framtiden». Both are correct bokmål."
     },
     "nøkkel": {
       "id": "nøkkel-n",
@@ -3813,14 +3835,16 @@
     "stue": {
       "id": "stue-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "living room",
       "forms": {
         "indefinite_sg": "stue",
         "definite_sg": "stua",
         "indefinite_pl": "stuer",
-        "definite_pl": "stuene"
-      }
+        "definite_pl": "stuene",
+        "definite_sg_masc": "stuen"
+      },
+      "note": "Feminine noun: definite singular is «stua» or «stuen». Both are correct bokmål."
     },
     "minutt": {
       "id": "minutt-n",
@@ -4443,14 +4467,16 @@
     "melk": {
       "id": "melk-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "milk",
       "forms": {
         "indefinite_sg": "melk",
         "definite_sg": "melka",
         "indefinite_pl": "melker",
-        "definite_pl": "melkene"
-      }
+        "definite_pl": "melkene",
+        "definite_sg_masc": "melken"
+      },
+      "note": "Feminine noun: definite singular is «melka» or «melken». Both are correct bokmål."
     },
     "smør": {
       "id": "smør-n",
@@ -4492,14 +4518,16 @@
     "suppe": {
       "id": "suppe-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "soup",
       "forms": {
         "indefinite_sg": "suppe",
         "definite_sg": "suppa",
         "indefinite_pl": "supper",
-        "definite_pl": "suppene"
-      }
+        "definite_pl": "suppene",
+        "definite_sg_masc": "suppen"
+      },
+      "note": "Feminine noun: definite singular is «suppa» or «suppen». Both are correct bokmål."
     },
     "salat": {
       "id": "salat-n",
@@ -4516,14 +4544,16 @@
     "frukt": {
       "id": "frukt-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "fruit",
       "forms": {
         "indefinite_sg": "frukt",
         "definite_sg": "frukta",
         "indefinite_pl": "frukter",
-        "definite_pl": "fruktene"
-      }
+        "definite_pl": "fruktene",
+        "definite_sg_masc": "frukten"
+      },
+      "note": "Feminine noun: definite singular is «frukta» or «frukten». Both are correct bokmål."
     },
     "eple": {
       "id": "eple-n",
@@ -4672,14 +4702,16 @@
     "kake": {
       "id": "kake-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "cake",
       "forms": {
         "indefinite_sg": "kake",
         "definite_sg": "kaka",
         "indefinite_pl": "kaker",
-        "definite_pl": "kakene"
-      }
+        "definite_pl": "kakene",
+        "definite_sg_masc": "kaken"
+      },
+      "note": "Feminine noun: definite singular is «kaka» or «kaken». Both are correct bokmål."
     },
     "butikk": {
       "id": "butikk-n",
@@ -4788,13 +4820,14 @@
     "hånd": {
       "id": "hånd-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "hand",
       "forms": {
         "indefinite_sg": "hånd",
         "definite_sg": "hånda",
         "indefinite_pl": "hender",
-        "definite_pl": "hendene"
+        "definite_pl": "hendene",
+        "definite_sg_masc": "hånden"
       },
       "note": "Irregular plural: hender."
     },
@@ -4863,14 +4896,16 @@
     "nese": {
       "id": "nese-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "nose",
       "forms": {
         "indefinite_sg": "nese",
         "definite_sg": "nesa",
         "indefinite_pl": "neser",
-        "definite_pl": "nesene"
-      }
+        "definite_pl": "nesene",
+        "definite_sg_masc": "nesen"
+      },
+      "note": "Feminine noun: definite singular is «nesa» or «nesen». Both are correct bokmål."
     },
     "rygg": {
       "id": "rygg-n",
@@ -4887,13 +4922,14 @@
     "tann": {
       "id": "tann-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "tooth",
       "forms": {
         "indefinite_sg": "tann",
         "definite_sg": "tanna",
         "indefinite_pl": "tenner",
-        "definite_pl": "tennene"
+        "definite_pl": "tennene",
+        "definite_sg_masc": "tannen"
       },
       "note": "Irregular plural: tenner."
     },
@@ -5065,14 +5101,16 @@
     "dør": {
       "id": "dør-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "door",
       "forms": {
         "indefinite_sg": "dør",
         "definite_sg": "døra",
         "indefinite_pl": "dører",
-        "definite_pl": "dørene"
-      }
+        "definite_pl": "dørene",
+        "definite_sg_masc": "døren"
+      },
+      "note": "Feminine noun: definite singular is «døra» or «døren». Both are correct bokmål."
     },
     "vindu": {
       "id": "vindu-n",
@@ -5125,14 +5163,16 @@
     "seng": {
       "id": "seng-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "bed",
       "forms": {
         "indefinite_sg": "seng",
         "definite_sg": "senga",
         "indefinite_pl": "senger",
-        "definite_pl": "sengene"
-      }
+        "definite_pl": "sengene",
+        "definite_sg_masc": "sengen"
+      },
+      "note": "Feminine noun: definite singular is «senga» or «sengen». Both are correct bokmål."
     },
     "bord": {
       "id": "bord-n",
@@ -5185,14 +5225,16 @@
     "lampe": {
       "id": "lampe-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "lamp",
       "forms": {
         "indefinite_sg": "lampe",
         "definite_sg": "lampa",
         "indefinite_pl": "lamper",
-        "definite_pl": "lampene"
-      }
+        "definite_pl": "lampene",
+        "definite_sg_masc": "lampen"
+      },
+      "note": "Feminine noun: definite singular is «lampa» or «lampen». Both are correct bokmål."
     },
     "hage": {
       "id": "hage-n",
@@ -5300,14 +5342,16 @@
     "klokke": {
       "id": "klokke-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "clock, watch",
       "forms": {
         "indefinite_sg": "klokke",
         "definite_sg": "klokka",
         "indefinite_pl": "klokker",
-        "definite_pl": "klokkene"
-      }
+        "definite_pl": "klokkene",
+        "definite_sg_masc": "klokken"
+      },
+      "note": "Feminine noun: definite singular is «klokka» or «klokken». Both are correct bokmål."
     },
     "sekund": {
       "id": "sekund-n",
@@ -5324,13 +5368,14 @@
     "natt": {
       "id": "natt-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "night",
       "forms": {
         "indefinite_sg": "natt",
         "definite_sg": "natta",
         "indefinite_pl": "netter",
-        "definite_pl": "nettene"
+        "definite_pl": "nettene",
+        "definite_sg_masc": "natten"
       },
       "note": "Irregular plural: netter."
     },
@@ -5576,14 +5621,16 @@
     "sol": {
       "id": "sol-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "sun",
       "forms": {
         "indefinite_sg": "sol",
         "definite_sg": "sola",
         "indefinite_pl": "soler",
-        "definite_pl": "solene"
-      }
+        "definite_pl": "solene",
+        "definite_sg_masc": "solen"
+      },
+      "note": "Feminine noun: definite singular is «sola» or «solen». Both are correct bokmål."
     },
     "snø": {
       "id": "snø-n",
@@ -5612,14 +5659,16 @@
     "sky": {
       "id": "sky-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "cloud",
       "forms": {
         "indefinite_sg": "sky",
         "definite_sg": "skya",
         "indefinite_pl": "skyer",
-        "definite_pl": "skyene"
-      }
+        "definite_pl": "skyene",
+        "definite_sg_masc": "skyen"
+      },
+      "note": "Feminine noun: definite singular is «skya» or «skyen». Both are correct bokmål."
     },
     "blomst": {
       "id": "blomst-n",
@@ -5672,14 +5721,16 @@
     "elv": {
       "id": "elv-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "river",
       "forms": {
         "indefinite_sg": "elv",
         "definite_sg": "elva",
         "indefinite_pl": "elver",
-        "definite_pl": "elvene"
-      }
+        "definite_pl": "elvene",
+        "definite_sg_masc": "elven"
+      },
+      "note": "Feminine noun: definite singular is «elva» or «elven». Both are correct bokmål."
     },
     "hund": {
       "id": "hund-n",
@@ -5778,26 +5829,30 @@
     "jakke": {
       "id": "jakke-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "jacket",
       "forms": {
         "indefinite_sg": "jakke",
         "definite_sg": "jakka",
         "indefinite_pl": "jakker",
-        "definite_pl": "jakkene"
-      }
+        "definite_pl": "jakkene",
+        "definite_sg_masc": "jakken"
+      },
+      "note": "Feminine noun: definite singular is «jakka» or «jakken». Both are correct bokmål."
     },
     "bukse": {
       "id": "bukse-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "trousers",
       "forms": {
         "indefinite_sg": "bukse",
         "definite_sg": "buksa",
         "indefinite_pl": "bukser",
-        "definite_pl": "buksene"
-      }
+        "definite_pl": "buksene",
+        "definite_sg_masc": "buksen"
+      },
+      "note": "Feminine noun: definite singular is «buksa» or «buksen». Both are correct bokmål."
     },
     "genser": {
       "id": "genser-n",
@@ -5814,14 +5869,16 @@
     "skjorte": {
       "id": "skjorte-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "shirt",
       "forms": {
         "indefinite_sg": "skjorte",
         "definite_sg": "skjorta",
         "indefinite_pl": "skjorter",
-        "definite_pl": "skjortene"
-      }
+        "definite_pl": "skjortene",
+        "definite_sg_masc": "skjorten"
+      },
+      "note": "Feminine noun: definite singular is «skjorta» or «skjorten». Both are correct bokmål."
     },
     "sko": {
       "id": "sko-n",
@@ -5839,14 +5896,16 @@
     "lue": {
       "id": "lue-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "hat, beanie",
       "forms": {
         "indefinite_sg": "lue",
         "definite_sg": "lua",
         "indefinite_pl": "luer",
-        "definite_pl": "luene"
-      }
+        "definite_pl": "luene",
+        "definite_sg_masc": "luen"
+      },
+      "note": "Feminine noun: definite singular is «lua» or «luen». Both are correct bokmål."
     },
     "votter": {
       "id": "votter-n",
@@ -5897,14 +5956,16 @@
     "gate": {
       "id": "gate-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "street",
       "forms": {
         "indefinite_sg": "gate",
         "definite_sg": "gata",
         "indefinite_pl": "gater",
-        "definite_pl": "gatene"
-      }
+        "definite_pl": "gatene",
+        "definite_sg_masc": "gaten"
+      },
+      "note": "Feminine noun: definite singular is «gata» or «gaten». Both are correct bokmål."
     },
     "torg": {
       "id": "torg-n",
@@ -5957,14 +6018,16 @@
     "kirke": {
       "id": "kirke-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "church",
       "forms": {
         "indefinite_sg": "kirke",
         "definite_sg": "kirka",
         "indefinite_pl": "kirker",
-        "definite_pl": "kirkene"
-      }
+        "definite_pl": "kirkene",
+        "definite_sg_masc": "kirken"
+      },
+      "note": "Feminine noun: definite singular is «kirka» or «kirken». Both are correct bokmål."
     },
     "museum": {
       "id": "museum-n",
@@ -6098,13 +6161,14 @@
     "bok": {
       "id": "bok-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "book",
       "forms": {
         "indefinite_sg": "bok",
         "definite_sg": "boka",
         "indefinite_pl": "bøker",
-        "definite_pl": "bøkene"
+        "definite_pl": "bøkene",
+        "definite_sg_masc": "boken"
       },
       "note": "Irregular plural: bøker."
     },
@@ -6135,14 +6199,16 @@
     "lekse": {
       "id": "lekse-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "homework",
       "forms": {
         "indefinite_sg": "lekse",
         "definite_sg": "leksa",
         "indefinite_pl": "lekser",
-        "definite_pl": "leksene"
-      }
+        "definite_pl": "leksene",
+        "definite_sg_masc": "leksen"
+      },
+      "note": "Feminine noun: definite singular is «leksa» or «leksen». Both are correct bokmål."
     },
     "svar": {
       "id": "svar-n",
@@ -6231,14 +6297,16 @@
     "lønn": {
       "id": "lønn-n",
       "pos": "noun",
-      "gender": "en",
+      "gender": "en/ei",
       "gloss": "salary",
       "forms": {
         "indefinite_sg": "lønn",
         "definite_sg": "lønna",
         "indefinite_pl": "lønner",
-        "definite_pl": "lønnene"
-      }
+        "definite_pl": "lønnene",
+        "definite_sg_masc": "lønnen"
+      },
+      "note": "Feminine noun: definite singular is «lønna» or «lønnen». Both are correct bokmål."
     },
     "kontrakt": {
       "id": "kontrakt-n",
