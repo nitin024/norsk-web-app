@@ -114,6 +114,35 @@ console by kind, so gaps in the lexicon are easy to scan after adding content:
 - `ambiguous` — matched several lemmas; first was used
 - `unbalanced-bracket` — `[` without `]`
 
+## Version and feedback
+
+`APP_VERSION` in `app.js` is the single source of truth — there is no build
+step to inject one. Bump it by hand when deploying; it is shown on the home
+page and stamped into the subject and body of every feedback mail, so a report
+always says which build it came from.
+
+The feedback link is a plain `mailto:`. **The address is visible in the served
+HTML**, which is the trade for having no third-party form service and no
+backend. If scraping becomes a problem, a Formspree/Formspark endpoint or
+GitHub Issues would both hide it.
+
+## Tests
+
+    node test/run.mjs      # view tests — what each route renders
+    node test/css.mjs      # layout invariants in styles.css
+    node validate.js       # content: lexicon + paragraphs
+
+`test/run.mjs` mounts `app.js` against a small dependency-free DOM shim
+(`test/dom.mjs`) and asserts what each route actually renders — that the
+dictionary is not empty, that the back arrow is hidden on home, that each view
+hides the other views' controls. It exists because reading the source kept
+missing real breakage.
+
+It cannot see CSS. `test/css.mjs` covers the layout invariants that a JS
+harness structurally cannot — notably that every content element is pinned to
+the right grid column on wide screens, which is what once rendered the entire
+dictionary underneath the sidebar.
+
 ## Validating content
 
 There is no build step, so nothing otherwise stands between a bad annotation

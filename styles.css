@@ -77,6 +77,12 @@
   box-sizing: border-box;
 }
 
+/* A class that sets `display` outbeats the UA rule for [hidden], so anything
+   toggled with el.hidden needs this or it stays visible. */
+[hidden] {
+  display: none !important;
+}
+
 html {
   -webkit-text-size-adjust: 100%;
 }
@@ -355,6 +361,36 @@ body[data-view='home'] .reader {
   align-self: center;
 }
 
+.home-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  margin-top: var(--s-6);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--rule-soft);
+}
+
+.feedback-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  color: var(--accent);
+  text-decoration: none;
+  font-size: var(--t-sm);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.feedback-link:active {
+  opacity: 0.6;
+}
+
+.version {
+  font-size: var(--t-xs);
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
 /* --- text list -------------------------------------------------------- */
 
 .level {
@@ -467,8 +503,6 @@ body[data-view='home'] .reader {
   position: sticky;
   top: var(--topbar-h);
   z-index: 5;
-  max-width: var(--measure);
-  margin: 0 auto;
   padding: var(--s-3) var(--s-4);
   background: var(--bg);
   border-bottom: 1px solid var(--rule-soft);
@@ -559,11 +593,18 @@ body[data-view='home'] .reader {
   position: sticky;
   top: var(--topbar-h);
   z-index: 5;
-  max-width: var(--measure);
-  margin: 0 auto;
+  /* The bar spans the viewport; only its contents are held to the measure,
+     or it overflows a narrow screen. */
   padding: var(--s-3) var(--s-4);
   background: var(--bg);
   border-bottom: 1px solid var(--rule-soft);
+}
+
+.dict-controls > *,
+.scratch-controls > * {
+  max-width: var(--measure);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .dict-search {
@@ -669,10 +710,52 @@ body[data-view='home'] .reader {
   white-space: nowrap;
 }
 
+/* Hidden by default: the list doubles as self-testing. Revealed by the
+   toggle, which flips one class on the container rather than re-rendering
+   640 rows. The word card is unaffected and always shows the gloss. */
 .dict-gloss {
+  display: none;
   grid-column: 1 / -1;
   font-size: var(--t-sm);
   color: var(--ink-soft);
+}
+
+.show-gloss .dict-gloss {
+  display: block;
+}
+
+.dict-row-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
+}
+
+.dict-row-controls .dict-filters {
+  margin-top: 0;
+  min-width: 0;
+}
+
+.gloss-toggle {
+  flex: 0 0 auto;
+  min-height: 30px;
+  padding: var(--s-1) var(--s-3);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: none;
+  color: var(--ink-faint);
+  font: inherit;
+  font-size: var(--t-xs);
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gloss-toggle.is-on {
+  background: var(--accent-soft);
+  border-color: transparent;
+  color: var(--accent);
+  font-weight: 600;
 }
 
 .dict-empty {
@@ -841,97 +924,31 @@ body[data-view='home'] .reader {
    Not a stretched phone: the chrome moves to a left rail and the text keeps
    a readable measure instead of running the width of the window. */
 
-@media (min-width: 900px) {
-  body {
-    display: grid;
-    grid-template-columns: 260px minmax(0, 1fr);
-  }
+/* --- wide screens -----------------------------------------------------
+   No sidebar: one top bar at every width. The content column just gets a
+   little more room and the word card becomes a centred dialog, which reads
+   better with a mouse than a bottom sheet does. */
 
-  #page {
-    display: contents;
+@media (min-width: 900px) {
+  .reader {
+    padding: var(--s-6) var(--s-4) 30vh;
   }
 
   .topbar {
-    position: sticky;
-    top: 0;
-    align-self: start;
-    height: 100vh;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--s-4);
-    padding: var(--s-6) var(--s-5);
-    border-bottom: 0;
-    border-right: 1px solid var(--rule-soft);
-    background: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+    padding-left: var(--s-5);
+    padding-right: var(--s-5);
   }
 
-  .back {
-    order: -1;
-    margin: 0 0 var(--s-2) calc(var(--s-2) * -1);
-  }
-
-  .brand-mark {
-    width: 30px;
-    height: 30px;
-  }
-
-  .brand-name {
-    font-size: var(--t-lg);
-  }
-
-  /* The tagline has room on desktop regardless of view. */
   .brand-tagline {
     display: block;
   }
 
-  .topbar-page {
-    flex: 0 0 auto;
-    padding-left: 0;
-    border-left: 0;
-    border-top: 1px solid var(--rule);
-    padding-top: var(--s-4);
-    width: 100%;
-  }
-
-  .topbar h1 {
-    font-size: var(--t-md);
-    white-space: normal;
-  }
-
-  .meta {
-    white-space: normal;
-    margin-top: var(--s-1);
-  }
-
-  body[data-view='home'] .topbar {
-    padding-top: var(--s-6);
-  }
-
-  body[data-view='home'] .brand-name {
-    font-size: var(--t-xl);
-  }
-
-  .reader {
-    padding: var(--s-7) var(--s-6) 30vh;
-  }
-
-  /* Sticky controls align to the text column, not the viewport. */
   .dict-controls,
   .scratch-controls {
-    top: 0;
-    padding: var(--s-5) var(--s-6) var(--s-3);
-    background: color-mix(in srgb, var(--bg) 92%, transparent);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    padding-left: var(--s-5);
+    padding-right: var(--s-5);
   }
 
-  .dict-letter {
-    top: var(--dict-controls-h);
-  }
-
-  /* A centred dialog reads better than a bottom sheet with a mouse. */
   .card {
     left: 50%;
     right: auto;
@@ -958,8 +975,5 @@ body[data-view='home'] .reader {
       opacity: 1;
     }
   }
-
-  .home-link {
-    min-height: 60px;
-  }
 }
+

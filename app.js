@@ -1,5 +1,13 @@
 import { parseParagraph, reportDiagnostics, lookupEntry } from './parser.js';
 
+// Bump by hand on each deploy — there is no build step to inject it.
+// Shown on the home page and stamped into every feedback mail.
+export const APP_VERSION = '0.1.0';
+
+// Public repo, public page: this address is visible in the served HTML, which
+// is why it is a dedicated account rather than a personal one.
+const FEEDBACK_TO = 'norsk.app.feedback@gmail.com';
+
 // All paths relative — the site is served from username.github.io/<repo>/.
 const LEXICON_URL = 'data/lexicon.json';
 const INDEX_URL = 'data/index.json';
@@ -101,14 +109,20 @@ function route() {
  * the safe-area inset, font scaling and the filter row wrapping, none of which
  * a hardcoded value survives.
  */
+/**
+ * Publish the real heights of the frozen layers as custom properties, so the
+ * sticky offsets below them are correct rather than guessed. They change with
+ * the safe-area inset, font scaling and the filter row wrapping, none of which
+ * a hardcoded value survives.
+ */
 function measureChrome() {
+  const root = document.documentElement;
   const set = (name, el) => {
     const h = el && !el.hidden ? Math.round(el.getBoundingClientRect().height) : 0;
-    document.documentElement.style.setProperty(name, `${h}px`);
+    root.style.setProperty(name, `${h}px`);
   };
   set('--topbar-h', document.querySelector('.topbar'));
-  const dict = document.getElementById('dict-controls');
-  set('--dict-controls-h', dict);
+  set('--dict-controls-h', document.getElementById('dict-controls'));
 }
 
 function resetChrome() {
@@ -166,8 +180,50 @@ function showHome() {
   }
 
   main.append(nav);
+
+  const footer = document.createElement('footer');
+  footer.className = 'home-footer';
+
+  const feedback = document.createElement('a');
+  feedback.className = 'feedback-link';
+  feedback.id = 'feedback';
+  feedback.href = feedbackHref();
+  feedback.textContent = 'Send tilbakemelding';
+  footer.append(feedback);
+
+  const version = document.createElement('span');
+  version.className = 'version';
+  version.id = 'version';
+  version.textContent = `v${APP_VERSION}`;
+  footer.append(version);
+
+  main.append(footer);
   measureChrome();
   announce('Norsk');
+}
+
+/**
+ * A mailto: with the context that makes a report actionable — version, which
+ * view they were on, and the browser. Kept short: some mail clients truncate
+ * long bodies, and anything longer than this the user will just delete.
+ */
+function feedbackHref() {
+  // Never interpolate a missing value: "Nettleser: undefined" is worse than
+  // omitting the line, and reads as a bug in the report itself.
+  const lines = [
+    '',
+    '',
+    '—',
+    `Versjon: ${APP_VERSION}`,
+    `Side: ${location.hash || '#'}`,
+    `Nettleser: ${globalThis.navigator?.userAgent || 'ukjent'}`,
+  ];
+  const subject = `Norsk-appen — tilbakemelding (v${APP_VERSION})`;
+  return (
+    `mailto:${FEEDBACK_TO}` +
+    `?subject=${encodeURIComponent(subject)}` +
+    `&body=${encodeURIComponent(lines.join('\n'))}`
+  );
 }
 
 function showTexts() {
@@ -521,6 +577,29 @@ const CHIPPED = new Set(['noun', 'verb', 'adjective', 'phrase']);
 let dictQuery = '';
 let dictPos = '';
 
+// Glosses are hidden by default so the list works as self-testing: read the
+// Norwegian, recall the meaning, then reveal. The word card always shows the
+// gloss regardless — this only governs the browsing list.
+const GLOSS_KEY = 'norsk:showGloss';
+
+function readShowGloss() {
+  try {
+    return localStorage.getItem(GLOSS_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function writeShowGloss(on) {
+  try {
+    localStorage.setItem(GLOSS_KEY, on ? '1' : '0');
+  } catch {
+    /* ignore */
+  }
+}
+
+let showGloss = readShowGloss();
+
 /** All entries as a sorted array, built once. */
 let dictEntries = null;
 function allEntries() {
@@ -559,11 +638,35 @@ function showDictionary() {
     renderDictList();
   };
 
+  const toggle = document.getElementById('dict-gloss-toggle');
+  syncGlossToggle(toggle);
+  toggle.onclick = () => {
+    showGloss = !showGloss;
+    writeShowGloss(showGloss);
+    syncGlossToggle(toggle);
+    applyGlossVisibility();
+    announce(showGloss ? 'Engelsk vises' : 'Engelsk skjult');
+  };
+
   renderFilters();
   renderDictList();
   measureChrome();
   window.scrollTo(0, 0);
   announce('Ordbok');
+}
+
+function syncGlossToggle(btn) {
+  btn.setAttribute('aria-pressed', String(showGloss));
+  btn.classList.toggle('is-on', showGloss);
+  btn.textContent = showGloss ? 'Skjul engelsk' : 'Vis engelsk';
+}
+
+/**
+ * Toggling is a class on the list container rather than a re-render: with 640
+ * rows, rebuilding the DOM to flip one property would be a visible stutter.
+ */
+function applyGlossVisibility() {
+  document.getElementById('reader').classList.toggle('show-gloss', showGloss);
 }
 
 function renderFilters() {
@@ -587,6 +690,7 @@ function renderFilters() {
 function renderDictList() {
   const reader = document.getElementById('reader');
   reader.replaceChildren();
+  reader.classList.toggle('show-gloss', showGloss);
 
   const matches = allEntries().filter(dictMatches);
 

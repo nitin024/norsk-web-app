@@ -14,6 +14,9 @@
 # Local dev server state
 .serve.pid
 
+# Temp files written by test/render.mjs (deleted on success)
+.probe-*.html
+
 # Local scratch — drafts not yet added to data/index.json
 scratch/
 *.draft.json
