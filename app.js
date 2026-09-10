@@ -72,6 +72,9 @@ async function main() {
   index = await idxRes.json();
 
   window.addEventListener('hashchange', route);
+  // Re-measure when the viewport changes: rotation, dynamic type, the URL bar
+  // collapsing on iOS.
+  window.addEventListener('resize', measureChrome);
   route();
 }
 
@@ -82,21 +85,50 @@ function route() {
   closeCard();
   const id = location.hash.replace(/^#\/?/, '');
   if (id === 'ordbok') return showDictionary();
+  if (id === 'skriv') return showScratch();
+  if (id === 'tekster') return showTexts();
   if (id) {
     const meta = index.paragraphs.find((p) => p.id === id);
     if (meta) return showParagraph(meta);
   }
-  showList();
+  showHome();
 }
 
-function showList() {
-  document.body.dataset.view = 'list';
-  currentParaId = null;
-  document.getElementById('dict-controls').hidden = true;
-  setHeader('Norsk', 'Muntlig — lesetekster');
+/** Hide every view-specific control. Each view then re-enables its own. */
+/**
+ * Publish the real heights of the frozen layers as custom properties, so the
+ * sticky offsets below them are correct rather than guessed. They change with
+ * the safe-area inset, font scaling and the filter row wrapping, none of which
+ * a hardcoded value survives.
+ */
+function measureChrome() {
+  const set = (name, el) => {
+    const h = el && !el.hidden ? Math.round(el.getBoundingClientRect().height) : 0;
+    document.documentElement.style.setProperty(name, `${h}px`);
+  };
+  set('--topbar-h', document.querySelector('.topbar'));
+  const dict = document.getElementById('dict-controls');
+  set('--dict-controls-h', dict);
+}
 
-  // Move focus off the back button before hiding it, or focus falls to <body>
-  // and keyboard users lose their place.
+function resetChrome() {
+  document.getElementById('dict-controls').hidden = true;
+  document.getElementById('scratch-controls').hidden = true;
+  currentParaId = null;
+}
+
+/**
+ * Home is a launcher, not a list: a wordmark and three destinations. The text
+ * list lives at #/tekster so this page stays the same size as content grows.
+ */
+function showHome() {
+  document.body.dataset.view = 'home';
+  resetChrome();
+
+  // The brand in the topbar carries the title here.
+  setHeader('', '');
+  document.title = 'Norsk — lesing';
+
   const back = document.getElementById('back');
   if (document.activeElement === back) document.getElementById('doc-title').focus();
   back.hidden = true;
@@ -104,14 +136,51 @@ function showList() {
   const main = document.getElementById('reader');
   main.replaceChildren();
 
-  const lastRead = readLastRead();
-  announce('Alle tekster');
+  const nav = document.createElement('nav');
+  nav.className = 'home-nav';
+  nav.setAttribute('aria-label', 'Hovedmeny');
 
-  const dictLink = document.createElement('a');
-  dictLink.className = 'dict-entry-link';
-  dictLink.href = '#/ordbok';
-  dictLink.textContent = `Ordbok — ${Object.keys(lexicon.entries).length} ord`;
-  main.append(dictLink);
+  const destinations = [
+    ['#/tekster', 'Lesetekster', String(index.paragraphs.length)],
+    ['#/ordbok', 'Ordbok', String(Object.keys(lexicon.entries).length)],
+    ['#/skriv', 'Egen tekst', ''],
+  ];
+
+  for (const [href, label, count] of destinations) {
+    const a = document.createElement('a');
+    a.className = 'home-link';
+    a.href = href;
+
+    const name = document.createElement('span');
+    name.className = 'home-link-name';
+    name.textContent = label;
+    a.append(name);
+
+    if (count) {
+      const n = document.createElement('span');
+      n.className = 'home-link-count';
+      n.textContent = count;
+      a.append(n);
+    }
+    nav.append(a);
+  }
+
+  main.append(nav);
+  measureChrome();
+  announce('Norsk');
+}
+
+function showTexts() {
+  document.body.dataset.view = 'texts';
+  resetChrome();
+  setHeader('Lesetekster', `${index.paragraphs.length} tekster · A1–B2`);
+  document.getElementById('back').hidden = false;
+
+  const main = document.getElementById('reader');
+  main.replaceChildren();
+  const lastRead = readLastRead();
+  measureChrome();
+  announce('Lesetekster');
 
   for (const level of index.levels) {
     const items = index.paragraphs.filter((p) => p.level === level.level);
@@ -152,6 +221,284 @@ function showList() {
     section.append(ul);
     main.append(section);
   }
+}
+
+
+// --- scratch: read any pasted Norwegian -------------------------------
+//
+// Authored paragraphs treat an unresolved word as a bug. Here it is the whole
+// point: a real newspaper paragraph runs 40-60% unknown, and those unknowns
+// are the words worth learning next. So they render as visibly marked and
+// tappable, and the card hands back a lexicon stub to paste.
+
+const SCRATCH_KEY = 'norsk:scratch';
+
+function readScratch() {
+  try {
+    return localStorage.getItem(SCRATCH_KEY) ?? '';
+  } catch {
+    return '';
+  }
+}
+
+function writeScratch(text) {
+  try {
+    if (text) localStorage.setItem(SCRATCH_KEY, text);
+    else localStorage.removeItem(SCRATCH_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+function showScratch() {
+  document.body.dataset.view = 'scratch';
+  resetChrome();
+  document.getElementById('back').hidden = false;
+  document.getElementById('scratch-controls').hidden = false;
+
+  setHeader('Egen tekst', 'Lim inn og les');
+
+  const input = document.getElementById('scratch-input');
+  input.value = readScratch();
+
+  document.getElementById('scratch-read').onclick = () => {
+    writeScratch(input.value);
+    renderScratch(input.value);
+  };
+  document.getElementById('scratch-clear').onclick = () => {
+    input.value = '';
+    writeScratch('');
+    document.getElementById('reader').replaceChildren();
+    document.getElementById('scratch-stats').textContent = '';
+    input.focus();
+  };
+
+  if (input.value.trim()) renderScratch(input.value);
+  else document.getElementById('reader').replaceChildren();
+
+  measureChrome();
+  window.scrollTo(0, 0);
+  announce('Egen tekst');
+}
+
+/**
+ * The word-level pieces of the abbreviations above ("bl", "a", "ca", "kl"…).
+ * The parser tokenises "bl.a." into separate words, so without this they show
+ * up as unknown vocabulary and pollute the list of words worth learning.
+ */
+const ABBREVIATION_PARTS = new Set();
+
+// Common Norwegian abbreviations whose full stop does not end a sentence.
+// Without this "bl.a." splits into three fragments and pasted prose renders
+// as broken lines.
+const ABBREVIATIONS = [
+  'bl.a.', 'f.eks.', 'dvs.', 'osv.', 'm.m.', 'o.l.', 'bl. a.', 'f. eks.',
+  'ca.', 'kl.', 'nr.', 'jf.', 'pga.', 'iflg.', 'mht.', 'vha.', 'evt.', 'inkl.',
+  'ekskl.', 'maks.', 'min.', 'tlf.', 'mrd.', 'mill.', 'jr.', 'sr.', 'dr.', 'st.',
+];
+
+for (const abbr of ABBREVIATIONS) {
+  for (const part of abbr.split('.')) {
+    const trimmed = part.trim().toLowerCase();
+    if (trimmed) ABBREVIATION_PARTS.add(trimmed);
+  }
+}
+
+/** Split pasted prose into sentences the parser can take one at a time. */
+function splitSentences(text) {
+  // Mask the full stops inside abbreviations so they do not end a sentence,
+  // split, then restore. The sentinel must be a character that cannot occur
+  // in pasted text: anything whitespace-like would be turned into a full stop
+  // on restore, corrupting every sentence.
+  const MASK = '\u0000';
+  let masked = text;
+  for (const abbr of ABBREVIATIONS) {
+    const capitalised = abbr[0].toUpperCase() + abbr.slice(1);
+    for (const form of [abbr, capitalised]) {
+      masked = masked.replaceAll(form, form.replaceAll('.', MASK));
+    }
+  }
+
+  return masked
+    .split(/\n+/)
+    .flatMap((block) => block.match(/[^.!?\u2026]+[.!?\u2026]*\s*/g) ?? [block])
+    .map((s) => s.replaceAll(MASK, '.').trim())
+    .filter(Boolean);
+}
+
+function renderScratch(text) {
+  const reader = document.getElementById('reader');
+  reader.replaceChildren();
+
+  const body = splitSentences(text);
+  if (body.length === 0) return;
+
+  // Pasted text carries no annotation, so diagnostics are expected and are
+  // shown in the UI rather than logged.
+  const { sentences } = parseParagraph({ id: 'scratch', body }, lexicon);
+
+  let known = 0;
+  let unknown = 0;
+  const unknownWords = new Set();
+
+  for (const nodes of sentences) {
+    const p = document.createElement('p');
+    p.className = 'sentence';
+
+    nodes.forEach((node, i) => {
+      if (node.kind === 'punct') {
+        const span = document.createElement('span');
+        span.className = 'punct';
+        span.textContent = node.surface;
+        p.append(span);
+        return;
+      }
+
+      const prev = nodes[i - 1];
+      if (i > 0 && prev.kind === 'word') p.append(' ');
+
+      // "bl.a." tokenises into "bl" and "a". Those are not vocabulary, so
+      // render them as plain text and keep them out of the study list.
+      if (!node.lemma && ABBREVIATION_PARTS.has(node.surface.toLowerCase())) {
+        const span = document.createElement('span');
+        span.className = 'w-plain';
+        span.lang = 'nb';
+        span.textContent = node.surface;
+        p.append(span);
+        return;
+      }
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.lang = 'nb';
+      btn.textContent = node.surface;
+      btn.setAttribute('aria-expanded', 'false');
+
+      if (node.lemma) {
+        known++;
+        btn.className = 'w' + (node.groupId ? ' is-phrase' : '');
+        btn.dataset.lemma = node.lemma;
+        if (node.entryId) btn.dataset.entryId = node.entryId;
+        btn.addEventListener('click', () => openCard(node, btn));
+      } else {
+        unknown++;
+        unknownWords.add(node.surface.toLowerCase());
+        btn.className = 'w w-unknown';
+        btn.setAttribute('aria-label', `${node.surface} — ikke i ordboka`);
+        btn.addEventListener('click', () => openUnknownCard(node.surface, btn));
+      }
+      p.append(btn);
+    });
+
+    reader.append(p);
+  }
+
+  const total = known + unknown;
+  const pct = total ? Math.round((100 * known) / total) : 0;
+  document.getElementById('scratch-stats').textContent =
+    `${known} av ${total} ord kjent (${pct} %) — ${unknownWords.size} nye ord å legge til`;
+}
+
+/**
+ * Strip a likely definite/plural ending so the stub proposes a base form
+ * rather than an inflected one. "statsråden" -> "statsråd", not a lemma
+ * "statsråden" whose definite would come out "statsrådenen".
+ *
+ * A heuristic, and it will sometimes be wrong — the card says so.
+ */
+function guessLemma(word) {
+  // Longest endings first, so "kritikerne" loses "erne" rather than "e".
+  const SUFFIXES = ['erne', 'ene', 'ane', 'ene', 'er', 'en', 'et', 'ne', 'a'];
+  for (const suffix of SUFFIXES) {
+    if (word.length > suffix.length + 2 && word.endsWith(suffix)) {
+      let stem = word.slice(0, -suffix.length);
+      // Nouns in -e keep it in the base form: "kroner" -> "krone", not "kron".
+      if (suffix === 'er' && !/[aeiouyæøå]$/.test(stem)) stem += 'e';
+      return { lemma: stem, guessed: true };
+    }
+  }
+  return { lemma: word, guessed: false };
+}
+
+/**
+ * Card for a word that is not in the lexicon. Instead of a dictionary entry it
+ * offers a ready-made stub, so reading an article feeds the lexicon directly.
+ */
+function openUnknownCard(surface, el) {
+  cardOpener = el;
+  clearHighlight();
+  activeGroupEls = [el];
+  el.classList.add('is-active');
+
+  const body = document.getElementById('card-body');
+  body.replaceChildren();
+  body.dataset.entryId = '';
+
+  const kicker = document.createElement('p');
+  kicker.className = 'card-form';
+  kicker.textContent = 'ikke i ordboka ennå';
+  body.append(kicker);
+
+  const head = document.createElement('h2');
+  head.className = 'card-headword';
+  head.id = 'card-headword';
+  head.lang = 'nb';
+  head.textContent = surface;
+  body.append(head);
+
+  const hint = document.createElement('p');
+  hint.className = 'card-gloss';
+  hint.textContent =
+    'Slå opp ordet, fyll inn grunnform og oversettelse, og lim inn i data/lexicon.json.';
+  body.append(hint);
+
+  const word = surface.toLowerCase();
+  const { lemma, guessed } = guessLemma(word);
+  const stub = `"${lemma}": { "id": "${lemma}-n", "pos": "noun", "gender": "en", "gloss": "", "forms": { "indefinite_sg": "${lemma}", "definite_sg": "${lemma}en", "indefinite_pl": "${lemma}er", "definite_pl": "${lemma}ene" } },`;
+
+  if (guessed) {
+    const guess = document.createElement('p');
+    guess.className = 'card-note';
+    guess.textContent = `«${surface}» ser ut som en bøyd form — malen bruker «${lemma}» som grunnform. Sjekk at det stemmer.`;
+    body.append(guess);
+  }
+
+  const pre = document.createElement('pre');
+  pre.className = 'card-stub';
+  pre.textContent = stub;
+  body.append(pre);
+
+  const copy = document.createElement('button');
+  copy.type = 'button';
+  copy.className = 'btn-primary';
+  copy.textContent = 'Kopier mal';
+  copy.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(stub);
+      copy.textContent = 'Kopiert ✓';
+    } catch {
+      // Clipboard API needs a secure context; select the text instead.
+      const range = document.createRange();
+      range.selectNodeContents(pre);
+      const sel = getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      copy.textContent = 'Merket — kopier selv';
+    }
+    setTimeout(() => (copy.textContent = 'Kopier mal'), 2000);
+  });
+  body.append(copy);
+
+  const note = document.createElement('p');
+  note.className = 'card-note';
+  note.textContent = 'Malen antar substantiv. Endre pos og bøyning hvis ordet er verb eller adjektiv.';
+  body.append(note);
+
+  document.getElementById('card').hidden = false;
+  document.getElementById('card-scrim').hidden = false;
+  setBackgroundInert(true);
+  el.setAttribute('aria-expanded', 'true');
+  document.getElementById('card-close').focus();
 }
 
 // --- dictionary -------------------------------------------------------
@@ -199,7 +546,7 @@ function dictMatches({ lemma, entry }) {
 
 function showDictionary() {
   document.body.dataset.view = 'dict';
-  currentParaId = null; // examples may come from anywhere
+  resetChrome(); // examples may come from anywhere
   document.getElementById('back').hidden = false;
   document.getElementById('dict-controls').hidden = false;
 
@@ -214,6 +561,7 @@ function showDictionary() {
 
   renderFilters();
   renderDictList();
+  measureChrome();
   window.scrollTo(0, 0);
   announce('Ordbok');
 }
@@ -307,8 +655,8 @@ function dictRow({ lemma, entry }) {
 
 async function showParagraph(meta) {
   document.body.dataset.view = 'reader';
+  resetChrome();
   document.getElementById('back').hidden = false;
-  document.getElementById('dict-controls').hidden = true;
 
   const res = await fetch(PARAGRAPH_DIR + meta.file);
   if (!res.ok) {
@@ -325,6 +673,7 @@ async function showParagraph(meta) {
   setHeader(doc.title, [doc.level, doc.gloss].filter(Boolean).join(' · '));
   writeLastRead(meta.id);
   render(sentences);
+  measureChrome();
   window.scrollTo(0, 0);
   // Move focus to the heading so keyboard and screen-reader users land in the
   // new view instead of staying on the link they activated.
@@ -749,7 +1098,8 @@ function wireChrome() {
     if (!document.getElementById('card').hidden) trapFocus(e);
   });
   document.getElementById('back').addEventListener('click', () => {
-    location.hash = '';
+    // A paragraph belongs to the text list; the other views hang off home.
+    location.hash = document.body.dataset.view === 'reader' ? '#/tekster' : '';
   });
 }
 

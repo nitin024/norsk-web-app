@@ -11,6 +11,9 @@
 # Logs
 *.log
 
+# Local dev server state
+.serve.pid
+
 # Local scratch — drafts not yet added to data/index.json
 scratch/
 *.draft.json

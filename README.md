@@ -10,8 +10,25 @@ No build step, no backend, no dependencies. Vanilla ES modules and plain JSON.
 ES modules and `fetch` need a real origin — opening `index.html` from the
 filesystem will not work.
 
-    python3 -m http.server 8000
-    # http://localhost:8000
+    ./serve.sh            # start and open a browser tab
+    ./serve.sh stop       # stop the server this script started
+    ./serve.sh kill       # free the port, whoever is holding it
+    ./serve.sh restart
+    ./serve.sh status
+
+Defaults to port 8000; override with `PORT=8081 ./serve.sh`. The PID is kept in
+`.serve.pid` so `stop` is reliable, and the script waits for the server to
+accept connections before opening the tab.
+
+`stop` only touches the server this script started. If the port is held by
+something else — a `python3 -m http.server` you launched by hand, say — use
+`kill`, which names the process before terminating it. `restart` does whichever
+applies.
+
+To read it on your phone over the same wifi:
+
+    PORT=8080 python3 -m http.server 8080 --bind 0.0.0.0
+    # then visit http://<your-mac-ip>:8080
 
 ## Content format
 

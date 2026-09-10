@@ -12,9 +12,31 @@
 
     <div id="page">
       <header class="topbar">
-        <button id="back" class="back" type="button" hidden>‹ Alle tekster</button>
-        <h1 id="doc-title" tabindex="-1">Norsk</h1>
-        <p id="doc-meta" class="meta"></p>
+        <button id="back" class="back" type="button" hidden aria-label="Tilbake">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M15 5 L8 12 L15 19" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+
+        <!-- Always present, always the way home. Inline SVG so there is no
+             asset path to break on GitHub Pages, and currentColor makes it
+             follow the light/dark theme. -->
+        <a id="brand" class="brand" href="#" aria-label="Norsk — til forsiden">
+          <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+            <path d="M17 7 V41 M5 22.5 H43" stroke="currentColor" stroke-width="6"
+                  stroke-linecap="round" />
+          </svg>
+          <span class="brand-text">
+            <span class="brand-name">Norsk</span>
+            <span class="brand-tagline">lese · muntlig</span>
+          </span>
+        </a>
+
+        <div class="topbar-page">
+          <h1 id="doc-title" tabindex="-1"></h1>
+          <p id="doc-meta" class="meta"></p>
+        </div>
       </header>
 
       <div id="dict-controls" class="dict-controls" hidden>
@@ -30,6 +52,22 @@
           aria-label="Søk i ordboka"
         />
         <div id="dict-filters" class="dict-filters" role="group" aria-label="Filtrer på ordklasse"></div>
+      </div>
+
+      <div id="scratch-controls" class="scratch-controls" hidden>
+        <label class="visually-hidden" for="scratch-input">Lim inn norsk tekst</label>
+        <textarea
+          id="scratch-input"
+          class="scratch-input"
+          lang="nb"
+          rows="4"
+          placeholder="Lim inn en tekst fra en avis eller nettside…"
+        ></textarea>
+        <div class="scratch-actions">
+          <button id="scratch-read" class="btn-primary" type="button">Les teksten</button>
+          <button id="scratch-clear" class="btn-quiet" type="button">Tøm</button>
+        </div>
+        <p id="scratch-stats" class="scratch-stats" role="status" aria-live="polite"></p>
       </div>
 
       <main id="reader" class="reader" tabindex="-1"></main>
