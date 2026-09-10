@@ -1,0 +1,17 @@
+{
+  "id": "familien",
+  "title": "Familien min",
+  "level": "A1",
+  "topic": "muntlig — presentasjon",
+  "gloss": "My family",
+  "examNote": "Vanlig oppfølgingsspørsmål i del 1: «Kan du fortelle om familien din?»",
+  "body": [
+    "Jeg vil fortelle om familien mi.",
+    "Jeg er gift og har to barn.",
+    "Mannen min heter <Yusuf>, og han {jobber:jobbe} på et sykehus.",
+    "Dattera mi er sju år og går på skolen.",
+    "Sønnen min er tre år og går i barnehagen.",
+    "Foreldrene mine bor ikke i <Norge>, og jeg savner dem.",
+    "Vi snakker sammen på telefon hver helg."
+  ]
+}
