@@ -2,17 +2,18 @@ import { parseParagraph, reportDiagnostics, lookupEntry } from './parser.js';
 import { lexiconStub, guessLemma } from './stub.js';
 import { canSpeak, speak, stopSpeaking } from './speech.js';
 import {
-  recordLookup, allLookups, dueLookups, markKnown, markAgain, reviewCounts, describeWait,
-  INTERVALS_DAYS, MAX_BOX,
+  recordLookup, addIfMissing, allLookups, dueLookups, markKnown, markAgain, reviewCounts,
+  describeWait, INTERVALS_DAYS, MAX_BOX,
 } from './review.js';
 import {
-  recordOpen, recordMode, recordCloze, recordSpoke, getProgress, isRead, isFinished,
-  lastTouched, progressSummary,
+  recordOpen, recordMode, recordCloze, recordSpoke, recordDictation, recordDrill, drillStats,
+  recordRulePassed, rulesPassed, getProgress, isRead, isFinished, lastTouched, progressSummary,
 } from './progress.js';
+import { toWords, clockWords, priceWords, dateWords, yearWords } from './numbers.js';
 
 // Bump by hand on each deploy — there is no build step to inject it.
 // Shown on the home page and stamped into every feedback mail.
-export const APP_VERSION = '0.1.0';
+export const APP_VERSION = '0.2.0';
 
 // Public repo, public page: this address is visible in the served HTML, which
 // is why it is a dedicated account rather than a personal one.
@@ -23,6 +24,8 @@ const LEXICON_URL = 'data/lexicon.json';
 const INDEX_URL = 'data/index.json';
 const PARAGRAPH_DIR = 'data/paragraphs/';
 const GRAMMAR_URL = 'data/grammar.json';
+const EXAM_URL = 'data/exam.json';
+const COURSE_URL = 'data/course.json';
 
 const POS_LABEL = {
   noun: 'substantiv',
@@ -50,6 +53,8 @@ const FORM_LABEL = {
   present: 'present tense',
   preterite: 'preterite',
   perfect: 'perfect',
+  imperative: 'imperative',
+  passive: 'passive (-s form)',
   indefinite_sg: 'indefinite singular',
   definite_sg: 'definite singular',
   definite_sg_fem: 'definite singular (feminine)',
@@ -126,6 +131,9 @@ function route() {
   if (id === 'tekster') return showTexts();
   if (id === 'ov') return showReview();
   if (id === 'grammatikk') return showGrammar();
+  if (id === 'tall') return showDrill();
+  if (id === 'prove') return showExam();
+  if (id === 'kurs') return showCourse();
   if (id.startsWith('tema/')) {
     const topic = (index.topics ?? []).find((t) => t.id === id.slice(5));
     if (topic) return showTopic(topic);
@@ -186,10 +194,13 @@ function showHome() {
 
   const due = reviewCounts().due;
   const destinations = [
+    ['#/kurs', 'Kurs', ''],
     ['#/tekster', 'Lesetekster', String(index.paragraphs.length)],
     ['#/ordbok', 'Ordbok', String(Object.keys(lexicon.entries).length)],
     ['#/ov', 'Øving', due ? String(due) : ''],
     ['#/grammatikk', 'Grammatikk', ''],
+    ['#/tall', 'Tall og klokka', ''],
+    ['#/prove', 'Prøve', ''],
     ['#/skriv', 'Egen tekst', ''],
   ];
 
@@ -240,6 +251,21 @@ function showHome() {
     }
     main.append(status);
   }
+
+  // The course's next step, filled in when the data has loaded. Always
+  // shown: on a fresh install it is the first step of A1.
+  const nextLine = document.createElement('a');
+  nextLine.className = 'home-next';
+  nextLine.href = '#/kurs';
+  nextLine.textContent = 'Kurs: neste steg …';
+  main.append(nextLine);
+  nextCourseStep()
+    .then((step) => {
+      if (document.body.dataset.view !== 'home') return;
+      nextLine.textContent = step ? `Neste i kurset (${step.level}): ${step.title}` : 'Kurset er fullført — gratulerer!';
+      if (step) nextLine.href = step.href;
+    })
+    .catch(() => nextLine.remove());
 
   const footer = document.createElement('footer');
   footer.className = 'home-footer';
@@ -868,6 +894,88 @@ function writeShowGloss(on) {
 
 let showGloss = readShowGloss();
 
+// The dictionary shows either the list or one flash card at a time over the
+// same filtered set. The choice sticks.
+const DICT_VIEW_KEY = 'norsk:dictView';
+
+function readDictView() {
+  try {
+    return localStorage.getItem(DICT_VIEW_KEY) === 'cards' ? 'cards' : 'list';
+  } catch {
+    return 'list';
+  }
+}
+
+function writeDictView(view) {
+  try {
+    localStorage.setItem(DICT_VIEW_KEY, view);
+  } catch {
+    /* ignore */
+  }
+}
+
+let dictView = readDictView();
+
+// Card order. «fast» keeps the same shuffle for a given search so you can
+// leave and come back; «bland» reshuffles on every visit and on demand;
+// «a-å» is the dictionary's own order, for working through a letter.
+const DICT_ORDER_KEY = 'norsk:dictOrder';
+const DICT_ORDERS = [
+  ['alfabet', 'A–Å'],
+  ['fast', 'Fast'],
+  ['bland', 'Tilfeldig'],
+];
+
+function readDictOrder() {
+  try {
+    const v = localStorage.getItem(DICT_ORDER_KEY);
+    return DICT_ORDERS.some(([id]) => id === v) ? v : 'alfabet';
+  } catch {
+    return 'alfabet';
+  }
+}
+
+let dictOrder = readDictOrder();
+// Bumped by «Stokk om» and by every fresh visit in «Tilfeldig», so the same
+// filter gives a new order.
+let dictShuffleNonce = 0;
+
+/**
+ * The filtered entries in the order the reader asked for. Shared by the list
+ * and the cards so one chip governs both. «alfabet» is the collated order
+ * `allEntries()` already holds; the other two shuffle it.
+ */
+function orderedEntries(matches) {
+  if (dictOrder === 'alfabet') return matches;
+  const deck = [...matches];
+  // Fisher–Yates. In «fast» the seed is the search itself, so the order is
+  // reproducible; in «bland» the nonce makes every visit different.
+  const seed = dictQuery + dictPos + 'kort' + (dictOrder === 'bland' ? `#${dictShuffleNonce}` : '');
+  let x = 0;
+  for (const ch of seed) x = (x * 31 + ch.charCodeAt(0)) >>> 0;
+  if (dictOrder === 'bland') x = (x ^ Date.now()) >>> 0;
+  for (let i = deck.length - 1; i > 0; i--) {
+    x = (x * 1103515245 + 12345) >>> 0;
+    const j = x % (i + 1);
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  return deck;
+}
+
+/** The order chips, above both the list and the cards. */
+function dictOrderRow() {
+  return chipRow(DICT_ORDERS, dictOrder, (order) => {
+    dictOrder = order;
+    try {
+      localStorage.setItem(DICT_ORDER_KEY, order);
+    } catch {
+      /* ignore */
+    }
+    dictShuffleNonce++;
+    renderDictList();
+  }, 'Rekkefølge');
+}
+
 /** All entries as a sorted array, built once. */
 let dictEntries = null;
 function allEntries() {
@@ -913,7 +1021,23 @@ function showDictionary() {
     writeShowGloss(showGloss);
     syncGlossToggle(toggle);
     applyGlossVisibility();
+    // In card view the toggle does more than reveal: it turns the deck
+    // around, so it has to re-render.
+    if (dictView === 'cards') renderDictList();
     announce(showGloss ? 'Engelsk vises' : 'Engelsk skjult');
+  };
+
+  const viewToggle = document.getElementById('dict-view-toggle');
+  syncViewToggle(viewToggle);
+  viewToggle.onclick = () => {
+    dictView = dictView === 'cards' ? 'list' : 'cards';
+    writeDictView(dictView);
+    syncViewToggle(viewToggle);
+    // The gloss toggle means something different in each view, so its label
+    // has to follow.
+    syncGlossToggle(document.getElementById('dict-gloss-toggle'));
+    renderDictList();
+    announce(dictView === 'cards' ? 'Kort' : 'Liste');
   };
 
   renderFilters();
@@ -923,10 +1047,24 @@ function showDictionary() {
   announce('Ordbok');
 }
 
+function syncViewToggle(btn) {
+  const cards = dictView === 'cards';
+  btn.setAttribute('aria-pressed', String(cards));
+  btn.classList.toggle('is-on', cards);
+  btn.textContent = cards ? 'Liste' : 'Kort';
+}
+
 function syncGlossToggle(btn) {
   btn.setAttribute('aria-pressed', String(showGloss));
   btn.classList.toggle('is-on', showGloss);
-  btn.textContent = showGloss ? 'Skjul engelsk' : 'Vis engelsk';
+  // In the list it reveals the gloss; on the cards it decides which side you
+  // are shown first. Same setting, because it answers the same question:
+  // "do I still need English?"
+  if (dictView === 'cards') {
+    btn.textContent = showGloss ? 'Engelsk først' : 'Norsk først';
+  } else {
+    btn.textContent = showGloss ? 'Skjul engelsk' : 'Vis engelsk';
+  }
 }
 
 /**
@@ -971,25 +1109,185 @@ function renderDictList() {
     return;
   }
 
-  // Group by initial letter, honouring Norwegian collation.
-  let letter = null;
-  let list = null;
-  for (const item of matches) {
-    const initial = item.lemma[0].toUpperCase();
-    if (initial !== letter) {
-      letter = initial;
-      const h = document.createElement('h2');
-      h.className = 'dict-letter';
-      h.textContent = letter;
-      reader.append(h);
-      list = document.createElement('ul');
-      list.className = 'dict-list';
-      reader.append(list);
+  const ordered = orderedEntries(matches);
+  if (dictView === 'cards') return renderDictCards(reader, ordered);
+
+  reader.append(dictOrderRow());
+
+  if (dictOrder === 'alfabet') {
+    // Group by initial letter, honouring Norwegian collation.
+    let letter = null;
+    let list = null;
+    for (const item of ordered) {
+      const initial = item.lemma[0].toUpperCase();
+      if (initial !== letter) {
+        letter = initial;
+        const h = document.createElement('h2');
+        h.className = 'dict-letter';
+        h.textContent = letter;
+        reader.append(h);
+        list = document.createElement('ul');
+        list.className = 'dict-list';
+        reader.append(list);
+      }
+      list.append(dictRow(item));
     }
-    list.append(dictRow(item));
+  } else {
+    // Shuffled: letter headings would be meaningless, so it is one flat list.
+    const list = document.createElement('ul');
+    list.className = 'dict-list';
+    for (const item of ordered) list.append(dictRow(item));
+    reader.append(list);
   }
 
   announce(`${matches.length} ord`);
+}
+
+/**
+ * Flash cards over the filtered dictionary. Norwegian on the front, tap to
+ * flip, then next. Shuffled once per render so the same search gives the
+ * same run through, and «Legg i øving» puts a card into the review deck.
+ */
+function renderDictCards(reader, deck) {
+  reader.append(dictOrderRow());
+
+  let i = 0;
+  const card = document.createElement('section');
+  card.className = 'flip';
+  const progress = document.createElement('p');
+  progress.className = 'review-progress';
+  const shuffle = document.createElement('button');
+  shuffle.type = 'button';
+  shuffle.className = 'btn-quiet shuffle-btn';
+  shuffle.textContent = 'Stokk om';
+  shuffle.addEventListener('click', () => {
+    dictShuffleNonce++;
+    // A manual shuffle is a one-off even in «A–Å» and «Fast».
+    const keep = dictOrder;
+    dictOrder = 'bland';
+    renderDictList();
+    dictOrder = keep;
+  });
+  reader.append(card, progress, shuffle);
+
+  const show = () => {
+    card.replaceChildren();
+    const { lemma, entry } = deck[i];
+    progress.textContent = `${i + 1} av ${deck.length}`;
+
+    // Which way round the card is. English first (recall the Norwegian) is
+    // the beginner's direction and the one that actually teaches production;
+    // Norwegian first is recognition, and is what a reader wants later.
+    const englishFirst = showGloss;
+
+    const front = document.createElement('h2');
+    front.className = 'flip-word';
+    if (englishFirst) {
+      front.textContent = entry.gloss;
+    } else {
+      front.lang = 'nb';
+      front.textContent = headword(lemma, entry);
+    }
+    card.append(front);
+
+    // No speaker on an English front: hearing the Norwegian would give the
+    // answer away before you have tried to recall it.
+    if (!englishFirst) {
+      const sp = speakButton(displayLemma(lemma, entry));
+      if (sp) card.append(sp);
+    }
+
+    const pos = document.createElement('p');
+    pos.className = 'flip-box';
+    pos.textContent = [POS_LABEL[entry.pos] || entry.pos, entry.gender].filter(Boolean).join(' · ');
+    card.append(pos);
+
+    const back = document.createElement('div');
+    back.className = 'flip-back';
+    back.hidden = true;
+    if (englishFirst) {
+      const word = document.createElement('p');
+      word.className = 'flip-answer';
+      word.lang = 'nb';
+      word.textContent = headword(lemma, entry);
+      back.append(word);
+      const sp = speakButton(displayLemma(lemma, entry));
+      if (sp) back.append(sp);
+    } else {
+      const gloss = document.createElement('p');
+      gloss.className = 'card-gloss';
+      gloss.textContent = entry.gloss;
+      back.append(gloss);
+    }
+    if (entry.note) {
+      const note = document.createElement('p');
+      note.className = 'card-note';
+      note.textContent = entry.note;
+      back.append(note);
+    }
+    if (entry.forms) back.append(buildTable(entry, null));
+    card.append(back);
+
+    const actions = document.createElement('div');
+    actions.className = 'flip-actions';
+    const flip = document.createElement('button');
+    flip.type = 'button';
+    flip.className = 'btn-primary';
+    flip.textContent = 'Vis';
+    const advance = () => {
+      i = (i + 1) % deck.length;
+      show();
+    };
+    const next = document.createElement('button');
+    next.type = 'button';
+    next.className = 'btn-quiet';
+    next.textContent = i + 1 < deck.length ? 'Neste' : 'Fra starten';
+    const prev = document.createElement('button');
+    prev.type = 'button';
+    prev.className = 'btn-quiet';
+    prev.textContent = 'Forrige';
+    prev.hidden = i === 0;
+    // Grading feeds the same spaced schedule as Øving. "Kunne det" moves the
+    // word one box up (a new word lands in box 1, due tomorrow); "Øv mer"
+    // treats it like a lookup: box 0, due now.
+    //
+    // Every button is live from the start: a word you already know should be
+    // graded and left behind without ever turning the card over. «Vis» is for
+    // the ones you are unsure about, and it only adds the answer.
+    const knew = document.createElement('button');
+    knew.type = 'button';
+    knew.className = 'btn-primary';
+    knew.textContent = 'Kunne det';
+    knew.hidden = !entry.id;
+    const again = document.createElement('button');
+    again.type = 'button';
+    again.className = 'btn-quiet';
+    again.textContent = 'Øv mer';
+    again.hidden = !entry.id;
+    flip.addEventListener('click', () => {
+      back.hidden = false;
+      flip.hidden = true;
+      (entry.id ? knew : next).focus();
+    });
+    next.addEventListener('click', advance);
+    prev.addEventListener('click', () => {
+      i = Math.max(0, i - 1);
+      show();
+    });
+    knew.addEventListener('click', () => {
+      addIfMissing(entry.id);
+      markKnown(entry.id);
+      advance();
+    });
+    again.addEventListener('click', () => {
+      recordLookup(entry.id, null);
+      advance();
+    });
+    actions.append(prev, flip, knew, again, next);
+    card.append(actions);
+  };
+  show();
+  announce(`${deck.length} kort`);
 }
 
 function dictRow({ lemma, entry }) {
@@ -1123,6 +1421,7 @@ function writeLastRead(id) {
 const READER_MODES = [
   ['read', 'Les'],
   ['cloze', 'Fyll inn'],
+  ['listen', 'Lytt'],
   ['speak', 'Snakk'],
 ];
 
@@ -1142,6 +1441,7 @@ function renderReader() {
   );
 
   if (readerMode === 'cloze') renderCloze(reader, sentences);
+  else if (readerMode === 'listen') renderListen(reader, sentences);
   else if (readerMode === 'speak') renderSpeak(reader, doc, sentences);
   else {
     render(reader, sentences);
@@ -1185,22 +1485,93 @@ function speakButton(text, label = 'Les høyt') {
   return btn;
 }
 
+// «Vis grammatikk» marks the finite verb in every sentence and tags the
+// sentences where the rules from the Grammatikk page are at work: inversion
+// after a fronted element, and subordinate clauses. Seeing V2 happen in a
+// real text is worth more than any example.
+const SHOW_GRAMMAR_KEY = 'norsk:showGrammar';
+let grammarOn = (() => {
+  try {
+    return localStorage.getItem(SHOW_GRAMMAR_KEY) === '1';
+  } catch {
+    return false;
+  }
+})();
+
+const SUBJECT_PRONOUNS = new Set(['jeg', 'du', 'han', 'hun', 'den', 'det', 'vi', 'dere', 'de', 'man', 'dette']);
+const SUBORDINATORS = new Set(['fordi', 'at', 'når', 'da', 'hvis', 'om', 'som', 'mens', 'før', 'siden', 'dersom', 'selv om', 'etter at']);
+
 function render(reader, sentences) {
+  const bar = document.createElement('div');
+  bar.className = 'read-tools';
   const whole = speakButton(sentences.map(sentenceText).join(' '), 'Les hele teksten høyt');
   if (whole) {
-    const bar = document.createElement('div');
-    bar.className = 'read-tools';
     whole.classList.add('speak-all');
     whole.textContent = '🔊 Les hele teksten';
     bar.append(whole);
-    reader.append(bar);
   }
+  const gram = document.createElement('button');
+  gram.type = 'button';
+  gram.className = 'gloss-toggle grammar-toggle';
+  const syncGram = () => {
+    reader.classList.toggle('show-grammar', grammarOn);
+    gram.textContent = grammarOn ? 'Skjul grammatikk' : 'Vis grammatikk';
+    gram.setAttribute('aria-pressed', String(grammarOn));
+  };
+  gram.addEventListener('click', () => {
+    grammarOn = !grammarOn;
+    try {
+      localStorage.setItem(SHOW_GRAMMAR_KEY, grammarOn ? '1' : '0');
+    } catch {
+      /* ignore */
+    }
+    syncGram();
+  });
+  bar.append(gram);
+  reader.append(bar);
+  syncGram();
 
-  for (const nodes of sentences) reader.append(buildSentence(nodes));
+  const legend = document.createElement('p');
+  legend.className = 'grammar-legend';
+  legend.textContent = 'Verb i understreket grønt. «V2» = noe annet enn subjektet står først, så verbet kommer før subjektet. «leddsetning» = etter dette ordet står «ikke» før verbet.';
+  reader.append(legend);
+
+  for (const nodes of sentences) reader.append(buildSentence(nodes, { grammar: true }));
+}
+
+/** Tag the grammar at work in one sentence. Called only for reading mode. */
+function annotateGrammar(p, nodes) {
+  const words = nodes.filter((n) => n.kind === 'word');
+  const isFinite = (n) => n.formName === 'present' || n.formName === 'preterite';
+  const buttons = [...p.querySelectorAll('.w')];
+  let bi = 0;
+  const byNode = new Map();
+  for (const n of words) {
+    if (n.lemma) byNode.set(n, buttons[bi++]);
+  }
+  for (const n of words) {
+    if (isFinite(n)) byNode.get(n)?.classList.add('is-finite');
+    const key = n.groupId ? n.lemma : n.surface.toLowerCase();
+    if (SUBORDINATORS.has(key) || SUBORDINATORS.has(n.lemma)) byNode.get(n)?.classList.add('is-subordinator');
+  }
+  // Inversion: the finite verb is the second word and the first is not a subject pronoun.
+  if (words.length >= 3 && isFinite(words[1]) && !isFinite(words[0]) && !SUBJECT_PRONOUNS.has(words[0].surface.toLowerCase())) {
+    const tag = document.createElement('span');
+    tag.className = 'gram-tag';
+    tag.textContent = 'V2';
+    tag.title = 'Inversjon: verbet står før subjektet';
+    p.append(' ', tag);
+  }
+  if (words.some((n) => SUBORDINATORS.has(n.surface.toLowerCase()) || (n.groupId && SUBORDINATORS.has(n.lemma)))) {
+    const tag = document.createElement('span');
+    tag.className = 'gram-tag gram-tag-sub';
+    tag.textContent = 'leddsetning';
+    p.append(' ', tag);
+  }
 }
 
 /** One tappable sentence: the reader's basic unit, reused by the grammar page. */
-function buildSentence(nodes) {
+function buildSentence(nodes, { grammar = false } = {}) {
   const p = document.createElement('p');
   p.className = 'sentence';
   const sp = speakButton(sentenceText(nodes), 'Les setningen høyt');
@@ -1240,7 +1611,251 @@ function buildSentence(nodes) {
     btn.addEventListener('click', () => openCard(node, btn));
     p.append(btn);
   });
+  if (grammar) annotateGrammar(p, nodes);
   return p;
+}
+
+// --- listening ---------------------------------------------------------
+//
+// Dictation: hear a sentence, write it, compare. The exam is oral both
+// ways, and this is the only place the app asks the learner to understand
+// spoken Norwegian rather than produce it.
+
+function normaliseLoose(s) {
+  return String(s ?? '')
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function renderListen(reader, sentences) {
+  const intro = document.createElement('p');
+  intro.className = 'level-desc';
+  intro.textContent = canSpeak()
+    ? 'Trykk på høyttaleren, lytt, og skriv setningen. Store bokstaver og tegn teller ikke.'
+    : 'Nettleseren din har ingen norsk stemme, så diktat virker ikke her. Prøv på telefonen eller i Chrome.';
+  reader.append(intro);
+  if (!canSpeak()) return;
+
+  const rows = sentences.map((nodes, i) => {
+    const text = sentenceText(nodes);
+    const row = document.createElement('div');
+    row.className = 'dictation';
+    const sp = speakButton(text, `Spill setning ${i + 1}`);
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'dictation-input';
+    input.lang = 'nb';
+    input.autocomplete = 'off';
+    input.autocapitalize = 'off';
+    input.spellcheck = false;
+    input.placeholder = `Setning ${i + 1}`;
+    input.setAttribute('aria-label', `Setning ${i + 1}`);
+    const key = document.createElement('p');
+    key.className = 'dictation-key';
+    key.lang = 'nb';
+    key.textContent = text;
+    key.hidden = true;
+    row.append(sp, input, key);
+    reader.append(row);
+    return { input, key, text };
+  });
+
+  const bar = document.createElement('div');
+  bar.className = 'scratch-actions';
+  const check = document.createElement('button');
+  check.type = 'button';
+  check.className = 'btn-primary';
+  check.textContent = 'Sjekk';
+  const reveal = document.createElement('button');
+  reveal.type = 'button';
+  reveal.className = 'btn-quiet';
+  reveal.textContent = 'Vis fasit';
+  const status = document.createElement('p');
+  status.className = 'scratch-stats';
+  status.setAttribute('role', 'status');
+  bar.append(check, reveal);
+  reader.append(bar, status);
+
+  let revealed = false;
+  const grade = () => {
+    let right = 0;
+    for (const r of rows) {
+      const ok = normaliseLoose(r.input.value) === normaliseLoose(r.text);
+      r.input.classList.toggle('is-right', ok);
+      r.input.classList.toggle('is-wrong', !ok && (r.input.value ?? '').trim() !== '');
+      if (ok) right++;
+    }
+    status.textContent = `${right} av ${rows.length} riktige`;
+    if (!revealed && currentDoc) recordDictation(currentDoc.meta.id, right, rows.length);
+  };
+  check.addEventListener('click', grade);
+  reveal.addEventListener('click', () => {
+    revealed = !revealed;
+    for (const r of rows) r.key.hidden = !revealed;
+    reveal.textContent = revealed ? 'Skjul fasit' : 'Vis fasit';
+    if (revealed) grade();
+  });
+  reader.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.classList?.contains('dictation-input')) {
+      e.preventDefault();
+      grade();
+    }
+  });
+}
+
+// --- numbers, clock, prices, dates -------------------------------------
+//
+// Del 1 of the oral exam always touches numbers: your age, the time you get
+// up, what things cost, when you came to Norway. A pure drill: see a figure,
+// write it in words, hear it said.
+
+const DRILL_KINDS = [
+  ['blandet', 'Blandet'],
+  ['tall', 'Tall'],
+  ['klokka', 'Klokka'],
+  ['pris', 'Priser'],
+  ['dato', 'Datoer'],
+  ['år', 'Årstall'],
+];
+
+function drillItem(kind, rnd = Math.random) {
+  const pick = (n) => Math.floor(rnd() * n);
+  const k = kind === 'blandet' ? ['tall', 'klokka', 'pris', 'dato', 'år'][pick(5)] : kind;
+  switch (k) {
+    case 'klokka': {
+      const h = pick(24);
+      const m = pick(12) * 5;
+      return { kind: k, prompt: `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`, answer: clockWords(h, m), label: 'Hva er klokka? Skriv slik man sier det.' };
+    }
+    case 'pris': {
+      const kr = [pick(100), pick(1000), pick(10000)][pick(3)] + 1;
+      return { kind: k, prompt: `${kr} kr`, answer: priceWords(kr), label: 'Hvor mye koster det?' };
+    }
+    case 'dato': {
+      const d = pick(31) + 1;
+      const m = pick(12);
+      return { kind: k, prompt: `${d}. ${String(m + 1).padStart(2, '0')}.`, answer: dateWords(d, m), label: 'Hvilken dato? Skriv med ord.' };
+    }
+    case 'år': {
+      const y = 1950 + pick(80);
+      return { kind: k, prompt: String(y), answer: yearWords(y), label: 'Hvilket år?' };
+    }
+    default: {
+      const n = [pick(20), pick(100), pick(1000), pick(10000)][pick(4)];
+      return { kind: 'tall', prompt: String(n), answer: toWords(n), label: 'Skriv tallet med ord.' };
+    }
+  }
+}
+
+let drillKind = 'blandet';
+
+function showDrill() {
+  document.body.dataset.view = 'drill';
+  resetChrome();
+  document.getElementById('back').hidden = false;
+  setHeader('Tall og klokka', 'skriv det du ser, slik man sier det');
+
+  const main = document.getElementById('reader');
+  main.replaceChildren();
+  measureChrome();
+  window.scrollTo(0, 0);
+  announce('Tall og klokka');
+
+  main.append(
+    chipRow(DRILL_KINDS, drillKind, (k) => {
+      drillKind = k;
+      showDrill();
+    }, 'Velg øvelse')
+  );
+
+  const card = document.createElement('section');
+  card.className = 'drill';
+  main.append(card);
+  const score = document.createElement('p');
+  score.className = 'review-progress';
+  main.append(score);
+  let right = 0;
+  let total = 0;
+
+  const next = () => {
+    const item = drillItem(drillKind);
+    card.replaceChildren();
+
+    const label = document.createElement('p');
+    label.className = 'level-desc';
+    label.textContent = item.label;
+    const prompt = document.createElement('p');
+    prompt.className = 'drill-prompt';
+    prompt.textContent = item.prompt;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'dictation-input';
+    input.lang = 'nb';
+    input.autocomplete = 'off';
+    input.autocapitalize = 'off';
+    input.spellcheck = false;
+    input.setAttribute('aria-label', 'Svar');
+    const key = document.createElement('p');
+    key.className = 'dictation-key';
+    key.lang = 'nb';
+    key.hidden = true;
+    key.textContent = item.answer;
+    const sp = speakButton(item.kind === 'klokka' ? `klokka ${item.answer}` : item.answer, 'Hør svaret');
+
+    const actions = document.createElement('div');
+    actions.className = 'scratch-actions';
+    const check = document.createElement('button');
+    check.type = 'button';
+    check.className = 'btn-primary';
+    check.textContent = 'Sjekk';
+    const show = document.createElement('button');
+    show.type = 'button';
+    show.className = 'btn-quiet';
+    show.textContent = 'Vis';
+    const skip = document.createElement('button');
+    skip.type = 'button';
+    skip.className = 'btn-quiet';
+    skip.textContent = 'Neste';
+    const status = document.createElement('p');
+    status.className = 'scratch-stats';
+    status.setAttribute('role', 'status');
+
+    let graded = false;
+    const accept = (v) => normaliseLoose(v).replace(/^klokka /, '').replace(/ kroner?$/, '');
+    const grade = () => {
+      if (graded) return next();
+      graded = true;
+      const ok = accept(input.value) === accept(item.answer);
+      input.classList.toggle('is-right', ok);
+      input.classList.toggle('is-wrong', !ok);
+      key.hidden = ok;
+      total++;
+      if (ok) right++;
+      recordDrill(item.kind, ok);
+      status.textContent = ok ? 'Riktig!' : 'Ikke helt — fasit under.';
+      score.textContent = `${right} av ${total} riktige i denne runden`;
+      check.textContent = 'Neste';
+      check.focus();
+    };
+    check.addEventListener('click', grade);
+    show.addEventListener('click', () => {
+      key.hidden = false;
+    });
+    skip.addEventListener('click', next);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        grade();
+      }
+    });
+    actions.append(check, show, skip);
+    if (sp) actions.append(sp);
+    card.append(label, prompt, input, key, actions, status);
+    input.focus();
+  };
+  next();
 }
 
 /**
@@ -1304,14 +1919,50 @@ function normalise(s) {
   return s.trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
+// Hints (the base form in brackets) can be hidden for a harder round. The
+// choice sticks, like the dictionary gloss toggle.
+const CLOZE_HINTS_KEY = 'norsk:clozeHints';
+
+function readClozeHints() {
+  try {
+    return localStorage.getItem(CLOZE_HINTS_KEY) !== '0';
+  } catch {
+    return true;
+  }
+}
+
+function writeClozeHints(on) {
+  try {
+    localStorage.setItem(CLOZE_HINTS_KEY, on ? '1' : '0');
+  } catch {
+    /* ignore */
+  }
+}
+
 function renderCloze(reader, sentences) {
   const targets = clozeTargets(sentences);
   const inputs = [];
+  let hintsOn = readClozeHints();
 
   const intro = document.createElement('p');
   intro.className = 'level-desc';
-  intro.textContent = 'Skriv riktig form av ordet i parentes. Trykk Enter eller «Sjekk» for å rette.';
+  intro.textContent = 'Skriv riktig form av ordet. Trykk Enter eller «Sjekk» for å rette.';
   reader.append(intro);
+
+  const hintToggle = document.createElement('button');
+  hintToggle.type = 'button';
+  hintToggle.className = 'gloss-toggle cloze-hint-toggle';
+  const syncHints = () => {
+    reader.classList.toggle('hide-hints', !hintsOn);
+    hintToggle.textContent = hintsOn ? 'Skjul hint' : 'Vis hint';
+    hintToggle.setAttribute('aria-pressed', String(hintsOn));
+  };
+  hintToggle.addEventListener('click', () => {
+    hintsOn = !hintsOn;
+    writeClozeHints(hintsOn);
+    syncHints();
+  });
+  reader.append(hintToggle);
 
   for (const nodes of sentences) {
     const p = document.createElement('p');
@@ -1358,6 +2009,16 @@ function renderCloze(reader, sentences) {
       hint.textContent = `(${hit ? displayLemma(hit.lemma, hit.entry) : node.lemma})`;
       label.append(hint);
 
+      // The answer key, shown beside the attempt on «Vis fasit» and never
+      // written into the input, so a learner can compare rather than lose
+      // what they wrote.
+      const key = document.createElement('span');
+      key.className = 'cloze-key';
+      key.lang = 'nb';
+      key.textContent = node.surface;
+      key.hidden = true;
+      label.append(key);
+
       inputs.push(input);
       p.append(label);
     });
@@ -1381,7 +2042,8 @@ function renderCloze(reader, sentences) {
   bar.append(check, reveal);
   reader.append(bar, status);
 
-  const grade = (revealed = false) => {
+  let revealed = false;
+  const grade = () => {
     let right = 0;
     for (const input of inputs) {
       const value = input.value ?? '';
@@ -1391,14 +2053,26 @@ function renderCloze(reader, sentences) {
       if (ok) right++;
     }
     status.textContent = `${right} av ${inputs.length} riktige`;
-    // A revealed answer is not an attempt.
+    // Grading with the key on screen is not an attempt.
     if (!revealed && currentDoc) recordCloze(currentDoc.meta.id, right, inputs.length);
+  };
+  const syncReveal = () => {
+    reader.classList.toggle('show-key', revealed);
+    for (const input of inputs) {
+      const key = input.parentNode.querySelector('.cloze-key');
+      if (key) key.hidden = !revealed;
+    }
+    reveal.textContent = revealed ? 'Skjul fasit' : 'Vis fasit';
+    reveal.setAttribute('aria-pressed', String(revealed));
   };
   check.addEventListener('click', () => grade());
   reveal.addEventListener('click', () => {
-    for (const input of inputs) input.value = input.dataset.answer;
-    grade(true);
+    revealed = !revealed;
+    syncReveal();
+    if (revealed) grade();
   });
+  syncHints();
+  syncReveal();
   reader.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && e.target.classList?.contains('cloze-input')) {
       e.preventDefault();
@@ -1435,62 +2109,11 @@ function renderSpeak(reader, doc, sentences) {
   }
   reader.append(wordChips(items));
 
-  const timer = document.createElement('div');
-  timer.className = 'timer';
-  const clock = document.createElement('p');
-  clock.className = 'timer-clock';
-  clock.setAttribute('role', 'timer');
-  const start = document.createElement('button');
-  start.type = 'button';
-  start.className = 'btn-primary';
-  const reset = document.createElement('button');
-  reset.type = 'button';
-  reset.className = 'btn-quiet';
-  reset.textContent = 'Nullstill';
-  const actions = document.createElement('div');
-  actions.className = 'scratch-actions';
-  actions.append(start, reset);
-  timer.append(clock, actions);
-  reader.append(timer);
-
-  const TOTAL = 120;
-  let left = TOTAL;
-  let handle = null;
-  const show = () => {
-    const m = Math.floor(left / 60);
-    const sec = String(left % 60).padStart(2, '0');
-    clock.textContent = `${m}:${sec}`;
-    clock.classList.toggle('is-done', left === 0);
-    start.textContent = handle ? 'Pause' : left === TOTAL ? 'Start' : left === 0 ? 'Ferdig' : 'Fortsett';
-  };
-  const stop = () => {
-    clearInterval(handle);
-    handle = null;
-    show();
-  };
-  start.addEventListener('click', () => {
-    if (handle) return stop();
-    if (left === 0) return;
-    handle = setInterval(() => {
-      left--;
-      if (left <= 0) {
-        left = 0;
-        stop();
-        if (currentDoc) recordSpoke(currentDoc.meta.id);
-        announce('Tiden er ute');
-      } else show();
-    }, 1000);
-    show();
-  });
-  reset.addEventListener('click', () => {
-    stop();
-    left = TOTAL;
-    show();
-  });
-  show();
-
-  // Leaving the view must not leave a ticking interval behind.
-  window.addEventListener('hashchange', stop, { once: true });
+  reader.append(
+    makeTimer(120, () => {
+      if (currentDoc) recordSpoke(currentDoc.meta.id);
+    })
+  );
 
   const after = document.createElement('p');
   after.className = 'level-desc';
@@ -1610,16 +2233,114 @@ function ruleCard(rule) {
     body.append(ex);
   }
 
+  if (rule.exercises?.length) {
+    const h = document.createElement('h3');
+    h.className = 'rule-practice-title';
+    h.textContent = 'Prøv selv';
+    body.append(h);
+    rule.exercises.forEach((ex) => body.append(exercise(ex, rule.id)));
+  }
+
   if (rule.practice?.length) {
     const h = document.createElement('h3');
     h.className = 'rule-practice-title';
     h.textContent = 'Sett ordene i riktig rekkefølge';
     body.append(h);
-    rule.practice.forEach((sentence, i) => body.append(scramble(sentence, `${rule.id}-${i}`)));
+    rule.practice.forEach((sentence, i) => body.append(scramble(sentence, `${rule.id}-${i}`, rule.id)));
   }
 
+  if (rulesPassed()[rule.id]) details.classList.add('is-passed');
   details.append(body);
   return details;
+}
+
+/** Strip annotation markup for display in an exercise prompt. */
+function plainText(annotated) {
+  return annotated
+    .replace(/\{([^:{}]+):[^{}]+\}/g, '$1')
+    .replace(/<([^<>]+)>/g, '$1')
+    .replace(/\[([^\[\]]+)\](?:\([^()]*\))?/g, '$1');
+}
+
+/**
+ * One small exercise: `choice` (tap the right option) or `fill` (type the
+ * form). Passing either marks the rule as done for the course path.
+ */
+function exercise(ex, ruleId) {
+  const wrap = document.createElement('div');
+  wrap.className = 'exercise';
+  const prompt = document.createElement('p');
+  prompt.className = 'exercise-prompt';
+  prompt.lang = 'nb';
+  prompt.textContent = plainText(ex.prompt);
+  wrap.append(prompt);
+  const status = document.createElement('p');
+  status.className = 'scratch-stats';
+  status.setAttribute('role', 'status');
+
+  const pass = () => {
+    wrap.classList.add('is-right');
+    wrap.classList.remove('is-wrong');
+    status.textContent = 'Riktig!';
+    recordRulePassed(ruleId);
+    document.getElementById(`rule-${ruleId}`)?.classList.add('is-passed');
+  };
+  const fail = (answer) => {
+    wrap.classList.add('is-wrong');
+    wrap.classList.remove('is-right');
+    status.textContent = `Ikke helt — riktig er «${plainText(answer)}».`;
+  };
+
+  if (ex.type === 'choice') {
+    const opts = document.createElement('div');
+    opts.className = 'exercise-options';
+    for (const opt of ex.options) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'scramble-chip';
+      btn.lang = 'nb';
+      btn.textContent = opt;
+      btn.addEventListener('click', () => {
+        [...opts.children].forEach((c) => c.classList.remove('is-picked'));
+        btn.classList.add('is-picked');
+        if (opt === ex.answer) pass();
+        else fail(ex.answer);
+      });
+      opts.append(btn);
+    }
+    wrap.append(opts);
+  } else {
+    const row = document.createElement('div');
+    row.className = 'scratch-actions';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'dictation-input';
+    input.lang = 'nb';
+    input.autocomplete = 'off';
+    input.autocapitalize = 'off';
+    input.spellcheck = false;
+    input.setAttribute('aria-label', 'Svar');
+    if (ex.hint) input.placeholder = ex.hint;
+    const check = document.createElement('button');
+    check.type = 'button';
+    check.className = 'btn-primary';
+    check.textContent = 'Sjekk';
+    const grade = () => {
+      if (normaliseLoose(input.value) === normaliseLoose(plainText(ex.answer))) pass();
+      else fail(ex.answer);
+    };
+    check.addEventListener('click', grade);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        grade();
+      }
+    });
+    row.append(input, check);
+    wrap.append(row);
+  }
+  wrap.append(status);
+  return wrap;
 }
 
 /** Deterministic shuffle so a scrambled sentence looks the same on every visit. */
@@ -1642,7 +2363,7 @@ function seededOrder(n, seed) {
  * to build the sentence; tap a placed word to take it back. Punctuation is
  * kept on the word it belongs to, so «ikke,» stays one chip.
  */
-function scramble(annotated, seed) {
+function scramble(annotated, seed, ruleId = null) {
   const { sentences } = parseParagraph({ id: seed, body: [annotated] }, lexicon);
   const nodes = sentences[0] ?? [];
   // Rebuild plain words with their trailing punctuation attached.
@@ -1704,6 +2425,10 @@ function scramble(annotated, seed) {
     wrap.classList.toggle('is-right', ok);
     wrap.classList.toggle('is-wrong', !ok);
     status.textContent = ok ? 'Riktig!' : placed.length < words.length ? 'Bruk alle ordene.' : 'Ikke helt — prøv igjen.';
+    if (ok && ruleId) {
+      recordRulePassed(ruleId);
+      document.getElementById(`rule-${ruleId}`)?.classList.add('is-passed');
+    }
   });
   const show = document.createElement('button');
   show.type = 'button';
@@ -1723,6 +2448,350 @@ function scramble(annotated, seed) {
   actions.append(check, show);
   wrap.append(actions, status);
   return wrap;
+}
+
+/** A countdown with start/pause/reset. `onDone` fires once when it hits zero. */
+function makeTimer(total, onDone) {
+  const timer = document.createElement('div');
+  timer.className = 'timer';
+  const clock = document.createElement('p');
+  clock.className = 'timer-clock';
+  clock.setAttribute('role', 'timer');
+  const start = document.createElement('button');
+  start.type = 'button';
+  start.className = 'btn-primary';
+  const reset = document.createElement('button');
+  reset.type = 'button';
+  reset.className = 'btn-quiet';
+  reset.textContent = 'Nullstill';
+  const actions = document.createElement('div');
+  actions.className = 'scratch-actions';
+  actions.append(start, reset);
+  timer.append(clock, actions);
+
+  let left = total;
+  let handle = null;
+  const show = () => {
+    const m = Math.floor(left / 60);
+    const sec = String(left % 60).padStart(2, '0');
+    clock.textContent = `${m}:${sec}`;
+    clock.classList.toggle('is-done', left === 0);
+    start.textContent = handle ? 'Pause' : left === total ? 'Start' : left === 0 ? 'Ferdig' : 'Fortsett';
+  };
+  const stop = () => {
+    clearInterval(handle);
+    handle = null;
+    show();
+  };
+  start.addEventListener('click', () => {
+    if (handle) return stop();
+    if (left === 0) return;
+    handle = setInterval(() => {
+      left--;
+      if (left <= 0) {
+        left = 0;
+        stop();
+        onDone?.();
+        announce('Tiden er ute');
+      } else show();
+    }, 1000);
+    show();
+  });
+  reset.addEventListener('click', () => {
+    stop();
+    left = total;
+    show();
+  });
+  show();
+  // Leaving the view must not leave a ticking interval behind.
+  window.addEventListener('hashchange', stop, { once: true });
+  timer.finish = () => {
+    left = 0;
+    stop();
+    onDone?.();
+  };
+  return timer;
+}
+
+// --- exam simulation ---------------------------------------------------
+//
+// Three parts in a row, timed like the real thing: personal questions,
+// a two-minute presentation on a random topic, and a discussion prompt.
+
+let examPromise = null;
+function ensureExam() {
+  examPromise ??= fetch(EXAM_URL).then((res) => {
+    if (!res.ok) throw new Error(`HTTP ${res.status} for exam.json`);
+    return res.json();
+  });
+  return examPromise;
+}
+
+function shuffled(list) {
+  const out = [...list];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+async function showExam() {
+  document.body.dataset.view = 'exam';
+  resetChrome();
+  document.getElementById('back').hidden = false;
+  setHeader('Prøve', 'muntlig · tre deler');
+
+  const main = document.getElementById('reader');
+  main.replaceChildren();
+  measureChrome();
+  window.scrollTo(0, 0);
+  announce('Prøve');
+
+  let exam;
+  try {
+    exam = await ensureExam();
+    await ensureOccurrences();
+  } catch (err) {
+    showError('Kunne ikke laste prøven.');
+    console.error('[norsk] failed to load exam', err);
+    return;
+  }
+  if (document.body.dataset.view !== 'exam') return;
+
+  const questions = shuffled(exam.del1).slice(0, 6);
+  const topicsWithTexts = (index.topics ?? []).filter((t) => index.paragraphs.some((p) => p.topic === t.id));
+  const topic = shuffled(topicsWithTexts)[0];
+  const discussion = shuffled(index.paragraphs.filter((p) => p.level === 'B1' || p.level === 'B2'))[0];
+
+  let part = 0;
+  const render = async () => {
+    main.replaceChildren();
+    const steps = ['Del 1', 'Del 2', 'Del 3'];
+    const nav = document.createElement('p');
+    nav.className = 'exam-steps';
+    nav.textContent = part < 3 ? `${steps[part]} av 3` : 'Ferdig';
+    main.append(nav);
+
+    const h = document.createElement('h2');
+    h.className = 'level-title';
+    main.append(h);
+    const intro = document.createElement('p');
+    intro.className = 'level-desc';
+    main.append(intro);
+
+    const nextBtn = document.createElement('button');
+    nextBtn.type = 'button';
+    nextBtn.className = 'btn-primary';
+    nextBtn.textContent = part < 2 ? 'Neste del' : 'Avslutt';
+
+    if (part === 0) {
+      h.textContent = 'Del 1 — om deg selv';
+      intro.textContent = 'Svar høyt på hvert spørsmål i hele setninger. Tre minutter til sammen.';
+      const ul = document.createElement('ol');
+      ul.className = 'exam-questions';
+      for (const q of questions) {
+        const li = document.createElement('li');
+        li.lang = 'nb';
+        li.textContent = q;
+        const sp = speakButton(q, 'Hør spørsmålet');
+        if (sp) li.append(' ', sp);
+        ul.append(li);
+      }
+      main.append(ul, makeTimer(exam.del1Seconds ?? 180));
+    } else if (part === 1) {
+      h.textContent = `Del 2 — presentasjon: ${topic.label}`;
+      intro.textContent = `${topic.description} Snakk i to minutter. Nøkkelordene under er fra tekstene om temaet.`;
+      const ids = new Set(index.paragraphs.filter((p) => p.topic === topic.id).map((p) => p.id));
+      const ranked = [];
+      for (const [entryId, uses] of occurrences ?? []) {
+        const here = uses.filter((u) => ids.has(u.paraId));
+        if (!here.length) continue;
+        const hit = lookupEntry(lexicon, entryId);
+        if (!hit || !CONTENT_POS.has(hit.entry.pos)) continue;
+        ranked.push({ entryId, lemma: hit.lemma, entry: hit.entry, n: here.length });
+      }
+      ranked.sort((a, b) => b.n - a.n);
+      main.append(wordChips(ranked.slice(0, 12)), makeTimer(exam.del2Seconds ?? 120));
+    } else if (part === 2) {
+      h.textContent = 'Del 3 — samtale';
+      intro.textContent = 'Sensor tar opp et samfunnstema. Argumenter, innrøm et motargument, og konkluder. Tre minutter.';
+      const box = document.createElement('aside');
+      box.className = 'exam-note';
+      const t = document.createElement('p');
+      t.className = 'exam-note-topic';
+      t.textContent = `${discussion.title} · ${discussion.level}`;
+      box.append(t);
+      try {
+        const doc = await fetchParagraph(discussion);
+        const note = document.createElement('p');
+        note.className = 'exam-note-text';
+        note.textContent = doc.examNote || doc.title;
+        box.append(note);
+      } catch {
+        /* the title alone is a usable prompt */
+      }
+      main.append(box, makeTimer(exam.del3Seconds ?? 180));
+    } else {
+      h.textContent = 'Ferdig';
+      intro.textContent = 'Godt jobbet. Les teksten fra del 3 og sammenlikn med det du sa, eller ta prøven igjen med nye spørsmål.';
+      recordDrill('prøve', true);
+      const a = document.createElement('a');
+      a.className = 'lookups-link';
+      a.href = `#/${discussion.id}`;
+      a.textContent = `Les «${discussion.title}» →`;
+      const again = document.createElement('button');
+      again.type = 'button';
+      again.className = 'btn-quiet';
+      again.textContent = 'Ny prøve';
+      again.addEventListener('click', showExam);
+      main.append(a, document.createElement('br'), again);
+      return;
+    }
+    nextBtn.addEventListener('click', () => {
+      part++;
+      render();
+    });
+    main.append(nextBtn);
+  };
+  render();
+}
+
+// --- course path -------------------------------------------------------
+//
+// The parts of the app, in an order. Each step is done when its own store
+// says so; nothing here is stored twice.
+
+let coursePromise = null;
+function ensureCourse() {
+  coursePromise ??= fetch(COURSE_URL).then((res) => {
+    if (!res.ok) throw new Error(`HTTP ${res.status} for course.json`);
+    return res.json();
+  });
+  return coursePromise;
+}
+
+function stepInfo(step, grammarRules) {
+  switch (step.type) {
+    case 'text': {
+      const meta = index.paragraphs.find((p) => p.id === step.id);
+      if (!meta) return null;
+      const rec = getProgress(meta.id);
+      return { href: `#/${meta.id}`, title: meta.title, kind: 'Tekst', done: isRead(rec), full: isFinished(rec) };
+    }
+    case 'rule': {
+      const rule = grammarRules.get(step.id);
+      if (!rule) return null;
+      return { href: `#/grammatikk`, anchor: `rule-${step.id}`, title: rule.title, kind: 'Regel', done: Boolean(rulesPassed()[step.id]) };
+    }
+    case 'drill': {
+      const stats = drillStats();
+      const right = ['tall', 'klokka', 'pris', 'dato', 'år'].reduce((n, k) => n + (stats[k]?.right ?? 0), 0);
+      return { href: '#/tall', title: step.label, kind: 'Øvelse', done: right >= 10 };
+    }
+    case 'review':
+      return { href: '#/ov', title: step.label, kind: 'Øving', done: reviewCounts().learnt >= 5 };
+    case 'exam':
+      return { href: '#/prove', title: step.label, kind: 'Prøve', done: (drillStats()['prøve']?.answered ?? 0) >= 1 };
+    default:
+      return null;
+  }
+}
+
+/** The first unfinished step across the course, for the home page. */
+async function nextCourseStep() {
+  const [course, grammar] = await Promise.all([ensureCourse(), ensureGrammar()]);
+  const rules = new Map(grammar.sections.flatMap((s) => s.rules.map((r) => [r.id, r])));
+  for (const level of course.levels) {
+    for (const step of level.steps) {
+      const info = stepInfo(step, rules);
+      if (info && !info.done) return { level: level.level, ...info };
+    }
+  }
+  return null;
+}
+
+async function showCourse() {
+  document.body.dataset.view = 'course';
+  resetChrome();
+  document.getElementById('back').hidden = false;
+  setHeader('Kurs', 'A1 → B2, steg for steg');
+
+  const main = document.getElementById('reader');
+  main.replaceChildren();
+  measureChrome();
+  window.scrollTo(0, 0);
+  announce('Kurs');
+
+  let course;
+  let grammar;
+  try {
+    [course, grammar] = await Promise.all([ensureCourse(), ensureGrammar()]);
+  } catch (err) {
+    showError('Kunne ikke laste kurset.');
+    console.error('[norsk] failed to load course', err);
+    return;
+  }
+  if (document.body.dataset.view !== 'course') return;
+  const rules = new Map(grammar.sections.flatMap((s) => s.rules.map((r) => [r.id, r])));
+
+  const intro = document.createElement('p');
+  intro.className = 'topic-desc';
+  intro.textContent = 'Les teksten, gjør regelen, øv på ordene. Et steg er gjort når appen har sett deg gjøre det.';
+  main.append(intro);
+
+  let firstOpen = null;
+  for (const level of course.levels) {
+    const meta = index.levels.find((l) => l.level === level.level);
+    const section = document.createElement('section');
+    section.className = 'level';
+    const h = document.createElement('h2');
+    h.className = 'level-title';
+    const infos = level.steps.map((s) => stepInfo(s, rules)).filter(Boolean);
+    const done = infos.filter((i) => i.done).length;
+    h.textContent = `${meta?.label ?? level.level} · ${done} av ${infos.length}`;
+    section.append(h);
+
+    const ol = document.createElement('ol');
+    ol.className = 'course-steps';
+    for (const info of infos) {
+      const li = document.createElement('li');
+      li.className = 'course-step' + (info.done ? ' is-done' : '') + (info.full ? ' is-full' : '');
+      const a = document.createElement('a');
+      a.className = 'course-link';
+      a.href = info.href;
+      if (info.anchor) {
+        a.addEventListener('click', () => {
+          // Open the rule once the grammar page has rendered.
+          setTimeout(() => {
+            const el = document.getElementById(info.anchor);
+            if (el) {
+              el.open = true;
+              el.scrollIntoView?.({ behavior: 'smooth' });
+            }
+          }, 150);
+        });
+      }
+      const kind = document.createElement('span');
+      kind.className = 'course-kind';
+      kind.textContent = info.kind;
+      const title = document.createElement('span');
+      title.className = 'course-title';
+      title.textContent = info.title;
+      const mark = document.createElement('span');
+      mark.className = 'course-mark';
+      mark.textContent = info.full ? '✓✓' : info.done ? '✓' : '';
+      a.append(kind, title, mark);
+      li.append(a);
+      ol.append(li);
+      if (!firstOpen && !info.done) {
+        firstOpen = li;
+        li.classList.add('is-next');
+      }
+    }
+    section.append(ol);
+    main.append(section);
+  }
 }
 
 // --- review ------------------------------------------------------------
@@ -2053,6 +3122,14 @@ function openCard(node, el) {
     .join(' · ');
   body.append(pos);
 
+  // 2b. How to say it, for the words English readers get wrong.
+  if (entry.pron) {
+    const pron = document.createElement('p');
+    pron.className = 'card-pron';
+    pron.textContent = `Uttale: ${entry.pron}`;
+    body.append(pron);
+  }
+
   // 3. The table, as reference.
   if (entry.forms) body.append(buildTable(entry, node.formName));
 
@@ -2223,8 +3300,13 @@ function wireChrome() {
 function registerServiceWorker() {
   const sw = globalThis.navigator?.serviceWorker;
   if (!sw || !globalThis.isSecureContext) return;
+  // Installing the worker precaches the whole shell, which on a slow host
+  // competes with the first view's own fetches. Wait until the page has
+  // settled before starting it; offline support is for the second visit.
   const register = () =>
-    sw.register('sw.js').catch((err) => console.warn('[norsk] sw registration failed', err));
+    setTimeout(() => {
+      sw.register('sw.js').catch((err) => console.warn('[norsk] sw registration failed', err));
+    }, 3000);
   // main() awaits two fetches before reaching here, so `load` has often
   // already fired; waiting for it then would wait forever.
   if (document.readyState === 'complete') register();

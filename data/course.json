@@ -1,0 +1,305 @@
+{
+  "$comment": "The course path: one ordered list of steps per level. `text` and `rule` reference ids in index.json and grammar.json; the other step types are built in. Edit freely; the validator checks the references.",
+  "levels": [
+    {
+      "level": "A1",
+      "steps": [
+        {
+          "type": "rule",
+          "id": "v2"
+        },
+        {
+          "type": "text",
+          "id": "presentasjon"
+        },
+        {
+          "type": "rule",
+          "id": "kjonn"
+        },
+        {
+          "type": "text",
+          "id": "familien"
+        },
+        {
+          "type": "text",
+          "id": "hverdagen"
+        },
+        {
+          "type": "rule",
+          "id": "bestemt"
+        },
+        {
+          "type": "text",
+          "id": "leiligheten-min"
+        },
+        {
+          "type": "text",
+          "id": "jeg-leter-etter-jobb"
+        },
+        {
+          "type": "rule",
+          "id": "sporsmal"
+        },
+        {
+          "type": "text",
+          "id": "jeg-er-syk-i-dag"
+        },
+        {
+          "type": "text",
+          "id": "planer-for-varen"
+        },
+        {
+          "type": "rule",
+          "id": "ikke-hovedsetning"
+        },
+        {
+          "type": "rule",
+          "id": "presens"
+        },
+        {
+          "type": "rule",
+          "id": "stum"
+        },
+        {
+          "type": "rule",
+          "id": "jeg-de"
+        },
+        {
+          "type": "drill",
+          "label": "Tall og klokka — ti riktige"
+        },
+        {
+          "type": "review",
+          "label": "Øving — fem ord lært"
+        }
+      ]
+    },
+    {
+      "level": "A2",
+      "steps": [
+        {
+          "type": "rule",
+          "id": "preteritum"
+        },
+        {
+          "type": "text",
+          "id": "barnehagen"
+        },
+        {
+          "type": "rule",
+          "id": "perfektum"
+        },
+        {
+          "type": "text",
+          "id": "jobben"
+        },
+        {
+          "type": "text",
+          "id": "hos-legen"
+        },
+        {
+          "type": "rule",
+          "id": "flertall"
+        },
+        {
+          "type": "text",
+          "id": "der-jeg-bor"
+        },
+        {
+          "type": "text",
+          "id": "et-sunt-liv"
+        },
+        {
+          "type": "rule",
+          "id": "adjektiv"
+        },
+        {
+          "type": "text",
+          "id": "norskkurs"
+        },
+        {
+          "type": "text",
+          "id": "hvem-gjor-hva"
+        },
+        {
+          "type": "rule",
+          "id": "eiendom"
+        },
+        {
+          "type": "text",
+          "id": "lordag-i-drammen"
+        },
+        {
+          "type": "text",
+          "id": "middag-klokka-fem"
+        },
+        {
+          "type": "rule",
+          "id": "infinitiv"
+        },
+        {
+          "type": "text",
+          "id": "fra-spania-til-drammen"
+        },
+        {
+          "type": "text",
+          "id": "sykepleier-i-spania"
+        },
+        {
+          "type": "rule",
+          "id": "tid"
+        },
+        {
+          "type": "text",
+          "id": "dyrt-i-norge"
+        },
+        {
+          "type": "text",
+          "id": "jul-og-syttende-mai"
+        },
+        {
+          "type": "rule",
+          "id": "sted"
+        },
+        {
+          "type": "text",
+          "id": "regn-og-skog"
+        },
+        {
+          "type": "rule",
+          "id": "kj-skj"
+        },
+        {
+          "type": "rule",
+          "id": "vokaler"
+        },
+        {
+          "type": "drill",
+          "label": "Tall og klokka — ti riktige"
+        },
+        {
+          "type": "review",
+          "label": "Øving — fem ord lært"
+        }
+      ]
+    },
+    {
+      "level": "B1",
+      "steps": [
+        {
+          "type": "rule",
+          "id": "leddsetning"
+        },
+        {
+          "type": "text",
+          "id": "hjemmekontor"
+        },
+        {
+          "type": "rule",
+          "id": "underordnende"
+        },
+        {
+          "type": "text",
+          "id": "utdanning"
+        },
+        {
+          "type": "text",
+          "id": "transport"
+        },
+        {
+          "type": "rule",
+          "id": "sideordnende"
+        },
+        {
+          "type": "text",
+          "id": "leie-eller-eie"
+        },
+        {
+          "type": "text",
+          "id": "fastlegen"
+        },
+        {
+          "type": "rule",
+          "id": "modale"
+        },
+        {
+          "type": "text",
+          "id": "sykkel-i-hverdagen"
+        },
+        {
+          "type": "text",
+          "id": "to-sprak-hjemme"
+        },
+        {
+          "type": "rule",
+          "id": "framtid"
+        },
+        {
+          "type": "rule",
+          "id": "det-er"
+        },
+        {
+          "type": "rule",
+          "id": "den-det"
+        },
+        {
+          "type": "rule",
+          "id": "sammenlikning"
+        },
+        {
+          "type": "review",
+          "label": "Øving — fem ord lært"
+        },
+        {
+          "type": "exam",
+          "label": "Prøve — én full gjennomgang"
+        }
+      ]
+    },
+    {
+      "level": "B2",
+      "steps": [
+        {
+          "type": "rule",
+          "id": "adverbielle"
+        },
+        {
+          "type": "text",
+          "id": "integrering"
+        },
+        {
+          "type": "rule",
+          "id": "passiv"
+        },
+        {
+          "type": "text",
+          "id": "miljo"
+        },
+        {
+          "type": "text",
+          "id": "arbeidsliv"
+        },
+        {
+          "type": "rule",
+          "id": "imperativ"
+        },
+        {
+          "type": "text",
+          "id": "livslang-laering"
+        },
+        {
+          "type": "rule",
+          "id": "tonelag"
+        },
+        {
+          "type": "review",
+          "label": "Øving — fem ord lært"
+        },
+        {
+          "type": "exam",
+          "label": "Prøve — én full gjennomgang"
+        }
+      ]
+    }
+  ]
+}

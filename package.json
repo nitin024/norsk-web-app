@@ -1,6 +1,6 @@
 {
   "name": "norsk-web-app",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Static Norwegian (bokmål) reading app: tap a word for its dictionary form, inflection table and gloss.",
   "type": "module",

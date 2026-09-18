@@ -54,6 +54,20 @@ export function recordLookup(entryId, paraId) {
   write(data);
 }
 
+/**
+ * Put a word into the deck without treating it as a failed lookup: used by
+ * the dictionary cards, where "Kunne det" on a word never seen before should
+ * schedule it forward, not reset it. Existing records are left alone.
+ */
+export function addIfMissing(entryId) {
+  if (!entryId) return;
+  const data = read();
+  if (data[entryId]) return;
+  const now = Date.now();
+  data[entryId] = { n: 0, box: 0, last: now, due: now, para: null };
+  write(data);
+}
+
 /** Every recorded word, most recently touched first. */
 export function allLookups() {
   return Object.entries(read())

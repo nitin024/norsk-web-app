@@ -680,7 +680,10 @@ body[data-view='home'] .reader {
 
 .dict-row {
   display: grid;
-  grid-template-columns: 1fr auto;
+  /* headword · gloss (fills, truncates) · part of speech. One row, so
+     revealing the gloss never changes the height or shifts the list. */
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: baseline;
   gap: 0 var(--s-3);
   width: 100%;
   padding: var(--s-3) var(--s-1);
@@ -703,7 +706,7 @@ body[data-view='home'] .reader {
 }
 
 .dict-pos {
-  grid-column: 2;
+  grid-column: 3;
   grid-row: 1;
   font-size: var(--t-xs);
   color: var(--ink-faint);
@@ -715,7 +718,12 @@ body[data-view='home'] .reader {
    640 rows. The word card is unaffected and always shows the gloss. */
 .dict-gloss {
   display: none;
-  grid-column: 1 / -1;
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   font-size: var(--t-sm);
   color: var(--ink-soft);
 }
@@ -1081,6 +1089,223 @@ body[data-view='home'] .reader {
   border-color: var(--accent-soft);
 }
 
+/* --- grammar in the text, listening, drills ------------------------------- */
+
+.grammar-toggle {
+  margin-left: var(--s-2);
+}
+
+.grammar-legend,
+.gram-tag,
+.show-grammar .grammar-legend {
+  display: none;
+}
+
+.show-grammar .grammar-legend {
+  display: block;
+  margin: 0 0 var(--s-3);
+  font-size: var(--t-xs);
+  color: var(--ink-faint);
+  line-height: 1.5;
+}
+
+.show-grammar .w.is-finite {
+  border-bottom: 2px solid var(--accent);
+}
+
+.show-grammar .w.is-subordinator {
+  background: var(--accent-soft);
+  border-radius: 3px;
+}
+
+.show-grammar .gram-tag {
+  display: inline-block;
+  margin-left: var(--s-1);
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}
+
+.show-grammar .gram-tag-sub {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.dictation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+  margin: 0 0 var(--s-3);
+}
+
+.dictation-input {
+  flex: 1 1 14rem;
+  min-width: 0;
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid var(--rule);
+  border-radius: var(--s-2);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+}
+
+.dictation-input.is-right {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.dictation-input.is-wrong {
+  border-color: #b5473a;
+}
+
+.dictation-key {
+  flex-basis: 100%;
+  margin: 0;
+  padding-left: var(--s-2);
+  font-size: var(--t-sm);
+  color: var(--accent);
+}
+
+.drill {
+  padding: var(--s-5) var(--s-4);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.drill .dictation-input {
+  width: 100%;
+  margin: var(--s-3) 0;
+}
+
+.drill-prompt {
+  margin: 0;
+  font-size: var(--t-2xl);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+/* --- exercises, exam, course --------------------------------------------- */
+
+.card-pron {
+  margin: 0 0 var(--s-3);
+  font-size: var(--t-sm);
+  color: var(--ink-soft);
+}
+
+.exercise {
+  margin: 0 0 var(--s-4);
+  padding: var(--s-3);
+  border: 1px solid var(--rule-soft);
+  border-radius: var(--s-2);
+}
+
+.exercise.is-right {
+  border-color: var(--accent);
+}
+
+.exercise.is-wrong {
+  border-color: #b5473a;
+}
+
+.exercise-prompt {
+  margin: 0 0 var(--s-2);
+  font-size: var(--t-md);
+  color: var(--ink);
+}
+
+.exercise-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.scramble-chip.is-picked {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.rule.is-passed .rule-title::after {
+  content: ' ✓';
+  color: var(--accent);
+}
+
+.exam-steps {
+  margin: 0 0 var(--s-2);
+  font-size: var(--t-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.exam-questions {
+  margin: 0 0 var(--s-4);
+  padding-left: var(--s-5);
+  font-size: var(--t-md);
+  line-height: 1.7;
+}
+
+.home-next {
+  display: block;
+  margin: var(--s-3) var(--s-1) 0;
+  font-size: var(--t-sm);
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.course-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.course-step + .course-step {
+  border-top: 1px solid var(--rule-soft);
+}
+
+.course-link {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr auto;
+  align-items: baseline;
+  gap: var(--s-2);
+  min-height: 48px;
+  padding: var(--s-2) var(--s-1);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.course-kind {
+  font-size: var(--t-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.course-title {
+  font-size: var(--t-md);
+}
+
+.course-step.is-done .course-title {
+  color: var(--ink-faint);
+}
+
+.course-mark {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.course-step.is-next .course-link {
+  background: var(--accent-soft);
+  border-radius: var(--s-2);
+}
+
 /* --- topics, exam notes, modes ----------------------------------------- */
 
 .chip-row {
@@ -1276,7 +1501,24 @@ body[data-view='home'] .reader {
 
 .cloze-input.is-wrong {
   border-bottom-color: #b5473a;
-  text-decoration: line-through;
+}
+
+.cloze-hint-toggle {
+  margin: 0 0 var(--s-4);
+}
+
+.hide-hints .cloze-hint {
+  display: none;
+}
+
+.cloze-key {
+  margin-left: var(--s-1);
+  padding: 0 var(--s-1);
+  border-radius: 4px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: var(--t-sm);
+  font-weight: 600;
 }
 
 .cloze-hint {
@@ -1335,6 +1577,13 @@ body[data-view='home'] .reader {
   letter-spacing: 0.04em;
 }
 
+.flip-answer {
+  margin: 0 0 var(--s-2);
+  font-size: var(--t-xl);
+  font-weight: 600;
+  color: var(--accent);
+}
+
 .flip-back {
   text-align: left;
   margin-bottom: var(--s-4);
@@ -1346,6 +1595,7 @@ body[data-view='home'] .reader {
 
 .flip-actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: var(--s-2);
 }
@@ -1355,6 +1605,11 @@ body[data-view='home'] .reader {
   font-size: var(--t-md);
   color: var(--ink-soft);
   line-height: 1.5;
+}
+
+.shuffle-btn {
+  display: block;
+  margin: var(--s-3) auto 0;
 }
 
 .review-progress {

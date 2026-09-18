@@ -57,6 +57,62 @@ export function recordCloze(paraId, right, total) {
   }));
 }
 
+/** A graded dictation attempt in «Lytt» mode. */
+export function recordDictation(paraId, right, total) {
+  if (!total) return;
+  update(paraId, (r) => ({
+    ...r,
+    last: Date.now(),
+    dictation: { best: Math.max(r.dictation?.best ?? 0, right), total },
+  }));
+}
+
+// --- drills and rules: small counters beside the per-text records --------
+
+const DRILL_KEY = 'norsk:drill';
+const RULES_KEY = 'norsk:rules';
+
+function readKey(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    const data = raw ? JSON.parse(raw) : {};
+    return data && typeof data === 'object' ? data : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeKey(key, data) {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch {
+    /* ignore */
+  }
+}
+
+/** One answered drill item: `kind` is tall, klokka, pris, dato or år. */
+export function recordDrill(kind, right) {
+  const data = readKey(DRILL_KEY);
+  const cur = data[kind] ?? { answered: 0, right: 0 };
+  data[kind] = { answered: cur.answered + 1, right: cur.right + (right ? 1 : 0), last: Date.now() };
+  writeKey(DRILL_KEY, data);
+}
+
+export function drillStats() {
+  return readKey(DRILL_KEY);
+}
+
+/** A rule is "done" once one of its exercises has been passed. */
+export function recordRulePassed(ruleId) {
+  const data = readKey(RULES_KEY);
+  data[ruleId] = { passed: true, last: Date.now() };
+  writeKey(RULES_KEY, data);
+}
+
+export function rulesPassed() {
+  return readKey(RULES_KEY);
+}
+
 export function recordSpoke(paraId) {
   update(paraId, (r) => ({ ...r, spoke: true, last: Date.now() }));
 }

@@ -1,0 +1,26 @@
+{
+  "$comment": "Prompts for the exam simulation. Del 1 questions are drawn at random; Del 2 uses a random topic and its key words; Del 3 uses the examNote of a random B1/B2 text.",
+  "del1": [
+    "Hva heter du, og hvor kommer du fra?",
+    "Hvor lenge har du bodd i Norge?",
+    "Kan du fortelle om familien din?",
+    "Hva jobber du med, eller hva gjør du til daglig?",
+    "Hvordan ser en vanlig dag ut for deg?",
+    "Hva liker du å gjøre i fritiden?",
+    "Hvordan bor du?",
+    "Hvilke språk snakker du?",
+    "Hva spiser du vanligvis til frokost?",
+    "Hva gjør du i helgene?",
+    "Hvorfor lærer du norsk?",
+    "Hva savner du mest fra hjemlandet ditt?",
+    "Hvordan kommer du deg til jobb eller skole?",
+    "Hva gjorde du i går?",
+    "Hva skal du gjøre i sommer?",
+    "Hva liker du best med å bo i Norge?",
+    "Hva synes du om været i Norge?",
+    "Har du noen planer for framtiden?"
+  ],
+  "del1Seconds": 180,
+  "del2Seconds": 120,
+  "del3Seconds": 180
+}

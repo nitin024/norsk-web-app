@@ -56,7 +56,18 @@ const check = (name, fn) => {
 function probe(hash, width, height = 900) {
   const probeScript = `
 <script>
-window.addEventListener('load', () => setTimeout(() => {
+// Wait for the app to route, not for a fixed delay: the lexicon is large
+// and the test server is single-threaded.
+window.addEventListener('load', () => {
+  const started = Date.now();
+  const tick = () => {
+    const ready = document.body.dataset.view && document.getElementById('reader').children.length > 0;
+    if (!ready && Date.now() - started < 7000) return setTimeout(tick, 100);
+    setTimeout(report, 300);
+  };
+  tick();
+});
+function report() {
   const r = document.getElementById('reader');
   const root = getComputedStyle(document.documentElement);
   const rows = document.querySelectorAll('.dict-row, .para-link, .home-link, .sentence');
@@ -76,7 +87,7 @@ window.addEventListener('load', () => setTimeout(() => {
     out.firstItemVisible = getComputedStyle(rows[0]).visibility;
   }
   document.title = 'PROBE' + JSON.stringify(out);
-}, 900));
+}
 </script>`;
 
   const src = readFileSync(join(ROOT, 'index.html'), 'utf8');
@@ -89,7 +100,7 @@ window.addEventListener('load', () => setTimeout(() => {
       [
         '--headless',
         '--disable-gpu',
-        '--virtual-time-budget=6000',
+        '--virtual-time-budget=12000',
         `--window-size=${width},${height}`,
         '--dump-dom',
         `http://localhost:${PORT}/${tmpName}${hash}`,

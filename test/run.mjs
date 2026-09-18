@@ -73,14 +73,14 @@ async function go(hash) {
 
 await go('');
 
-check('home: renders five destinations', () => {
+check('home: renders eight destinations, course first', () => {
   const links = reader().querySelectorAll('.home-link');
-  assert.equal(links.length, 5);
+  assert.equal(links.length, 8);
 });
 
 check('home: destinations point at the right routes', () => {
   const hrefs = reader().querySelectorAll('.home-link').map((a) => a.getAttribute('href'));
-  assert.equal(hrefs.join(','), '#/tekster,#/ordbok,#/ov,#/grammatikk,#/skriv');
+  assert.equal(hrefs.join(','), '#/kurs,#/tekster,#/ordbok,#/ov,#/grammatikk,#/tall,#/prove,#/skriv');
 });
 
 check('home: back button is hidden (regression)', () => {
@@ -304,6 +304,100 @@ check('dict: pos filter narrows the list', () => {
   chips.find((c) => c.textContent === 'Alle').click();
 });
 
+check('dict: cards view shows one flash card over the filtered set', () => {
+  const search = $('dict-search');
+  search.value = 'barnehage';
+  search.dispatch('input');
+  const listCount = reader().querySelectorAll('.dict-row').length;
+  const toggle = $('dict-view-toggle');
+  assert.equal(toggle.textContent, 'Kort');
+  toggle.click();
+  assert.equal(toggle.textContent, 'Liste');
+  assert.equal(reader().querySelectorAll('.dict-row').length, 0, 'list hidden in card view');
+  assert.ok(reader().querySelector('.flip-word'), 'a card should show');
+  assert.includes(reader().querySelector('.review-progress').textContent, `av ${listCount}`);
+});
+
+check('dict: card flips, and grading feeds the spaced schedule', () => {
+  globalThis.localStorage.removeItem('norsk:review');
+  assert.equal(reader().querySelector('.flip-back').hidden, true);
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Vis').click();
+  assert.equal(reader().querySelector('.flip-back').hidden, false);
+  // "Kunne det" on a word never seen: lands in box 1, due tomorrow, not reset.
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Kunne det').click();
+  let store = JSON.parse(globalThis.localStorage.getItem('norsk:review'));
+  const [id, rec] = Object.entries(store)[0];
+  assert.ok(id, 'entry should be in the review store');
+  assert.equal(rec.box, 1);
+  assert.ok(rec.due > Date.now() + 23 * 60 * 60 * 1000, 'due about a day out');
+  assert.ok(reader().querySelector('.flip-word'), 'next card should show');
+  assert.equal(reader().querySelector('.flip-back').hidden, true, 'next card starts face down');
+  // "Øv mer" on the next card: box 0, due now.
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Vis').click();
+  reader().querySelectorAll('.btn-quiet').find((b) => b.textContent === 'Øv mer').click();
+  store = JSON.parse(globalThis.localStorage.getItem('norsk:review'));
+  const again = Object.values(store).find((r) => r.box === 0);
+  assert.ok(again && again.due <= Date.now(), 'Øv mer should be due now');
+  globalThis.localStorage.removeItem('norsk:review');
+  $('dict-view-toggle').click(); // back to list for the later tests
+  $('dict-search').value = '';
+  $('dict-search').dispatch('input');
+  assert.equal(globalThis.localStorage.getItem('norsk:dictView'), 'list');
+});
+check('dict cards: order chips offer fixed, random and alphabetical', () => {
+  $('dict-search').value = 'barn';
+  $('dict-search').dispatch('input');
+  $('dict-view-toggle').click(); // to cards
+  const chips = reader().querySelectorAll('.chip').map((c) => c.textContent);
+  assert.equal(chips.join(','), 'A–Å,Fast,Tilfeldig');
+
+  // Alphabetical is the default: the first card is the first match in the list.
+  const alpha = reader().querySelector('.flip-word').textContent;
+  $('dict-view-toggle').click(); // list
+  const listFirst = reader().querySelector('.dict-head').textContent;
+  assert.equal(alpha, listFirst, 'A–Å should follow the list order');
+
+  // The order chip governs the list too, and shuffling drops letter headings.
+  reader().querySelectorAll('.chip').find((c) => c.textContent === 'Fast').click();
+  assert.equal(globalThis.localStorage.getItem('norsk:dictOrder'), 'fast');
+  assert.equal(reader().querySelectorAll('.dict-letter').length, 0, 'no headings when shuffled');
+  assert.atLeast(reader().querySelectorAll('.dict-row').length, 3, 'rows still render');
+
+  // Fixed: leaving and returning gives the same first row.
+  const firstRow = reader().querySelector('.dict-head').textContent;
+  $('dict-view-toggle').click();
+  $('dict-view-toggle').click();
+  assert.equal(reader().querySelector('.dict-head').textContent, firstRow, 'fixed order must be stable');
+
+  reader().querySelectorAll('.chip').find((c) => c.textContent === 'A–Å').click();
+  assert.atLeast(reader().querySelectorAll('.dict-letter').length, 1, 'headings return in A–Å')
+  $('dict-search').value = '';
+  $('dict-search').dispatch('input');
+});
+
+check('dict cards: the gloss toggle turns the deck around for beginners', () => {
+  $('dict-search').value = 'barnehage';
+  $('dict-search').dispatch('input');
+  $('dict-view-toggle').click(); // to cards
+  const norskFirst = reader().querySelector('.flip-word').textContent;
+  assert.equal($('dict-gloss-toggle').textContent, 'Norsk først');
+
+  $('dict-gloss-toggle').click(); // English first
+  assert.equal($('dict-gloss-toggle').textContent, 'Engelsk først');
+  const front = reader().querySelector('.flip-word').textContent;
+  assert.ok(front !== norskFirst, 'front should now be the English gloss');
+  assert.equal(reader().querySelectorAll('.flip-answer').length, 1, 'answer side holds the Norwegian');
+  assert.equal(reader().querySelector('.flip-back').hidden, true, 'answer stays hidden until Vis');
+
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Vis').click();
+  assert.equal(reader().querySelector('.flip-answer').textContent, norskFirst);
+
+  $('dict-gloss-toggle').click(); // back to Norwegian first
+  $('dict-view-toggle').click(); // back to list
+  $('dict-search').value = '';
+  $('dict-search').dispatch('input');
+});
+
 // --- reading -----------------------------------------------------------
 
 await go('#/barnehagen');
@@ -337,9 +431,9 @@ check('reader: exam note box links to the topic', () => {
   assert.equal(link.getAttribute('href'), '#/tema/hverdag');
 });
 
-check('reader: mode chips offer read, cloze and speak', () => {
+check('reader: mode chips offer read, cloze, listen and speak', () => {
   const chips = reader().querySelectorAll('.chip').map((c) => c.textContent);
-  assert.equal(chips.join(','), 'Les,Fyll inn,Snakk');
+  assert.equal(chips.join(','), 'Les,Fyll inn,Lytt,Snakk');
 });
 
 // --- word card ---------------------------------------------------------
@@ -408,10 +502,33 @@ check('cloze: grading marks right and wrong answers', () => {
   assert.includes(reader().querySelector('.scratch-stats').textContent, 'riktige');
 });
 
-check('cloze: reveal fills every blank correctly', () => {
-  reader().querySelectorAll('.btn-quiet').find((b) => b.textContent === 'Vis fasit').click();
+check('cloze: reveal shows the key beside each blank without touching the answers', () => {
   const inputs = reader().querySelectorAll('.cloze-input');
-  assert.ok(inputs.every((i) => i.classList.contains('is-right')));
+  const typed = inputs.map((i) => i.value);
+  const reveal = reader().querySelectorAll('.btn-quiet').find((b) => b.textContent === 'Vis fasit');
+  reveal.click();
+  const keys = reader().querySelectorAll('.cloze-key');
+  assert.equal(keys.length, inputs.length);
+  assert.ok(keys.every((k) => k.hidden === false), 'keys should be visible');
+  assert.ok(inputs.every((i, n) => i.value === typed[n]), 'inputs must keep what was typed');
+  assert.ok(inputs[1].classList.contains('is-wrong'), 'a wrong answer stays marked wrong next to the key');
+  assert.equal(reveal.textContent, 'Skjul fasit');
+});
+
+check('cloze: reveal can be undone', () => {
+  reader().querySelectorAll('.btn-quiet').find((b) => b.textContent === 'Skjul fasit').click();
+  assert.ok(reader().querySelectorAll('.cloze-key').every((k) => k.hidden === true));
+});
+
+check('cloze: hints can be hidden and the choice persists', () => {
+  const toggle = reader().querySelector('.cloze-hint-toggle');
+  assert.equal(toggle.textContent, 'Skjul hint');
+  toggle.click();
+  assert.ok(reader().classList.contains('hide-hints'));
+  assert.equal(toggle.textContent, 'Vis hint');
+  assert.equal(globalThis.localStorage.getItem('norsk:clozeHints'), '0');
+  toggle.click();
+  assert.ok(!reader().classList.contains('hide-hints'));
 });
 
 // --- speaking practice -------------------------------------------------
@@ -716,6 +833,153 @@ check('grammar: "Vis" lays out the correct sentence', () => {
   ex.querySelectorAll('.btn-quiet').find((b) => b.textContent === 'Vis').click();
   const built = ex.querySelector('.scramble-answer').querySelectorAll('.scramble-chip').map((c) => c.textContent).join(' ');
   assert.equal(built, 'Nå bor vi i Drammen.');
+});
+
+// --- exercises, pronunciation ------------------------------------------
+
+check('grammar: a choice exercise marks the rule passed', () => {
+  globalThis.localStorage.removeItem('norsk:rules');
+  const rule = $('rule-v2');
+  assert.ok(rule, 'rule-v2 missing');
+  const ex = rule.querySelector('.exercise');
+  assert.ok(ex, 'v2 should have an exercise');
+  const wrong = ex.querySelectorAll('.scramble-chip').find((c) => c.textContent === 'vi reiser');
+  wrong.click();
+  assert.ok(ex.classList.contains('is-wrong'));
+  assert.includes(ex.querySelector('.scratch-stats').textContent, 'reiser vi');
+  ex.querySelectorAll('.scramble-chip').find((c) => c.textContent === 'reiser vi').click();
+  assert.ok(ex.classList.contains('is-right'));
+  assert.ok(JSON.parse(globalThis.localStorage.getItem('norsk:rules')).v2.passed);
+  assert.ok(rule.classList.contains('is-passed'));
+});
+
+check('grammar: a fill exercise grades loosely on case and punctuation', () => {
+  const rule = $('rule-preteritum');
+  const ex = rule.querySelector('.exercise');
+  const input = ex.querySelector('.dictation-input');
+  input.value = ' VAR ';
+  ex.querySelectorAll('.btn-primary').find((b) => b.textContent === 'Sjekk').click();
+  assert.ok(ex.classList.contains('is-right'));
+});
+
+check('grammar: pronunciation section exists', () => {
+  const titles = reader().querySelectorAll('.level-title').map((h) => h.textContent);
+  assert.ok(titles.some((t) => t.startsWith('Uttale')));
+});
+
+await go('#/ordbok');
+
+check('card: shows a pronunciation hint where the lexicon has one', () => {
+  $('dict-search').value = 'kjøpe';
+  $('dict-search').dispatch('input');
+  reader().querySelectorAll('.dict-row').find((r) => r.querySelector('.dict-head').textContent === 'å kjøpe').click();
+  const pron = $('card-body').querySelector('.card-pron');
+  assert.ok(pron, 'card-pron missing');
+  assert.includes(pron.textContent, 'Uttale');
+  $('card-close').click();
+  $('dict-search').value = '';
+  $('dict-search').dispatch('input');
+});
+
+// --- grammar in the text, listening ------------------------------------
+
+await go('#/barnehagen');
+
+check('reader: grammar toggle marks finite verbs and tags inversion', () => {
+  reader().querySelectorAll('.chip').find((c) => c.textContent === 'Les').click();
+  const toggle = reader().querySelector('.grammar-toggle');
+  assert.ok(toggle, 'toggle missing');
+  toggle.click();
+  assert.ok(reader().classList.contains('show-grammar'));
+  assert.atLeast(reader().querySelectorAll('.is-finite').length, 5, 'finite verbs should be marked');
+  assert.atLeast(reader().querySelectorAll('.gram-tag').length, 1, 'expected at least one V2 or leddsetning tag');
+  toggle.click();
+  assert.ok(!reader().classList.contains('show-grammar'));
+});
+
+check('reader: listening mode explains itself when no voice is available', () => {
+  reader().querySelectorAll('.chip').find((c) => c.textContent === 'Lytt').click();
+  assert.includes(reader().querySelector('.level-desc').textContent, 'ingen norsk stemme');
+  reader().querySelectorAll('.chip').find((c) => c.textContent === 'Les').click();
+});
+
+// --- drill -------------------------------------------------------------
+
+await go('#/tall');
+
+check('drill: shows a prompt and grades an answer', () => {
+  assert.equal(doc.body.dataset.view, 'drill');
+  reader().querySelectorAll('.chip').find((c) => c.textContent === 'Klokka').click();
+  const prompt = reader().querySelector('.drill-prompt').textContent;
+  assert.ok(/^\d\d:\d\d$/.test(prompt), `clock prompt expected, got ${prompt}`);
+  const input = reader().querySelector('.dictation-input');
+  input.value = 'helt feil';
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Sjekk').click();
+  assert.ok(input.classList.contains('is-wrong'));
+  assert.equal(reader().querySelector('.dictation-key').hidden, false, 'key shown after a wrong answer');
+  const stats = JSON.parse(globalThis.localStorage.getItem('norsk:drill'));
+  assert.equal(stats.klokka.answered, 1);
+});
+
+check('drill: a right answer counts, with "klokka" prefix tolerated', () => {
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Neste').click();
+  const key = reader().querySelector('.dictation-key').textContent;
+  const input = reader().querySelector('.dictation-input');
+  input.value = `Klokka ${key}.`;
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Sjekk').click();
+  assert.ok(input.classList.contains('is-right'));
+  assert.equal(JSON.parse(globalThis.localStorage.getItem('norsk:drill')).klokka.right, 1);
+});
+
+// --- exam --------------------------------------------------------------
+
+await go('#/prove');
+await new Promise((r) => setTimeout(r, 30));
+
+check('exam: three parts in sequence, then a finish screen', () => {
+  assert.equal(doc.body.dataset.view, 'exam');
+  assert.equal(reader().querySelectorAll('.exam-questions').length, 1);
+  assert.equal(reader().querySelector('.exam-questions').querySelectorAll('li').length, 6);
+  assert.ok(reader().querySelector('.timer-clock'));
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Neste del').click();
+  assert.includes(reader().querySelector('.level-title').textContent, 'Del 2');
+  assert.atLeast(reader().querySelectorAll('.word-chip').length, 5, 'key words for the topic');
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Neste del').click();
+});
+
+await new Promise((r) => setTimeout(r, 20));
+
+check('exam: part 3 has a discussion prompt and finishing records the run', () => {
+  assert.includes(reader().querySelector('.level-title').textContent, 'Del 3');
+  assert.ok(reader().querySelector('.exam-note'));
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Avslutt').click();
+  assert.includes(reader().querySelector('.level-title').textContent, 'Ferdig');
+  assert.equal(JSON.parse(globalThis.localStorage.getItem('norsk:drill'))['prøve'].answered, 1);
+});
+
+// --- course ------------------------------------------------------------
+
+await go('#/kurs');
+await new Promise((r) => setTimeout(r, 30));
+
+check('course: lists every level with steps and marks done ones', () => {
+  assert.equal(doc.body.dataset.view, 'course');
+  const levels = reader().querySelectorAll('.level');
+  assert.equal(levels.length, 4);
+  const steps = reader().querySelectorAll('.course-step');
+  assert.atLeast(steps.length, 40);
+  const done = reader().querySelectorAll('.course-step').filter((li) => li.classList.contains('is-done'));
+  assert.atLeast(done.length, 2, 'read texts and passed rules should be done');
+  assert.equal(reader().querySelectorAll('.course-step').filter((li) => li.classList.contains('is-next')).length, 1, 'exactly one next step');
+});
+
+await go('');
+await new Promise((r) => setTimeout(r, 30));
+
+check('home: shows the next course step', () => {
+  const next = reader().querySelector('.home-next');
+  assert.ok(next, 'home-next missing');
+  assert.includes(next.textContent, 'Neste i kurset');
 });
 
 // --- chrome invariants -------------------------------------------------

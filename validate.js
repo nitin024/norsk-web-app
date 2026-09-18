@@ -166,7 +166,8 @@ const SCHEMA = {
     requires: ['gender'],
   },
   verb: {
-    allowed: ['infinitive', 'present', 'preterite', 'perfect'],
+    // imperative and the -s passive are optional: listed where a text uses them.
+    allowed: ['infinitive', 'present', 'preterite', 'perfect', 'imperative', 'passive'],
     required: ['infinitive', 'present', 'preterite', 'perfect'],
   },
   adjective: {
@@ -454,6 +455,40 @@ try {
   }
 } catch (e) {
   err('grammar', `${GRAMMAR_PATH}: ${e.message}`);
+}
+
+// --- 3c. course path ----------------------------------------------------
+
+try {
+  const course = JSON.parse(readFileSync('data/course.json', 'utf8'));
+  const grammar = JSON.parse(readFileSync(GRAMMAR_PATH, 'utf8'));
+  const ruleIds = new Set(grammar.sections.flatMap((s) => s.rules.map((r) => r.id)));
+  const textIds = new Set(index.paragraphs.map((p) => p.id));
+  const seen = new Set();
+  for (const level of course.levels ?? []) {
+    for (const step of level.steps ?? []) {
+      const key = `${step.type}:${step.id ?? step.label}`;
+      if (seen.has(key)) warn('course', `${level.level}: step ${key} appears twice`);
+      seen.add(key);
+      if (step.type === 'text' && !textIds.has(step.id)) err('course', `${level.level}: no text "${step.id}"`);
+      if (step.type === 'rule' && !ruleIds.has(step.id)) err('course', `${level.level}: no rule "${step.id}"`);
+      if (!['text', 'rule', 'drill', 'review', 'exam'].includes(step.type)) err('course', `${level.level}: unknown step type "${step.type}"`);
+    }
+  }
+  for (const id of textIds) {
+    if (!seen.has(`text:${id}`)) warn('course', `text "${id}" is not in the course path`);
+  }
+  for (const section of grammar.sections) {
+    for (const rule of section.rules) {
+      for (const ex of rule.exercises ?? []) {
+        if (!['choice', 'fill'].includes(ex.type)) err('grammar', `${rule.id}: unknown exercise type "${ex.type}"`);
+        if (ex.type === 'choice' && !ex.options?.includes(ex.answer)) err('grammar', `${rule.id}: answer "${ex.answer}" is not among the options`);
+        if (!ex.prompt || !ex.answer) err('grammar', `${rule.id}: exercise needs prompt and answer`);
+      }
+    }
+  }
+} catch (e) {
+  err('course', e.message);
 }
 
 // --- 4. unused entries -------------------------------------------------
