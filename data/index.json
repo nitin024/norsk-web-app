@@ -57,7 +57,10 @@
       "id": "samfunn",
       "label": "Samfunn og miljø",
       "description": "Transport, integrering og miljø: drøfting med argumenter."
-    }
+    },
+    {"id": "fritid", "label": "Fritid og natur", "description": "Hobbyer, helg, turer i skog og fjell, og været."},
+    {"id": "mat", "label": "Mat og tradisjoner", "description": "Måltider, jul, 17. mai og bursdager — gjerne sammenliknet med hjemlandet."},
+    {"id": "penger", "label": "Penger og handel", "description": "Butikker, priser, sparing og hvorfor Norge er dyrt."}
   ],
   "paragraphs": [
     { "id": "presentasjon", "title": "Å presentere seg selv", "level": "A1", "file": "presentasjon.json", "topic": "presentasjon" },
@@ -78,6 +81,19 @@
     { "id": "norskkurs", "title": "På norskkurs", "level": "A2", "file": "norskkurs.json", "topic": "utdanning" },
     { "id": "leie-eller-eie", "title": "Leie eller eie?", "level": "B1", "file": "leie-eller-eie.json", "topic": "bolig" },
     { "id": "fastlegen", "title": "Fastlegen og helsetjenesten", "level": "B1", "file": "fastlegen.json", "topic": "helse" },
-    { "id": "livslang-laering", "title": "Livslang læring", "level": "B2", "file": "livslang-laering.json", "topic": "utdanning" }
+    { "id": "livslang-laering", "title": "Livslang læring", "level": "B2", "file": "livslang-laering.json", "topic": "utdanning" },
+    { "id": "hvem-gjor-hva", "title": "Hvem gjør hva?", "level": "A2", "file": "hvem-gjor-hva.json", "topic": "hverdag" },
+    { "id": "lordag-i-drammen", "title": "Lørdag i Drammen", "level": "A2", "file": "lordag-i-drammen.json", "topic": "hverdag" },
+    { "id": "middag-klokka-fem", "title": "Middag klokka fem", "level": "A2", "file": "middag-klokka-fem.json", "topic": "hverdag" },
+    { "id": "fra-spania-til-drammen", "title": "Fra Spania til Drammen", "level": "A2", "file": "fra-spania-til-drammen.json", "topic": "presentasjon" },
+    { "id": "jeg-leter-etter-jobb", "title": "Jeg leter etter jobb", "level": "A1", "file": "jeg-leter-etter-jobb.json", "topic": "arbeid" },
+    { "id": "sykepleier-i-spania", "title": "Sykepleier i Spania", "level": "A2", "file": "sykepleier-i-spania.json", "topic": "arbeid" },
+    { "id": "sykkel-i-hverdagen", "title": "Sykkel i hverdagen", "level": "B1", "file": "sykkel-i-hverdagen.json", "topic": "samfunn" },
+    { "id": "dyrt-i-norge", "title": "Dyrt i Norge", "level": "A2", "file": "dyrt-i-norge.json", "topic": "penger" },
+    { "id": "jeg-er-syk-i-dag", "title": "Jeg er syk i dag", "level": "A1", "file": "jeg-er-syk-i-dag.json", "topic": "helse" },
+    { "id": "jul-og-syttende-mai", "title": "Jul og syttende mai", "level": "A2", "file": "jul-og-syttende-mai.json", "topic": "mat" },
+    { "id": "planer-for-varen", "title": "Planer for våren", "level": "A1", "file": "planer-for-varen.json", "topic": "utdanning" },
+    { "id": "regn-og-skog", "title": "Regn og skog", "level": "A2", "file": "regn-og-skog.json", "topic": "fritid" },
+    { "id": "to-sprak-hjemme", "title": "To språk hjemme", "level": "B1", "file": "to-sprak-hjemme.json", "topic": "presentasjon" }
   ]
 }

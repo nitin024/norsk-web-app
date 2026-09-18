@@ -7400,6 +7400,813 @@
         "neuter": "engelsk",
         "plural": "engelske"
       }
+    },
+    "mandag": {
+      "id": "mandag-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "Monday",
+      "forms": {
+        "indefinite_sg": "mandag",
+        "definite_sg": "mandagen",
+        "indefinite_pl": "mandager",
+        "definite_pl": "mandagene"
+      }
+    },
+    "tirsdag": {
+      "id": "tirsdag-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "Tuesday",
+      "forms": {
+        "indefinite_sg": "tirsdag",
+        "definite_sg": "tirsdagen",
+        "indefinite_pl": "tirsdager",
+        "definite_pl": "tirsdagene"
+      }
+    },
+    "onsdag": {
+      "id": "onsdag-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "Wednesday",
+      "forms": {
+        "indefinite_sg": "onsdag",
+        "definite_sg": "onsdagen",
+        "indefinite_pl": "onsdager",
+        "definite_pl": "onsdagene"
+      }
+    },
+    "torsdag": {
+      "id": "torsdag-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "Thursday",
+      "forms": {
+        "indefinite_sg": "torsdag",
+        "definite_sg": "torsdagen",
+        "indefinite_pl": "torsdager",
+        "definite_pl": "torsdagene"
+      }
+    },
+    "fredag": {
+      "id": "fredag-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "Friday",
+      "forms": {
+        "indefinite_sg": "fredag",
+        "definite_sg": "fredagen",
+        "indefinite_pl": "fredager",
+        "definite_pl": "fredagene"
+      }
+    },
+    "lørdag": {
+      "id": "lørdag-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "Saturday",
+      "forms": {
+        "indefinite_sg": "lørdag",
+        "definite_sg": "lørdagen",
+        "indefinite_pl": "lørdager",
+        "definite_pl": "lørdagene"
+      }
+    },
+    "søndag": {
+      "id": "søndag-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "Sunday",
+      "forms": {
+        "indefinite_sg": "søndag",
+        "definite_sg": "søndagen",
+        "indefinite_pl": "søndager",
+        "definite_pl": "søndagene"
+      }
+    },
+    "januar": {
+      "id": "januar-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "January",
+      "forms": {
+        "indefinite_sg": "januar",
+        "definite_sg": "januaren",
+        "indefinite_pl": "januarer",
+        "definite_pl": "januarene"
+      }
+    },
+    "februar": {
+      "id": "februar-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "February",
+      "forms": {
+        "indefinite_sg": "februar",
+        "definite_sg": "februaren",
+        "indefinite_pl": "februarer",
+        "definite_pl": "februarene"
+      }
+    },
+    "mars": {
+      "id": "mars-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "March",
+      "forms": {
+        "indefinite_sg": "mars",
+        "definite_sg": "marsen",
+        "indefinite_pl": "marser",
+        "definite_pl": "marsene"
+      }
+    },
+    "april": {
+      "id": "april-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "April",
+      "forms": {
+        "indefinite_sg": "april",
+        "definite_sg": "aprilen",
+        "indefinite_pl": "apriler",
+        "definite_pl": "aprilene"
+      }
+    },
+    "mai": {
+      "id": "mai-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "May",
+      "forms": {
+        "indefinite_sg": "mai",
+        "definite_sg": "maien",
+        "indefinite_pl": "maier",
+        "definite_pl": "maiene"
+      }
+    },
+    "juni": {
+      "id": "juni-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "June",
+      "forms": {
+        "indefinite_sg": "juni",
+        "definite_sg": "junien",
+        "indefinite_pl": "junier",
+        "definite_pl": "juniene"
+      }
+    },
+    "juli": {
+      "id": "juli-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "July",
+      "forms": {
+        "indefinite_sg": "juli",
+        "definite_sg": "julien",
+        "indefinite_pl": "julier",
+        "definite_pl": "juliene"
+      }
+    },
+    "august": {
+      "id": "august-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "August",
+      "forms": {
+        "indefinite_sg": "august",
+        "definite_sg": "augusten",
+        "indefinite_pl": "auguster",
+        "definite_pl": "augustene"
+      }
+    },
+    "september": {
+      "id": "september-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "September",
+      "forms": {
+        "indefinite_sg": "september",
+        "definite_sg": "septemberen",
+        "indefinite_pl": "septemberer",
+        "definite_pl": "septemberene"
+      }
+    },
+    "oktober": {
+      "id": "oktober-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "October",
+      "forms": {
+        "indefinite_sg": "oktober",
+        "definite_sg": "oktoberen",
+        "indefinite_pl": "oktoberer",
+        "definite_pl": "oktoberene"
+      }
+    },
+    "november": {
+      "id": "november-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "November",
+      "forms": {
+        "indefinite_sg": "november",
+        "definite_sg": "novemberen",
+        "indefinite_pl": "novemberer",
+        "definite_pl": "novemberene"
+      }
+    },
+    "desember": {
+      "id": "desember-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "December",
+      "forms": {
+        "indefinite_sg": "desember",
+        "definite_sg": "desemberen",
+        "indefinite_pl": "desemberer",
+        "definite_pl": "desemberene"
+      }
+    },
+    "elleve": {
+      "id": "elleve-num",
+      "pos": "numeral",
+      "gloss": "eleven"
+    },
+    "tretten": {
+      "id": "tretten-num",
+      "pos": "numeral",
+      "gloss": "thirteen"
+    },
+    "fjorten": {
+      "id": "fjorten-num",
+      "pos": "numeral",
+      "gloss": "fourteen"
+    },
+    "femten": {
+      "id": "femten-num",
+      "pos": "numeral",
+      "gloss": "fifteen"
+    },
+    "seksten": {
+      "id": "seksten-num",
+      "pos": "numeral",
+      "gloss": "sixteen"
+    },
+    "sytten": {
+      "id": "sytten-num",
+      "pos": "numeral",
+      "gloss": "seventeen"
+    },
+    "atten": {
+      "id": "atten-num",
+      "pos": "numeral",
+      "gloss": "eighteen"
+    },
+    "nitten": {
+      "id": "nitten-num",
+      "pos": "numeral",
+      "gloss": "nineteen"
+    },
+    "femti": {
+      "id": "femti-num",
+      "pos": "numeral",
+      "gloss": "fifty"
+    },
+    "hundre": {
+      "id": "hundre-num",
+      "pos": "numeral",
+      "gloss": "hundred"
+    },
+    "tusen": {
+      "id": "tusen-num",
+      "pos": "numeral",
+      "gloss": "thousand"
+    },
+    "rød": {
+      "id": "rød-adj",
+      "pos": "adjective",
+      "gloss": "red",
+      "forms": {
+        "positive": "rød",
+        "neuter": "rødt",
+        "plural": "røde"
+      }
+    },
+    "blå": {
+      "id": "blå-adj",
+      "pos": "adjective",
+      "gloss": "blue",
+      "forms": {
+        "positive": "blå",
+        "neuter": "blått",
+        "plural": "blå"
+      }
+    },
+    "grønn": {
+      "id": "grønn-adj",
+      "pos": "adjective",
+      "gloss": "green",
+      "forms": {
+        "positive": "grønn",
+        "neuter": "grønt",
+        "plural": "grønne"
+      }
+    },
+    "gul": {
+      "id": "gul-adj",
+      "pos": "adjective",
+      "gloss": "yellow",
+      "forms": {
+        "positive": "gul",
+        "neuter": "gult",
+        "plural": "gule"
+      }
+    },
+    "hvit": {
+      "id": "hvit-adj",
+      "pos": "adjective",
+      "gloss": "white",
+      "forms": {
+        "positive": "hvit",
+        "neuter": "hvitt",
+        "plural": "hvite"
+      }
+    },
+    "brun": {
+      "id": "brun-adj",
+      "pos": "adjective",
+      "gloss": "brown",
+      "forms": {
+        "positive": "brun",
+        "neuter": "brunt",
+        "plural": "brune"
+      }
+    },
+    "grå": {
+      "id": "grå-adj",
+      "pos": "adjective",
+      "gloss": "grey",
+      "forms": {
+        "positive": "grå",
+        "neuter": "grått",
+        "plural": "grå"
+      }
+    },
+    "selge": {
+      "id": "selge-v",
+      "pos": "verb",
+      "gloss": "to sell",
+      "forms": {
+        "infinitive": "selge",
+        "present": "selger",
+        "preterite": "solgte",
+        "perfect": "solgt"
+      }
+    },
+    "låne": {
+      "id": "låne-v",
+      "pos": "verb",
+      "gloss": "to borrow; to lend",
+      "forms": {
+        "infinitive": "låne",
+        "present": "låner",
+        "preterite": "lånte",
+        "perfect": "lånt"
+      }
+    },
+    "kveldsmat": {
+      "id": "kveldsmat-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "evening meal, supper",
+      "forms": {
+        "indefinite_sg": "kveldsmat",
+        "definite_sg": "kveldsmaten",
+        "indefinite_pl": "kveldsmater",
+        "definite_pl": "kveldsmatene"
+      }
+    },
+    "trikk": {
+      "id": "trikk-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "tram",
+      "forms": {
+        "indefinite_sg": "trikk",
+        "definite_sg": "trikken",
+        "indefinite_pl": "trikker",
+        "definite_pl": "trikkene"
+      }
+    },
+    "stasjon": {
+      "id": "stasjon-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "station",
+      "forms": {
+        "indefinite_sg": "stasjon",
+        "definite_sg": "stasjonen",
+        "indefinite_pl": "stasjoner",
+        "definite_pl": "stasjonene"
+      }
+    },
+    "forkjølet": {
+      "id": "forkjølet-adj",
+      "pos": "adjective",
+      "gloss": "having a cold ('jeg er forkjølet')",
+      "forms": {
+        "positive": "forkjølet",
+        "neuter": "forkjølet",
+        "plural": "forkjølede"
+      }
+    },
+    "trist": {
+      "id": "trist-adj",
+      "pos": "adjective",
+      "gloss": "sad",
+      "forms": {
+        "positive": "trist",
+        "neuter": "trist",
+        "plural": "triste"
+      }
+    },
+    "kort": {
+      "id": "kort-adj",
+      "pos": "adjective",
+      "gloss": "short",
+      "forms": {
+        "positive": "kort",
+        "neuter": "kort",
+        "plural": "korte"
+      }
+    },
+    "venstre": {
+      "id": "venstre-adv",
+      "pos": "adverb",
+      "gloss": "left ('til venstre' = to the left)"
+    },
+    "høyre": {
+      "id": "høyre-adv",
+      "pos": "adverb",
+      "gloss": "right ('til høyre' = to the right)"
+    },
+    "fram": {
+      "id": "fram-adv",
+      "pos": "adverb",
+      "gloss": "forward, ahead ('rett fram' = straight ahead)"
+    },
+    "hvem": {
+      "id": "hvem-pron",
+      "pos": "pronoun",
+      "gloss": "who"
+    },
+    "hva": {
+      "id": "hva-pron",
+      "pos": "pronoun",
+      "gloss": "what"
+    },
+    "hvorfor": {
+      "id": "hvorfor-adv",
+      "pos": "adverb",
+      "gloss": "why"
+    },
+    "hvordan": {
+      "id": "hvordan-adv",
+      "pos": "adverb",
+      "gloss": "how"
+    },
+    "hvilken": {
+      "id": "hvilken-det",
+      "pos": "determiner",
+      "gloss": "which",
+      "forms": {
+        "masculine": "hvilken",
+        "feminine": "hvilken",
+        "neuter": "hvilket",
+        "plural": "hvilke"
+      }
+    },
+    "før": {
+      "id": "før-conj",
+      "pos": "conjunction",
+      "gloss": "before",
+      "note": "Also a preposition and adverb: 'før klokka ni', 'som før'."
+    },
+    "etter at": {
+      "id": "etter-at-phr",
+      "pos": "phrase",
+      "phrase": true,
+      "gloss": "after (introducing a clause)",
+      "note": "'etter' alone goes before a noun: etter jobben. Before a whole clause it is 'etter at': etter at jeg kom hjem."
+    },
+    "til slutt": {
+      "id": "til-slutt-phr",
+      "pos": "phrase",
+      "phrase": true,
+      "gloss": "finally, in the end"
+    },
+    "pleie": {
+      "id": "pleie-v",
+      "pos": "verb",
+      "gloss": "to usually do ('pleier å' = usually)",
+      "forms": {
+        "infinitive": "pleie",
+        "present": "pleier",
+        "preterite": "pleide",
+        "perfect": "pleid"
+      }
+    },
+    "tur": {
+      "id": "tur-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "walk, trip ('gå en tur' = go for a walk)",
+      "forms": {
+        "indefinite_sg": "tur",
+        "definite_sg": "turen",
+        "indefinite_pl": "turer",
+        "definite_pl": "turene"
+      }
+    },
+    "ferdig": {
+      "id": "ferdig-adj",
+      "pos": "adjective",
+      "gloss": "finished, done",
+      "forms": {
+        "positive": "ferdig",
+        "neuter": "ferdig",
+        "plural": "ferdige"
+      }
+    },
+    "paraply": {
+      "id": "paraply-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "umbrella",
+      "forms": {
+        "indefinite_sg": "paraply",
+        "definite_sg": "paraplyen",
+        "indefinite_pl": "paraplyer",
+        "definite_pl": "paraplyene"
+      }
+    },
+    "hit": {
+      "id": "hit-adv",
+      "pos": "adverb",
+      "gloss": "here (to this place, with movement)",
+      "note": "Movement: «kom hit». Position: «her»."
+    },
+    "ut": {
+      "id": "ut-adv",
+      "pos": "adverb",
+      "gloss": "out (with movement)",
+      "note": "Movement: «gå ut». Position: «ute»."
+    },
+    "flere": {
+      "id": "flere-det",
+      "pos": "determiner",
+      "gloss": "more; several (comparative of mange)"
+    },
+    "bra": {
+      "id": "bra-adj",
+      "pos": "adjective",
+      "gloss": "good, fine (never inflects)",
+      "forms": {
+        "positive": "bra",
+        "neuter": "bra",
+        "plural": "bra"
+      }
+    },
+    "ei": {
+      "id": "ei-det",
+      "pos": "determiner",
+      "gloss": "a, an (feminine indefinite article)",
+      "note": "Optional: every feminine noun also takes «en». «ei bok» and «en bok» are both correct."
+    },
+    "nesten": {
+      "id": "nesten-adv",
+      "pos": "adverb",
+      "gloss": "almost, nearly"
+    },
+    "fort": {
+      "id": "fort-adv",
+      "pos": "adverb",
+      "gloss": "quickly, fast"
+    },
+    "bære": {
+      "id": "bære-v",
+      "pos": "verb",
+      "gloss": "to carry",
+      "forms": {
+        "infinitive": "bære",
+        "present": "bærer",
+        "preterite": "bar",
+        "perfect": "båret"
+      }
+    },
+    "ris": {
+      "id": "ris-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "rice",
+      "forms": {
+        "indefinite_sg": "ris",
+        "definite_sg": "risen",
+        "indefinite_pl": "riser",
+        "definite_pl": "risene"
+      }
+    },
+    "midt": {
+      "id": "midt-adv",
+      "pos": "adverb",
+      "gloss": "in the middle ('midt på dagen' = in the middle of the day)"
+    },
+    "jul": {
+      "id": "jul-n",
+      "pos": "noun",
+      "gender": "en/ei",
+      "gloss": "Christmas",
+      "forms": {
+        "indefinite_sg": "jul",
+        "definite_sg": "julen",
+        "definite_sg_fem": "jula",
+        "indefinite_pl": "juler",
+        "definite_pl": "julene"
+      }
+    },
+    "ribbe": {
+      "id": "ribbe-n",
+      "pos": "noun",
+      "gender": "en/ei",
+      "gloss": "pork ribs (the classic Christmas dinner)",
+      "forms": {
+        "indefinite_sg": "ribbe",
+        "definite_sg": "ribben",
+        "definite_sg_fem": "ribba",
+        "indefinite_pl": "ribber",
+        "definite_pl": "ribbene"
+      }
+    },
+    "feire": {
+      "id": "feire-v",
+      "pos": "verb",
+      "gloss": "to celebrate",
+      "forms": {
+        "infinitive": "feire",
+        "present": "feirer",
+        "preterite": "feiret",
+        "perfect": "feiret"
+      }
+    },
+    "syttende": {
+      "id": "syttende-num",
+      "pos": "numeral",
+      "gloss": "seventeenth ('syttende mai' = Constitution Day)"
+    },
+    "is": {
+      "id": "is-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "ice cream; ice",
+      "forms": {
+        "indefinite_sg": "is",
+        "definite_sg": "isen",
+        "indefinite_pl": "iser",
+        "definite_pl": "isene"
+      }
+    },
+    "pølse": {
+      "id": "pølse-n",
+      "pos": "noun",
+      "gender": "en/ei",
+      "gloss": "sausage, hot dog",
+      "forms": {
+        "indefinite_sg": "pølse",
+        "definite_sg": "pølsen",
+        "definite_sg_fem": "pølsa",
+        "indefinite_pl": "pølser",
+        "definite_pl": "pølsene"
+      }
+    },
+    "merke": {
+      "id": "merke-v",
+      "pos": "verb",
+      "gloss": "to notice",
+      "forms": {
+        "infinitive": "merke",
+        "present": "merker",
+        "preterite": "merket",
+        "perfect": "merket"
+      }
+    },
+    "lønning": {
+      "id": "lønning-n",
+      "pos": "noun",
+      "gender": "en/ei",
+      "gloss": "wage, salary",
+      "forms": {
+        "indefinite_sg": "lønning",
+        "definite_sg": "lønningen",
+        "definite_sg_fem": "lønninga",
+        "indefinite_pl": "lønninger",
+        "definite_pl": "lønningene"
+      }
+    },
+    "høy": {
+      "id": "høy-adj",
+      "pos": "adjective",
+      "gloss": "high, tall",
+      "forms": {
+        "positive": "høy",
+        "neuter": "høyt",
+        "plural": "høye",
+        "comparative": "høyere",
+        "superlative": "høyest"
+      }
+    },
+    "barneklær": {
+      "id": "barneklær-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "children's clothes",
+      "pluralOnly": true,
+      "forms": {
+        "indefinite_pl": "barneklær",
+        "definite_pl": "barneklærne"
+      }
+    },
+    "vokse": {
+      "id": "vokse-v",
+      "pos": "verb",
+      "gloss": "to grow",
+      "forms": {
+        "infinitive": "vokse",
+        "present": "vokser",
+        "preterite": "vokste",
+        "perfect": "vokst"
+      }
+    },
+    "vokse opp": {
+      "id": "vokse-opp-phr",
+      "pos": "phrase",
+      "phrase": true,
+      "gloss": "to grow up",
+      "forms": {
+        "infinitive": "vokse opp",
+        "present": "vokser opp",
+        "preterite": "vokste opp",
+        "perfect": "vokst opp"
+      }
+    },
+    "klasse": {
+      "id": "klasse-n",
+      "pos": "noun",
+      "gender": "en/ei",
+      "gloss": "class, grade (in school)",
+      "forms": {
+        "indefinite_sg": "klasse",
+        "definite_sg": "klassen",
+        "definite_sg_fem": "klassa",
+        "indefinite_pl": "klasser",
+        "definite_pl": "klassene"
+      }
+    },
+    "studere": {
+      "id": "studere-v",
+      "pos": "verb",
+      "gloss": "to study (at college level)",
+      "forms": {
+        "infinitive": "studere",
+        "present": "studerer",
+        "preterite": "studerte",
+        "perfect": "studert"
+      }
+    },
+    "film": {
+      "id": "film-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "film, movie",
+      "forms": {
+        "indefinite_sg": "film",
+        "definite_sg": "filmen",
+        "indefinite_pl": "filmer",
+        "definite_pl": "filmene"
+      }
+    },
+    "liv": {
+      "id": "liv-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "life",
+      "forms": {
+        "indefinite_sg": "liv",
+        "definite_sg": "livet",
+        "indefinite_pl": "liv",
+        "definite_pl": "livene"
+      }
     }
   },
   "$idComment": "Every entry carries a stable `id` (<lemma>-<pos>). Annotations and SRS state should reference the id, not the lemma string: lemmas get renamed and can collide across parts of speech, ids do not."

@@ -9,7 +9,7 @@
 // There is no build step, so nothing else stands between a bad annotation and
 // the page. This is that step.
 
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseParagraph, buildFormIndex } from './parser.js';
 
@@ -83,20 +83,27 @@ function runDraft(target) {
     const bare = stripAnnotations(line);
     for (const m of bare.matchAll(/[\p{L}][\p{L}\d'’-]*/gu)) {
       const hits = index.get(m[0].toLowerCase());
-      if (hits && hits.length > 1) {
-        ambiguous.set(m[0].toLowerCase(), [...new Set(hits.map((h) => h.lemma))]);
-      }
+      const lemmas = hits ? [...new Set(hits.map((h) => h.lemma))] : [];
+      if (lemmas.length > 1) ambiguous.set(m[0].toLowerCase(), lemmas);
     }
   }
 
   console.log(`\n${target}\n`);
 
   if (missing.size > 0) {
-    console.log(`Missing from the lexicon (${missing.size}) — paste into data/lexicon.json:\n`);
+    console.log(`Missing from the lexicon (${missing.size}):\n`);
+    const stubs = {};
     for (const [word, kind] of missing) {
-      console.log('    ' + (STUBS[kind] ?? STUBS.other)(word) + ',');
+      const line = (STUBS[kind] ?? STUBS.other)(word);
+      console.log('    ' + line + ',');
+      Object.assign(stubs, JSON.parse(`{${line}}`));
     }
-    console.log('\n  Adjust pos, gender, gloss and the irregular forms by hand.');
+    // Also as a file, so the fix is: edit glosses, then
+    // `node tools/add-entries.mjs <file>` — no copy-pasting into the lexicon.
+    const stubPath = target.replace(/(\.draft)?\.json$/, '') + '.stubs.json';
+    writeFileSync(stubPath, JSON.stringify(stubs, null, 2) + '\n');
+    console.log(`\n  Written to ${stubPath} — fill in gloss, fix pos/gender/forms, then:`);
+    console.log(`  node tools/add-entries.mjs ${stubPath}`);
   }
 
   if (ambiguous.size > 0) {
@@ -416,6 +423,37 @@ for (const [surface, lemmas] of collisions) {
       `"${surface}" maps to ${lemmas.join(', ')} — every current use is annotated; annotate future ones too`
     );
   }
+}
+
+// --- 3b. grammar rule book --------------------------------------------
+// Rule examples are rendered through the same parser as the texts, so an
+// unresolved word there is a dead tap in the rule book.
+
+const GRAMMAR_PATH = 'data/grammar.json';
+try {
+  const grammar = JSON.parse(readFileSync(GRAMMAR_PATH, 'utf8'));
+  const seenRuleIds = new Set();
+  for (const section of grammar.sections ?? []) {
+    for (const rule of section.rules ?? []) {
+      const where = `${GRAMMAR_PATH} [${section.id}/${rule.id}]`;
+      if (!rule.id || !rule.title || !rule.explanation) err('grammar', `${where}: needs id, title and explanation`);
+      if (!rule.english) warn('grammar', `${where}: no "english" note — the audience is English speakers`);
+      if (seenRuleIds.has(rule.id)) err('grammar', `${where}: duplicate rule id`);
+      seenRuleIds.add(rule.id);
+      const body = [...(rule.examples ?? []), ...(rule.practice ?? [])];
+      const { sentences, diagnostics } = parseParagraph({ id: rule.id, body }, lexicon);
+      for (const d of diagnostics) {
+        if (d.kind === 'ambiguous' || d.kind === 'unresolved' || d.kind === 'missing-lemma' || d.kind === 'unknown-phrase' || d.kind === 'unbalanced-bracket') {
+          err('grammar', `${where}: ${d.message}`);
+        }
+      }
+      for (const node of sentences.flat()) {
+        if (node.kind === 'word' && node.lemma) usedLemmas.add(node.lemma);
+      }
+    }
+  }
+} catch (e) {
+  err('grammar', `${GRAMMAR_PATH}: ${e.message}`);
 }
 
 // --- 4. unused entries -------------------------------------------------

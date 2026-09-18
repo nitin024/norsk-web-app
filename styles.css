@@ -955,6 +955,132 @@ body[data-view='home'] .reader {
   content: ' →';
 }
 
+/* --- grammar --------------------------------------------------------------- */
+
+.rule {
+  margin: 0 0 var(--s-3);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.rule-title {
+  padding: var(--s-3) var(--s-4);
+  font-size: var(--t-md);
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  list-style: none;
+}
+
+.rule-title::-webkit-details-marker {
+  display: none;
+}
+
+.rule-title::before {
+  content: '›';
+  display: inline-block;
+  width: 1em;
+  color: var(--ink-faint);
+  transition: transform 0.15s;
+}
+
+.rule[open] .rule-title::before {
+  transform: rotate(90deg);
+}
+
+.rule-body {
+  padding: 0 var(--s-4) var(--s-4);
+}
+
+.rule-explain {
+  margin: 0 0 var(--s-3);
+  font-size: var(--t-sm);
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.rule-english {
+  margin: 0 0 var(--s-3);
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--s-2);
+  background: var(--accent-soft);
+  font-size: var(--t-sm);
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.rule-english strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.rule-examples {
+  padding: var(--s-2) var(--s-3);
+  border-left: 3px solid var(--accent-soft);
+}
+
+.rule-examples .sentence {
+  margin-bottom: var(--s-2);
+}
+
+.rule-practice-title {
+  margin: var(--s-4) 0 var(--s-2);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.scramble {
+  margin: 0 0 var(--s-4);
+}
+
+.scramble-answer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+  min-height: 44px;
+  margin: 0 0 var(--s-2);
+  padding: var(--s-1);
+  border-bottom: 2px solid var(--rule);
+}
+
+.scramble.is-right .scramble-answer {
+  border-bottom-color: var(--accent);
+}
+
+.scramble.is-wrong .scramble-answer {
+  border-bottom-color: #b5473a;
+}
+
+.scramble-pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+  min-height: 36px;
+  margin: 0 0 var(--s-2);
+}
+
+.scramble-chip {
+  min-height: 36px;
+  padding: var(--s-1) var(--s-3);
+  border: 1px solid var(--rule);
+  border-radius: var(--s-2);
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--t-sm);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.scramble-answer .scramble-chip {
+  background: var(--accent-soft);
+  border-color: var(--accent-soft);
+}
+
 /* --- topics, exam notes, modes ----------------------------------------- */
 
 .chip-row {

@@ -73,14 +73,14 @@ async function go(hash) {
 
 await go('');
 
-check('home: renders four destinations', () => {
+check('home: renders five destinations', () => {
   const links = reader().querySelectorAll('.home-link');
-  assert.equal(links.length, 4);
+  assert.equal(links.length, 5);
 });
 
 check('home: destinations point at the right routes', () => {
   const hrefs = reader().querySelectorAll('.home-link').map((a) => a.getAttribute('href'));
-  assert.equal(hrefs.join(','), '#/tekster,#/ordbok,#/ov,#/skriv');
+  assert.equal(hrefs.join(','), '#/tekster,#/ordbok,#/ov,#/grammatikk,#/skriv');
 });
 
 check('home: back button is hidden (regression)', () => {
@@ -178,7 +178,7 @@ await new Promise((r) => setTimeout(r, 20)); // occurrence index fetches every t
 check('topic: lists its texts and key vocabulary', () => {
   assert.equal(doc.body.dataset.view, 'topic');
   assert.includes($('doc-title').textContent, 'Arbeid');
-  assert.equal(reader().querySelectorAll('.para-link').length, 3);
+  assert.atLeast(reader().querySelectorAll('.para-link').length, 3);
   assert.atLeast(reader().querySelectorAll('.word-chip').length, 5, 'key words missing');
 });
 
@@ -647,6 +647,75 @@ check('progress: home without any history shows no status block', () => {
   globalThis.location.hash = '';
   doc.dispatch('hashchange');
   assert.equal($('reader').querySelector('.home-status'), null);
+});
+
+// --- grammar -----------------------------------------------------------
+
+await go('#/grammatikk');
+await new Promise((r) => setTimeout(r, 20));
+
+check('grammar: renders every section and rule from grammar.json', () => {
+  assert.equal(doc.body.dataset.view, 'grammar');
+  const sections = reader().querySelectorAll('.level');
+  assert.atLeast(sections.length, 3);
+  assert.atLeast(reader().querySelectorAll('.rule').length, 10);
+});
+
+check('grammar: every rule carries a note for English speakers', () => {
+  const rules = reader().querySelectorAll('.rule');
+  const notes = reader().querySelectorAll('.rule-english');
+  assert.equal(notes.length, rules.length, 'each rule needs an english note');
+  assert.includes(notes[0].textContent, 'For English speakers');
+});
+
+check('grammar: the nouns-and-adjectives section is present', () => {
+  const titles = reader().querySelectorAll('.level-title').map((h) => h.textContent);
+  assert.ok(titles.some((t) => t.includes('Substantiv')), `sections: ${titles.join(' | ')}`);
+});
+
+check('grammar: examples are tappable and open the word card', () => {
+  const words = reader().querySelectorAll('.rule-examples').flatMap((e) => e.querySelectorAll('.w'));
+  assert.atLeast(words.length, 40, 'examples should be parsed into tappable words');
+  words[0].click();
+  assert.equal($('card').hidden, false);
+  $('card-close').click();
+});
+
+check('grammar: scrambled sentence is not in order and has all its words', () => {
+  const ex = reader().querySelector('.scramble');
+  const chips = ex.querySelector('.scramble-pool').querySelectorAll('.scramble-chip').map((c) => c.textContent);
+  assert.atLeast(chips.length, 3);
+  assert.ok(chips.join(' ') !== 'I morgen skal jeg jobbe.', 'must be shuffled');
+  assert.equal([...chips].sort().join(' '), ['I', 'morgen', 'skal', 'jeg', 'jobbe.'].sort().join(' '));
+});
+
+check('grammar: placing the words in the right order passes the check', () => {
+  const ex = reader().querySelector('.scramble');
+  const pick = (text) => ex.querySelector('.scramble-pool').querySelectorAll('.scramble-chip').find((c) => c.textContent === text).click();
+  for (const w of ['I', 'morgen', 'skal', 'jeg', 'jobbe.']) pick(w);
+  ex.querySelectorAll('.btn-primary').find((b) => b.textContent === 'Sjekk').click();
+  assert.ok(ex.classList.contains('is-right'));
+  assert.includes(ex.querySelector('.scratch-stats').textContent, 'Riktig');
+});
+
+check('grammar: a wrong order is marked wrong and a placed chip can be taken back', () => {
+  const ex = reader().querySelectorAll('.scramble')[1];
+  const pool = () => ex.querySelector('.scramble-pool').querySelectorAll('.scramble-chip');
+  const all = pool().map((c) => c.textContent);
+  pool().find((c) => c.textContent === all[0]).click();
+  pool().find((c) => c.textContent === all[1]).click();
+  ex.querySelectorAll('.btn-primary').find((b) => b.textContent === 'Sjekk').click();
+  assert.ok(ex.classList.contains('is-wrong'));
+  ex.querySelector('.scramble-answer').querySelector('.scramble-chip').click();
+  assert.equal(ex.querySelector('.scramble-answer').querySelectorAll('.scramble-chip').length, 1);
+  assert.ok(!ex.classList.contains('is-wrong'), 'changing the answer clears the verdict');
+});
+
+check('grammar: "Vis" lays out the correct sentence', () => {
+  const ex = reader().querySelectorAll('.scramble')[2];
+  ex.querySelectorAll('.btn-quiet').find((b) => b.textContent === 'Vis').click();
+  const built = ex.querySelector('.scramble-answer').querySelectorAll('.scramble-chip').map((c) => c.textContent).join(' ');
+  assert.equal(built, 'Nå bor vi i Drammen.');
 });
 
 // --- chrome invariants -------------------------------------------------

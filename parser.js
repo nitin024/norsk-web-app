@@ -289,7 +289,10 @@ function resolve(node, lemmaHint, ctx) {
     });
     return;
   }
-  if (matches.length > 1) {
+  // A verb whose preterite and perfect coincide ("ventet") hits its own entry
+  // twice; that is one reading, not two.
+  const distinct = new Set(matches.map((m) => m.id ?? m.lemma));
+  if (distinct.size > 1) {
     ctx.diagnostics.push({
       level: 'info',
       kind: 'ambiguous',

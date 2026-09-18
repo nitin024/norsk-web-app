@@ -1,0 +1,79 @@
+
+> norsk-web-app@0.1.0 generate
+> node --env-file-if-exists=.env tools/generate.mjs --plan fritid:A2,mat:A2,penger:A2,helse:A1,utdanning:A1,presentasjon:B1 --dry-run
+
+You write short Norwegian (bokmål) reading texts for adults preparing for Norskprøven muntlig.
+The texts are loaded into a reading app whose parser resolves every bare word against a fixed lexicon.
+
+The narrator is always the same person, so the texts form one consistent story:
+Shakira, a woman in her thirties from Spain who speaks Spanish and English and is learning Norwegian.
+She trained as a nurse in Spain, lives in Drammen with her husband Alex (who works at a hospital)
+and their two children (a daughter of seven, a son of three). Her parents still live in Spain.
+Do not contradict these facts; you may add everyday details that fit them.
+
+Rules for the text body:
+- Plain, natural bokmål. One sentence per array element. No bullet points, no headings.
+- Prefer words from the KNOWN LEMMAS list below in any inflected form; the app teaches by re-encountering known words. Introduce at most 6–8 lemmas that are not in the list, and only when the topic needs them.
+- Wrap proper nouns and foreign words in angle brackets: <Oslo>, <NAV>, <Alex>. Never wrap ordinary nouns.
+- Wrap a fixed multi-word expression from the KNOWN PHRASES list in square brackets when you use it: [bli kjent med], [i hvert fall]. Do not invent new phrases.
+- No other markup. Do not pin ambiguous words; the validator handles that.
+- No numerals as digits; write numbers as words (to, fem, tjue).
+
+Also produce:
+- title: short Norwegian title, in the style of the existing ones.
+- gloss: English translation of the title.
+- examNote: two sentences in Norwegian telling the candidate why this text matters for the oral exam and which structures to practise (see the examples).
+- id: a URL-safe slug from the title, ascii only, hyphenated.
+
+Examples of existing examNotes:
+- "Del 2: en kort presentasjon om arbeid. Bruk gjerne «jeg trives med» og «det som er fint, er at ...»."
+- "Klassisk B1-oppgave: vei fordeler mot ulemper og konkluder. Øv på «på den ene siden … på den andre siden»."
+- "B2 krever nyansering: innrøm et motargument før du konkluderer. Øv på «selv om», «riktignok» og «likevel»."
+
+Write 6 new texts.
+
+TEXT 1
+TOPIC: fritid — Fritid og natur: Hobbyer, helg, turer i skog og fjell, og været.
+LEVEL: A2 — Fortelle om jobb, helse og hvor du bor.
+LEVEL STYLE: Simple past and present, some subordinate clauses with fordi/når/som, 7–9 sentences. A short personal account.
+Existing texts on this topic, do not repeat their angle: none
+
+TEXT 2
+TOPIC: mat — Mat og tradisjoner: Måltider, jul, 17. mai og bursdager — gjerne sammenliknet med hjemlandet.
+LEVEL: A2 — Fortelle om jobb, helse og hvor du bor.
+LEVEL STYLE: Simple past and present, some subordinate clauses with fordi/når/som, 7–9 sentences. A short personal account.
+Existing texts on this topic, do not repeat their angle: none
+
+TEXT 3
+TOPIC: penger — Penger og handel: Butikker, priser, sparing og hvorfor Norge er dyrt.
+LEVEL: A2 — Fortelle om jobb, helse og hvor du bor.
+LEVEL STYLE: Simple past and present, some subordinate clauses with fordi/når/som, 7–9 sentences. A short personal account.
+Existing texts on this topic, do not repeat their angle: none
+
+TEXT 4
+TOPIC: helse — Helse: Hos legen, symptomer og å bestille time.
+LEVEL: A1 — Korte setninger om deg selv, familien og hverdagen.
+LEVEL STYLE: Very short main clauses, present tense, 6–8 sentences, 8–12 words each. First person. Concrete everyday facts.
+Existing texts on this topic, do not repeat their angle: Hos legen (A2); Et sunt liv (A2); Fastlegen og helsetjenesten (B1)
+
+TEXT 5
+TOPIC: utdanning — Utdanning: Skole, kurs og planer for framtiden.
+LEVEL: A1 — Korte setninger om deg selv, familien og hverdagen.
+LEVEL STYLE: Very short main clauses, present tense, 6–8 sentences, 8–12 words each. First person. Concrete everyday facts.
+Existing texts on this topic, do not repeat their angle: Utdanning og videre planer (B1); På norskkurs (A2); Livslang læring (B2)
+
+TEXT 6
+TOPIC: presentasjon — Om deg selv: Hvem du er, familien din og hvor du kommer fra. Del 1 av muntlig prøve.
+LEVEL: B1 — Gi meninger, begrunne dem og veie fordeler mot ulemper.
+LEVEL STYLE: Give an opinion and justify it. Weigh a fordel against an ulempe and conclude. 8–10 sentences, modal verbs, linking words (derfor, likevel, for det første).
+Existing texts on this topic, do not repeat their angle: Å presentere seg selv (A1); Familien min (A1); Fra Spania til Drammen (A2)
+
+Every text object must carry its "topic" and "level" exactly as given above.
+
+KNOWN PHRASES (31): henge opp, på grunn av, ta farvel, stå opp, legge seg, slå opp, ta vare på, bli kjent med, for det første, for det andre, på den ene siden, på den andre siden, etter min mening, i tillegg, når det gjelder, til sammen, være enig, i hvert fall, med andre ord, gå ut på, ha lyst til, lei seg, ved siden av, bygge opp, komme an på, i stedet for, holde seg, følge opp, falle ut, etter at, til slutt
+
+KNOWN LEMMAS (745): aldri, alene, all, alle, alltid, alternativ, altfor, andre, annerledes, ansatt, ansvar, apotek, april, arbeid, arbeide, arbeidsdag, arbeidsgiver, arbeidsliv, arm, at, atten, august, av, avstand, avtale, bad, bake, balanse, balkong, banan, bare, barn, barnehage, be, bedre, begge, begynne, begynne på, begynnelse, bein, bekymret, beskjed, bestemme, bestille, bestå, betale, bety, bibliotek, bidra, bil, billett, billig, blant, bli, bli sint, blod, blomst, blå, blåse, bo, bok, bolig, bord, bra, bror, bruke, brun, brus, brød, bukse, burde, bursdag, buss, butikk, by, by, både, båt, da, dag, datter, de, deg, deilig, del, delta, dem, den, denne, der, dere, derfor, desember, dessuten, dessverre, det, din, direkte, diskutere, drikke, drive, du, dyr, dyr, dør, dårlig, effektiv, egen, egenkapital, egentlig, egg, ei, eie, eksempel, elev, eller, elleve, elske, elv, en, endre, engelsk, enkel, enkelt, enn, ensom, eple, erfaring, et, etasje, ett, etter, ettermiddag, etterpå, familie, far, farlig, fastlege, feber, februar, feil, fem, femten, femti, ferdig, ferie, fin, finne, finnes, fire, fisk, fjell, fjorten, fleksibel, flere, fleste, fly, flyplass, flytte, folk, for, forberede, fordel, fordi, foreldre, forkjølelse, forkjølet, forklare, forklaring, fornøyd, forrige, forskjell, forskjellig, forstå, forsvinne, fortelle, fortsatt, fortsette, forurensning, forvente, fot, fra, fram, framtid, fredag, frisk, fritid, fritidsaktivitet, frivillig, frokost, frukt, frykt, fugl, full, føle, følelse, følge, før, først, første, førti, få, gammel, gang, ganske, garderobe, gate, genser, gi, gift, gjennom, gjenta, gjerne, gjøre, gjøre vondt, glad, glede, glemme, god, godkjenne, godkjenning, grammatikk, gratis, gravid, grunn, gruppe, grønn, grønnsak, grå, gråte, gul, gulv, gå, gå av, gå på, ha, hage, hals, ham, han, handle, hei, heis, hel, helg, heller, helse, helt, henge, henne, hente, henvise, her, hete, hilse, historie, hit, hjelpe, hjem, hjemland, hjemme, hjemmefra, hjemmekontor, hjerte, hode, holde, holdeplass, hos, hoste, hoste, hun, hund, hundre, hus, husholdning, huske, husleie, hva, hvem, hver, hverandre, hverdag, hvile, hvile seg, hvilken, hvis, hvit, hvor, hvordan, hvorfor, hyggelig, høre, høst, høyre, hånd, håpe, i, igjen, ikke, imot, industri, ingen, ingenting, initiativ, innsats, innvandrer, integrering, interessant, intervju, jakke, januar, jeg, jobb, jobbe, juice, juli, juni, kaffe, kake, kald, kanskje, kart, katt, kino, kirke, kjeller, kjenne, kjole, kjøkken, kjøpe, kjøre, kjøtt, klare, kle på seg, klima, klimaendring, klokka, klokke, klær, koke, kollega, kollektivtransport, komme, kommune, kompetanse, kone, konsentrere, kontakte, kontor, kontrakt, kort, koste, kreve, kropp, kultur, kunne, kurs, kveld, kveldsmat, lage, lampe, land, lang, le, lege, legebesøk, legekontor, legetime, legge, leie, leilighet, leke, lekse, lenge, lese, lete, lett, leve, levere, ligge, like, likevel, liten, litt, livslang, lue, lukke, lunsj, lur, lys, lære, lærer, læring, lønn, lørdag, løsning, låne, mage, mai, man, mandag, mange, mann, mars, mat, matboks, med, medisin, meg, melk, mellom, men, mene, mening, mens, mer, mest, middag, miljø, miljøvennlig, min, minutt, miste, mor, morgen, mot, motta, mulighet, munn, museum, mye, mørk, møte, mål, måned, måtte, nabo, natt, natur, navn, nervøs, nese, nett, nettverk, ni, nitten, noe, noen, noen ganger, nok, nordmann, norsk, norskkurs, norskprøve, november, ny, nær, nærhet, nødvendig, nøkkel, nå, når, ofte, og, også, oktober, om, onsdag, oppdatert, oppgave, oppleve, ord, oss, ost, over, overfor, overrasket, papir, paraply, parkering, passe, pause, penger, penn, permisjon, personlig, pleie, politiker, politisk, potet, praktisk, presentere, pris, problem, prøve, på, påvirke, ramme, rask, redd, redusere, regn, regne, regntøy, reise, rente, resept, restaurant, rett, rette, riktig, riktignok, ringe, rolig, rom, rydde, rygg, rød, røyke, sakte, salat, salt, samfunn, samme, sammen, samtidig, savne, se, seg, sekk, seks, seksten, sekund, selge, selv, selv om, selvstendighet, sende, seng, sent, sentrum, september, setning, sette, si, side, siden, sin, sint, sitte, sitte ned, sjef, sjelden, sju, sjø, skap, skinne, skjorte, sko, skog, skole, skrive, skulle, sky, slippe, sliten, slutte, slutte med, smake, smerte, smile, smør, snakke, snart, snø, snø, sofa, sol, som, sommer, sorg, sortere, sosial, sove, soverom, sovne, spansk, spare, spesialist, spise, språk, spørre, spørsmål, stasjon, stat, stave, sted, steke, sterk, stige, stol, stolt, stoppe, stor, student, stue, støtteordning, stå, sukker, sulten, sum, sunn, suppe, svak, svar, svare, syk, sykdom, sykehus, sykepleier, sykkel, sykle, synes, system, sytten, søke, søknad, søndag, sønn, søppel, sørge, søster, søvn, så, ta, ta på seg, tak, takke, tann, tannlege, te, tekst, telefon, tenke, ti, tid, tidlig, til, tilby, tillit, time, tirsdag, tjene, tjue, to, tog, tolv, torg, torsdag, travel, tre, tre, tredje, trene, trenge, trening, treningssenter, tretten, tretti, trikk, trist, trives, tro, trygg, trygghet, trøtt, tur, tusen, tydelig, tørre, tørst, uhøflig, uke, ulempe, under, undersøke, ung, urettferdig, ut, utdanning, utdatert, ute, uten, utenfor, utfordring, utslipp, uttale, utvikle, uvant, vanlig, vanligvis, vann, vanskelig, vant, varm, vaske, ved, vedtak, vegg, vei, veldig, velge, venn, venstre, vente, ventetid, verdt, vi, viktig, ville, vind, vindu, vinter, virke, vise, vite, voksen, vond, votter, vær, være, våkne, vår, vår, våt, ønske, øre, øve, øye, å, åpen, åpne, åpne seg, år, åtte
+
+Answer with JSON only, no prose and no code fence, exactly this shape:
+{ "texts": [ { "id": "...", "title": "...", "gloss": "...", "examNote": "...", "topic": "...", "level": "...", "body": ["...", "..."] }, ... ] }
+

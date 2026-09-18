@@ -20,6 +20,7 @@
 # Local scratch — drafts not yet added to data/index.json
 scratch/
 *.draft.json
+*.stubs.json
 
 # Authoring tool dependency (tools/generate.mjs)
 node_modules/

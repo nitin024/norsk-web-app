@@ -1,0 +1,265 @@
+{
+  "$comment": "Grammar rule book. Every `examples` and `practice` sentence is written in the same annotated Norwegian as the paragraphs and is validated against the lexicon, so every word in a rule is tappable. `practice` sentences are shown scrambled for the learner to reorder. Explanations are in English on purpose: this is the one place the learner is told something rather than reading Norwegian.",
+  "sections": [
+    {
+      "id": "ordstilling",
+      "title": "Ordstilling — word order",
+      "summary": "Norwegian word order is strict, and the oral examiner hears every slip. Three rules cover nearly everything.",
+      "rules": [
+        {
+          "id": "v2",
+          "title": "The verb is always second",
+          "explanation": "In a main clause the verb sits in second position, whatever comes first. If the sentence starts with the subject, nothing changes. If it starts with anything else — a time, a place, an object, «derfor» — the subject moves to right after the verb. This is called inversion, and it is the single most common word-order mistake.",
+          "examples": [
+            "Jeg spiser frokost {klokka:klokka} sju.",
+            "{Klokka:klokka} sju spiser jeg frokost.",
+            "I dag går vi til skolen.",
+            "Derfor blir jeg hjemme."
+          ],
+          "practice": [
+            "I morgen skal jeg jobbe.",
+            "Om kvelden leser jeg en bok.",
+            "Nå bor vi i <Drammen>."
+          ],
+          "english": "English keeps subject before verb after a fronted phrase («Today I go to school»). Norwegian never does: «I dag går jeg på skolen». If a sentence does not start with the subject, swap subject and verb. This is the single most common mistake English speakers make, and it is the first thing an examiner notices."
+        },
+        {
+          "id": "sporsmal",
+          "title": "Questions: verb first, or right after the question word",
+          "explanation": "A yes/no question starts with the verb. A question with a question word (hva, hvor, når, hvorfor, hvordan, hvem) puts the verb second, straight after that word. The subject always follows the verb.",
+          "examples": [
+            "Snakker du norsk?",
+            "Hvor bor du?",
+            "Når begynner du på jobben?",
+            "Hvorfor {lærer:lære} du norsk?"
+          ],
+          "practice": [
+            "Har du barn?",
+            "Hva heter mannen din?",
+            "Hvordan kommer du til jobben?"
+          ],
+          "english": "Same as English question forms, minus «do»: «Do you speak Norwegian?» is just «Snakker du norsk?». Never insert «gjør» to make a question."
+        },
+        {
+          "id": "ikke-hovedsetning",
+          "title": "«ikke» comes after the verb in a main clause",
+          "explanation": "In a main clause «ikke» (and other sentence adverbs like «alltid», «aldri», «ofte») follows the first verb. With a modal verb it goes between the modal and the infinitive.",
+          "examples": [
+            "Jeg spiser ikke kjøtt.",
+            "Jeg kan ikke komme i dag.",
+            "Han er aldri hjemme om kvelden."
+          ],
+          "practice": [
+            "Jeg drikker ikke kaffe.",
+            "Vi kan ikke komme på lørdag."
+          ],
+          "english": "English «I don't eat meat» puts the negation before the verb, so learners write «Jeg ikke spiser kjøtt». In a main clause «ikke» comes after the verb: «Jeg spiser ikke kjøtt»."
+        },
+        {
+          "id": "leddsetning",
+          "title": "In a subordinate clause, «ikke» moves before the verb",
+          "explanation": "After words like «fordi», «at», «når», «hvis», «som», «selv om» you are in a subordinate clause. There the order is fixed: subject, then «ikke», then the verb. No inversion ever happens inside a subordinate clause. If the whole subordinate clause comes first, it counts as the first element of the main clause, so the main verb follows immediately.",
+          "examples": [
+            "Jeg blir hjemme fordi jeg ikke er frisk.",
+            "Hun sier at hun ikke liker kaffe.",
+            "Hvis det regner, tar jeg paraply.",
+            "Selv om det er kaldt, går vi tur."
+          ],
+          "practice": [
+            "Jeg kommer ikke fordi jeg er syk.",
+            "Når jeg er ferdig, går jeg hjem."
+          ],
+          "english": "This is where the English habit finally matches: «because I am not well» = «fordi jeg ikke er frisk», with «ikke» before the verb. The trap is the other way round: after «fordi», «at», «når», «hvis» there is no inversion, even if the clause comes first in the sentence."
+        },
+        {
+          "id": "infinitiv",
+          "title": "«å» before an infinitive, but not after a modal verb",
+          "explanation": "Two verbs in a row: the second is an infinitive. After «liker», «prøver», «begynner», «pleier» and most verbs it takes «å». After the modal verbs «kan», «vil», «skal», «må», «bør» there is no «å».",
+          "examples": [
+            "Jeg liker å lese.",
+            "Jeg prøver å snakke norsk hver dag.",
+            "Jeg vil lese.",
+            "Vi må gå nå."
+          ],
+          "practice": [
+            "Jeg pleier å [stå opp] {klokka:klokka} sju.",
+            "Barna vil leke ute."
+          ],
+          "english": "«å» is «to». The modal verbs work like English «can», «will», «shall», «must»: no «to» after them in English, no «å» in Norwegian. Careful with «vil»: it means «want to», not future «will». Future is usually «skal» or plain present."
+        }
+      ]
+    },
+    {
+      "id": "verbtid",
+      "title": "Verb — which tense when",
+      "summary": "Norwegian has one present, one past and one perfect. Picking the right one is mostly about time words.",
+      "rules": [
+        {
+          "id": "presens",
+          "title": "Present: now, usually, and the near future",
+          "explanation": "The present tense (-r) covers what is happening now, what happens regularly, and often the future when a time word makes it clear. There is no continuous form: «jeg leser» is both «I read» and «I am reading».",
+          "examples": [
+            "Jeg {jobber:jobbe} i en barnehage.",
+            "Vi spiser middag {klokka:klokka} fem hver dag.",
+            "I morgen reiser vi til <Spania>."
+          ],
+          "english": "English has two present tenses, «I read» and «I am reading». Norwegian has one: «jeg leser» covers both. There is no -ing form to reach for."
+        },
+        {
+          "id": "preteritum",
+          "title": "Preterite: a finished time in the past",
+          "explanation": "Use the preterite when the time is finished and usually named: «i går», «i fjor», «for to år siden», «da jeg var barn». Regular verbs add -et/-te/-de; the irregular ones you look up in the word card.",
+          "examples": [
+            "I går {var:være} jeg hos legen.",
+            "Jeg kom til <Norge> for fem år {siden:siden}.",
+            "Da jeg var liten, bodde jeg i <Spania>."
+          ],
+          "english": "Works like the English simple past: a finished time, usually named. «I was at the doctor yesterday» = «I går var jeg hos legen»."
+        },
+        {
+          "id": "perfektum",
+          "title": "Perfect: «har» + participle, when the result matters now",
+          "explanation": "The perfect (har + perfect form) is for experience and results that reach into the present, often with «alltid», «aldri», «allerede», or a period that is still going: «i fem år», «i dag». If you name a finished point in time, switch to the preterite.",
+          "examples": [
+            "Jeg har bodd her i fem år.",
+            "Har du {spist:spise} frokost?",
+            "Vi har aldri {vært:være} i <Bergen>."
+          ],
+          "english": "Very close to the English present perfect: «I have lived here for five years» = «Jeg har bodd her i fem år». Norwegian uses it a little more freely than English for recent news («Jeg har kjøpt bil»), but the English instinct is a safe guide."
+        }
+      ]
+    },
+    {
+      "id": "substantiv",
+      "title": "Substantiv og adjektiv — nouns and adjectives",
+      "summary": "English gives no help here: Norwegian nouns have a gender, «the» is a suffix, and adjectives change with the noun.",
+      "rules": [
+        {
+          "id": "kjonn",
+          "title": "Every noun has a gender: en, ei or et",
+          "explanation": "The indefinite article tells you the gender: «en bil» (masculine), «ei bok» (feminine), «et hus» (neuter). Feminine nouns can always take «en» instead, so «en bok» is also correct, and many speakers use only en/et. Neuter is the one that matters most: it changes the definite form and the adjective. Learn every noun with its article; the word card shows it.",
+          "english": "English nouns have no gender, so there is nothing to transfer. Treat the article as part of the word: not «hus» but «et hus». Roughly three quarters of nouns are «en», so when in doubt, guess «en» — but people, days and most words for things in the house are worth checking.",
+          "examples": [
+            "Jeg har en bil, ei bok og et hus.",
+            "Vi har en hund og en katt.",
+            "Barnet leser et eple."
+          ]
+        },
+        {
+          "id": "bestemt",
+          "title": "«The» is a suffix: bilen, boka, huset",
+          "explanation": "The definite form adds an ending instead of a separate word: «bil» → «bilen», «bok» → «boka» (or «boken»), «hus» → «huset». Use it when both speakers know which one is meant, the same situations as English «the».",
+          "english": "The mistake is writing «den bil» for «the car». There is no separate word for «the» in front of a bare noun. «den» and «det» do exist, but only when an adjective is present: «den store bilen» — and then the noun still carries its ending. Double marking is correct Norwegian.",
+          "examples": [
+            "Bilen er ny.",
+            "Boka ligger på bordet.",
+            "Huset er gammelt, men fint.",
+            "Den store bilen er {dyr:dyr}."
+          ],
+          "practice": [
+            "Katten sover på stolen."
+          ]
+        },
+        {
+          "id": "flertall",
+          "title": "Plural: -er, then -ene",
+          "explanation": "Most nouns take «-er» in the indefinite plural and «-ene» in the definite plural: «biler», «bilene». Short neuter nouns often have no ending in the indefinite plural: «et hus – to hus – husene». A few are irregular and must be learnt: «mann – menn», «barn – barna», «bok – bøker».",
+          "english": "Norwegian has a definite plural, which English does not: «the cars» is one form, «bilene». Expect two plurals for every noun and read both off the word card.",
+          "examples": [
+            "Vi har to biler og {tre:tre} bøker.",
+            "Bilene er gamle.",
+            "Barna leker i hagen.",
+            "Klærne ligger på bordet."
+          ]
+        },
+        {
+          "id": "adjektiv",
+          "title": "Adjectives agree with the noun: stor, stort, store",
+          "explanation": "Before or after a noun, an adjective takes the noun's gender and number: «en stor bil», «et stort hus», «store biler». The neuter adds «-t», the plural adds «-e». After «den/det/de» and after possessives the adjective also takes «-e», whatever the gender: «den store bilen», «det store huset», «mitt store hus».",
+          "english": "English adjectives never change, so this needs deliberate practice. Two checks per adjective: is the noun neuter (add -t)? Is it plural or definite (add -e)? «liten» is the irregular one: «liten – lita – lite – små».",
+          "examples": [
+            "Jeg har en stor bil og et stort hus.",
+            "Husene er store.",
+            "Det er et lite rom med et gammelt bord.",
+            "De nye lampene er fine."
+          ],
+          "practice": [
+            "Vi har et lite hus.",
+            "De gamle bøkene er dyre."
+          ]
+        },
+        {
+          "id": "eiendom",
+          "title": "Possessives: «boka mi» or «min bok»",
+          "explanation": "Possessives agree with the noun too: «min bil», «mi bok», «mitt hus», «mine barn». They can go after the noun, which then takes the definite form («bilen min»), or before it with the noun in the indefinite («min bil»). After the noun is the everyday choice; before the noun adds emphasis. «sin/si/sitt/sine» means «his/her/their own» and points back to the subject: «Han liker jobben sin».",
+          "english": "Both orders are correct, which surprises English speakers; use the after-the-noun form by default. «sin» has no English equivalent: «Han vasker bilen sin» is his own car, «Han vasker bilen hans» is someone else's. Getting this right is a mark of a strong B1 speaker.",
+          "examples": [
+            "Bilen min er gammel.",
+            "Mi bok ligger på bordet.",
+            "Barna mine går på skolen.",
+            "Han liker jobben sin."
+          ],
+          "practice": [
+            "Huset vårt er lite."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bindeord",
+      "title": "Bindeord — connecting words",
+      "summary": "Connectors do two jobs: they show how ideas relate, and they decide the word order that follows. Learn each word with its word-order type.",
+      "rules": [
+        {
+          "id": "sideordnende",
+          "title": "og, men, eller, for, så — nothing changes",
+          "explanation": "These join two main clauses and leave the word order alone: subject then verb on both sides. «og» = and, «men» = but, «eller» = or, «for» = because (formal, gives a reason), «så» = so (a consequence).",
+          "examples": [
+            "Jeg {jobber:jobbe} om dagen, og jeg leser om kvelden.",
+            "Leiligheten er liten, men den er lys.",
+            "Vi kan ta bussen, eller vi kan gå.",
+            "Det {regnet:regne}, {så:så} vi ble hjemme."
+          ],
+          "practice": [
+            "Jeg er trøtt, men jeg må jobbe."
+          ],
+          "english": "Exactly like «and», «but», «or», «for», «so». The only surprise is «så», which is «so» here but «then» after «først»."
+        },
+        {
+          "id": "underordnende",
+          "title": "fordi, at, når, hvis, som, selv om, mens — subordinate order",
+          "explanation": "These open a subordinate clause, so «ikke» and other adverbs go before the verb and there is never inversion. «fordi» = because (a reason the listener does not know yet), «at» = that, «når» = when (present or repeated), «da» = when (once, in the past), «hvis» = if, «som» = who/which, «selv om» = even though, «mens» = while, «før» = before, «etter at» = after.",
+          "examples": [
+            "Jeg {lærer:lære} norsk fordi jeg vil jobbe her.",
+            "Jeg tror at det blir {bedre:god}.",
+            "Når jeg er ferdig på jobben, henter jeg barna.",
+            "Vi {flyttet:flytte} hit [etter at] mannen min fikk jobb.",
+            "Hun har en kollega som snakker spansk."
+          ],
+          "practice": [
+            "Jeg går tur selv om det regner.",
+            "Vi venter til bussen kommer."
+          ],
+          "english": "English has one «when»; Norwegian has two. «når» is for the present, future and repeated events; «da» is for a single event in the past: «Da jeg kom til Norge» but «Når jeg er ferdig». «hvis» is «if» for conditions only; «if» meaning «whether» is «om»."
+        },
+        {
+          "id": "adverbielle",
+          "title": "derfor, likevel, dessuten, først, så, etterpå — the verb comes next",
+          "explanation": "These are adverbs, not conjunctions. They usually open a sentence, and because they take first position the verb comes immediately after and the subject third. «derfor» = therefore, «likevel» = nevertheless, «dessuten» = besides, «først … så … etterpå … til slutt» = first … then … afterwards … finally. «for det første, for det andre» and «på den ene siden, på den andre siden» work the same way and are gold in a B1–B2 discussion.",
+          "examples": [
+            "Jeg er syk. Derfor blir jeg hjemme.",
+            "Det er dyrt. Likevel vil jeg kjøpe det.",
+            "Først spiser vi, {så:så} går vi ut.",
+            "[For det første] er det billig, og [for det andre] er det sunt.",
+            "[Til slutt] vil jeg {si:si} at jeg trives i <Norge>."
+          ],
+          "practice": [
+            "Derfor tar jeg bussen.",
+            "Etterpå drikker vi kaffe."
+          ],
+          "english": "In English these words sit before the subject with nothing else changing: «Therefore I stay home». In Norwegian they take first position, so the verb must come second: «Derfor blir jeg hjemme». Every one of these words triggers inversion."
+        }
+      ]
+    }
+  ]
+}

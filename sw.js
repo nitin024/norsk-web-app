@@ -9,7 +9,7 @@
 // Bump CACHE when the shell changes shape (new files) so old caches are
 // dropped. Content changes need no bump — network-first refreshes them.
 
-const CACHE = 'norsk-v3';
+const CACHE = 'norsk-v4';
 
 // The minimum needed to boot the app offline. Paragraphs are cached as they
 // are read, and the occurrence index pulls the rest in on the first card.
@@ -27,6 +27,7 @@ const SHELL = [
   './icon.svg',
   './data/lexicon.json',
   './data/index.json',
+  './data/grammar.json',
 ];
 
 self.addEventListener('install', (event) => {

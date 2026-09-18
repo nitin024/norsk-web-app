@@ -22,6 +22,7 @@ const FEEDBACK_TO = 'norsk.app.feedback@gmail.com';
 const LEXICON_URL = 'data/lexicon.json';
 const INDEX_URL = 'data/index.json';
 const PARAGRAPH_DIR = 'data/paragraphs/';
+const GRAMMAR_URL = 'data/grammar.json';
 
 const POS_LABEL = {
   noun: 'substantiv',
@@ -124,6 +125,7 @@ function route() {
   if (id === 'skriv') return showScratch();
   if (id === 'tekster') return showTexts();
   if (id === 'ov') return showReview();
+  if (id === 'grammatikk') return showGrammar();
   if (id.startsWith('tema/')) {
     const topic = (index.topics ?? []).find((t) => t.id === id.slice(5));
     if (topic) return showTopic(topic);
@@ -187,6 +189,7 @@ function showHome() {
     ['#/tekster', 'Lesetekster', String(index.paragraphs.length)],
     ['#/ordbok', 'Ordbok', String(Object.keys(lexicon.entries).length)],
     ['#/ov', 'Øving', due ? String(due) : ''],
+    ['#/grammatikk', 'Grammatikk', ''],
     ['#/skriv', 'Egen tekst', ''],
   ];
 
@@ -1193,49 +1196,51 @@ function render(reader, sentences) {
     reader.append(bar);
   }
 
-  for (const nodes of sentences) {
-    const p = document.createElement('p');
-    p.className = 'sentence';
-    const sp = speakButton(sentenceText(nodes), 'Les setningen høyt');
-    if (sp) p.append(sp);
+  for (const nodes of sentences) reader.append(buildSentence(nodes));
+}
 
-    nodes.forEach((node, i) => {
-      if (node.kind === 'punct') {
-        const span = document.createElement('span');
-        span.className = 'punct';
-        span.textContent = node.surface;
-        p.append(span);
-        return;
-      }
+/** One tappable sentence: the reader's basic unit, reused by the grammar page. */
+function buildSentence(nodes) {
+  const p = document.createElement('p');
+  p.className = 'sentence';
+  const sp = speakButton(sentenceText(nodes), 'Les setningen høyt');
+  if (sp) p.append(sp);
 
-      const prev = nodes[i - 1];
-      if (i > 0 && prev.kind === 'word') p.append(' ');
+  nodes.forEach((node, i) => {
+    if (node.kind === 'punct') {
+      const span = document.createElement('span');
+      span.className = 'punct';
+      span.textContent = node.surface;
+      p.append(span);
+      return;
+    }
 
-      if (!node.lemma) {
-        const span = document.createElement('span');
-        span.className = 'w-plain';
-        span.textContent = node.surface;
-        p.append(span);
-        return;
-      }
+    const prev = nodes[i - 1];
+    if (i > 0 && prev.kind === 'word') p.append(' ');
 
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'w' + (node.groupId ? ' is-phrase' : '');
-      btn.textContent = node.surface;
-      btn.lang = 'nb';
-      btn.setAttribute('aria-expanded', 'false');
-      btn.dataset.lemma = node.lemma;
-      // The stable key. SRS review state should hang off this, never the lemma.
-      if (node.entryId) btn.dataset.entryId = node.entryId;
-      if (node.formName) btn.dataset.formName = node.formName;
-      if (node.groupId) btn.dataset.groupId = node.groupId;
-      btn.addEventListener('click', () => openCard(node, btn));
-      p.append(btn);
-    });
+    if (!node.lemma) {
+      const span = document.createElement('span');
+      span.className = 'w-plain';
+      span.textContent = node.surface;
+      p.append(span);
+      return;
+    }
 
-    reader.append(p);
-  }
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'w' + (node.groupId ? ' is-phrase' : '');
+    btn.textContent = node.surface;
+    btn.lang = 'nb';
+    btn.setAttribute('aria-expanded', 'false');
+    btn.dataset.lemma = node.lemma;
+    // The stable key. SRS review state should hang off this, never the lemma.
+    if (node.entryId) btn.dataset.entryId = node.entryId;
+    if (node.formName) btn.dataset.formName = node.formName;
+    if (node.groupId) btn.dataset.groupId = node.groupId;
+    btn.addEventListener('click', () => openCard(node, btn));
+    p.append(btn);
+  });
+  return p;
 }
 
 /**
@@ -1491,6 +1496,233 @@ function renderSpeak(reader, doc, sentences) {
   after.className = 'level-desc';
   after.textContent = 'Etterpå: bytt til «Les» og sammenlikn med teksten.';
   reader.append(after);
+}
+
+// --- grammar -----------------------------------------------------------
+//
+// A rule book, not a textbook: each rule is one idea, a few tappable
+// examples, and scrambled sentences to put back in order. The examples go
+// through the same parser as the texts, so every word opens its card.
+
+let grammarPromise = null;
+function ensureGrammar() {
+  grammarPromise ??= fetch(GRAMMAR_URL).then((res) => {
+    if (!res.ok) throw new Error(`HTTP ${res.status} for grammar.json`);
+    return res.json();
+  });
+  return grammarPromise;
+}
+
+async function showGrammar() {
+  document.body.dataset.view = 'grammar';
+  resetChrome();
+  document.getElementById('back').hidden = false;
+  setHeader('Grammatikk', 'ordstilling · verb · bindeord');
+
+  const main = document.getElementById('reader');
+  main.replaceChildren();
+  measureChrome();
+  window.scrollTo(0, 0);
+  announce('Grammatikk');
+
+  let grammar;
+  try {
+    grammar = await ensureGrammar();
+  } catch (err) {
+    showError('Kunne ikke laste grammatikken.');
+    console.error('[norsk] failed to load grammar', err);
+    return;
+  }
+  if (document.body.dataset.view !== 'grammar') return;
+
+  // Section jump links, so a learner can go straight to «bindeord».
+  const nav = document.createElement('nav');
+  nav.className = 'chip-row';
+  nav.setAttribute('aria-label', 'Deler');
+  for (const section of grammar.sections) {
+    const a = document.createElement('a');
+    a.className = 'chip';
+    a.href = `#/grammatikk`;
+    a.textContent = section.title.split(' — ')[0];
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById(`gram-${section.id}`)?.scrollIntoView?.({ behavior: 'smooth' });
+    });
+    nav.append(a);
+  }
+  main.append(nav);
+
+  for (const section of grammar.sections) {
+    const sec = document.createElement('section');
+    sec.className = 'level';
+    sec.id = `gram-${section.id}`;
+
+    const h = document.createElement('h2');
+    h.className = 'level-title';
+    h.textContent = section.title;
+    sec.append(h);
+
+    if (section.summary) {
+      const p = document.createElement('p');
+      p.className = 'level-desc';
+      p.textContent = section.summary;
+      sec.append(p);
+    }
+
+    for (const rule of section.rules) sec.append(ruleCard(rule));
+    main.append(sec);
+  }
+}
+
+function ruleCard(rule) {
+  const details = document.createElement('details');
+  details.className = 'rule';
+  details.id = `rule-${rule.id}`;
+
+  const summary = document.createElement('summary');
+  summary.className = 'rule-title';
+  summary.textContent = rule.title;
+  details.append(summary);
+
+  const body = document.createElement('div');
+  body.className = 'rule-body';
+
+  const explain = document.createElement('p');
+  explain.className = 'rule-explain';
+  explain.textContent = rule.explanation;
+  body.append(explain);
+
+  // The contrastive note: what an English speaker's instinct gets wrong here.
+  if (rule.english) {
+    const note = document.createElement('p');
+    note.className = 'rule-english';
+    const label = document.createElement('strong');
+    label.textContent = 'For English speakers: ';
+    note.append(label, rule.english);
+    body.append(note);
+  }
+
+  const { sentences } = parseParagraph({ id: rule.id, body: rule.examples ?? [] }, lexicon);
+  if (sentences.length > 0) {
+    const ex = document.createElement('div');
+    ex.className = 'rule-examples';
+    for (const nodes of sentences) ex.append(buildSentence(nodes));
+    body.append(ex);
+  }
+
+  if (rule.practice?.length) {
+    const h = document.createElement('h3');
+    h.className = 'rule-practice-title';
+    h.textContent = 'Sett ordene i riktig rekkefølge';
+    body.append(h);
+    rule.practice.forEach((sentence, i) => body.append(scramble(sentence, `${rule.id}-${i}`)));
+  }
+
+  details.append(body);
+  return details;
+}
+
+/** Deterministic shuffle so a scrambled sentence looks the same on every visit. */
+function seededOrder(n, seed) {
+  let x = 0;
+  for (const ch of seed) x = (x * 31 + ch.charCodeAt(0)) >>> 0;
+  const order = [...Array(n).keys()];
+  for (let i = n - 1; i > 0; i--) {
+    x = (x * 1103515245 + 12345) >>> 0;
+    const j = x % (i + 1);
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  // A shuffle that leaves the sentence in order is no exercise.
+  if (n > 1 && order.every((v, i) => v === i)) order.reverse();
+  return order;
+}
+
+/**
+ * Word-order exercise: the sentence's words as chips in scrambled order. Tap
+ * to build the sentence; tap a placed word to take it back. Punctuation is
+ * kept on the word it belongs to, so «ikke,» stays one chip.
+ */
+function scramble(annotated, seed) {
+  const { sentences } = parseParagraph({ id: seed, body: [annotated] }, lexicon);
+  const nodes = sentences[0] ?? [];
+  // Rebuild plain words with their trailing punctuation attached.
+  const words = [];
+  for (const node of nodes) {
+    if (node.kind === 'word') words.push(node.surface);
+    else if (node.surface.trim() && words.length) words[words.length - 1] += node.surface;
+  }
+  const answer = words.join(' ');
+
+  const wrap = document.createElement('div');
+  wrap.className = 'scramble';
+
+  const target = document.createElement('p');
+  target.className = 'scramble-answer';
+  target.lang = 'nb';
+  target.setAttribute('aria-label', 'Setningen din');
+  wrap.append(target);
+
+  const pool = document.createElement('div');
+  pool.className = 'scramble-pool';
+  wrap.append(pool);
+
+  const status = document.createElement('p');
+  status.className = 'scratch-stats';
+  status.setAttribute('role', 'status');
+
+  const placed = [];
+  const chips = seededOrder(words.length, seed).map((idx) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'scramble-chip';
+    btn.lang = 'nb';
+    btn.textContent = words[idx];
+    btn.addEventListener('click', () => {
+      if (btn.parentNode === pool) {
+        placed.push(btn);
+        target.append(btn);
+      } else {
+        placed.splice(placed.indexOf(btn), 1);
+        pool.append(btn);
+      }
+      wrap.classList.remove('is-right', 'is-wrong');
+      status.textContent = '';
+    });
+    return btn;
+  });
+  chips.forEach((c) => pool.append(c));
+
+  const actions = document.createElement('div');
+  actions.className = 'scratch-actions';
+  const check = document.createElement('button');
+  check.type = 'button';
+  check.className = 'btn-primary';
+  check.textContent = 'Sjekk';
+  check.addEventListener('click', () => {
+    const attempt = placed.map((c) => c.textContent).join(' ');
+    const ok = normalise(attempt) === normalise(answer);
+    wrap.classList.toggle('is-right', ok);
+    wrap.classList.toggle('is-wrong', !ok);
+    status.textContent = ok ? 'Riktig!' : placed.length < words.length ? 'Bruk alle ordene.' : 'Ikke helt — prøv igjen.';
+  });
+  const show = document.createElement('button');
+  show.type = 'button';
+  show.className = 'btn-quiet';
+  show.textContent = 'Vis';
+  show.addEventListener('click', () => {
+    placed.length = 0;
+    words.forEach((w, i) => {
+      const chip = chips.find((c) => c.textContent === w && c.parentNode !== target) ?? chips[i];
+      placed.push(chip);
+      target.append(chip);
+    });
+    wrap.classList.add('is-right');
+    wrap.classList.remove('is-wrong');
+    status.textContent = answer;
+  });
+  actions.append(check, show);
+  wrap.append(actions, status);
+  return wrap;
 }
 
 // --- review ------------------------------------------------------------

@@ -54,6 +54,13 @@ The same command runs in GitHub Actions on every push and pull request.
   by 1, 3, 7, 14 then 30 days; "Øv mer" drops it back to today. Box 4 and up
   count as learnt, but nothing is retired for good, and looking a word up again
   in a text resets it. When nothing is due the page says when the next word is.
+- **Grammatikk** — a rule book in `data/grammar.json`: word order (verb second,
+  questions, «ikke» in main and subordinate clauses, «å»), which tense when,
+  nouns and adjectives (gender, the definite suffix, plurals, agreement,
+  possessives), and connecting words grouped by the word order they trigger.
+  Every rule carries a "For English speakers" note on what the English
+  instinct gets wrong, every example is tappable, and rules have scrambled
+  sentences to put back in order.
 - **Progress** — each text remembers when it was opened, the mode it was left
   in, the best cloze score and whether the speaking timer ran out. The list
   shows "lest" and "✓ ferdig" badges; home shows a count and a "Fortsett" link
@@ -74,6 +81,25 @@ screen for a standalone window.
 
     npm run generate -- --topic arbeid --level A2
     npm run generate -- --topic helse --level B1 --title "På apoteket"
+    npm run generate -- --topic hverdag --level A2 --count 3
+
+**Without an API key**, use a chat instead:
+
+    npm run generate -- --topic hverdag --level A2 --count 3 --dry-run > prompt.txt
+
+Paste `prompt.txt` into claude.ai, save the JSON it answers with as
+`paste.json`, then:
+
+    node tools/import-text.mjs paste.json --topic hverdag --level A2
+
+That writes one `.draft.json` per text, runs the validator on each and leaves a
+`.stubs.json` next to it with the missing words. Fill in the glosses and run
+`node tools/add-entries.mjs <file>.stubs.json`, pin the ambiguous words, then:
+
+    node tools/promote.mjs
+
+which renames every ready draft to `.json`, adds it to `data/index.json`, and
+holds back any draft the validator still complains about.
 
 The script (`tools/generate.mjs`) sends Claude the topic, the level, the
 annotation rules and the list of words the lexicon already knows, and asks
