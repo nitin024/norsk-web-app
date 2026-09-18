@@ -962,6 +962,33 @@ check('exam: part 3 has a discussion prompt and finishing records the run', () =
 await go('#/kurs');
 await new Promise((r) => setTimeout(r, 30));
 
+check('course: each level carries a progress ring that matches its steps', () => {
+  const rings = reader().querySelectorAll('.ring');
+  assert.equal(rings.length, 4, 'one ring per level');
+  const label = rings[0].getAttribute('aria-label');
+  assert.includes(label, 'A1');
+  assert.includes(label, 'steg gjort');
+
+  // The ring's arc must agree with the count beside it.
+  const counts = reader().querySelectorAll('.level-count').map((p) => p.textContent);
+  const m = /^(\d+) av (\d+) steg$/.exec(counts[0]);
+  assert.ok(m, `unexpected count text: ${counts[0]}`);
+  assert.includes(label, `${m[1]} av ${m[2]}`);
+
+  // The arc is proportional: offset = circumference × (1 − done/total).
+  for (let n = 0; n < rings.length; n++) {
+    const parts = /^(\d+) av (\d+) steg$|^(Ferdig)$/.exec(counts[n]);
+    const [done, total] = parts[3] ? [1, 1] : [Number(parts[1]), Number(parts[2])];
+    const fill = rings[n].querySelectorAll('.ring-fill')[0];
+    const circumference = Number(fill.getAttribute('stroke-dasharray'));
+    const expected = circumference * (1 - done / total);
+    const actual = Number(fill.getAttribute('stroke-dashoffset'));
+    if (Math.abs(actual - expected) > 0.01) {
+      throw new Error(`ring ${n}: offset ${actual}, expected ${expected} for ${counts[n]}`);
+    }
+  }
+});
+
 check('course: lists every level with steps and marks done ones', () => {
   assert.equal(doc.body.dataset.view, 'course');
   const levels = reader().querySelectorAll('.level');
@@ -980,6 +1007,57 @@ check('home: shows the next course step', () => {
   const next = reader().querySelector('.home-next');
   assert.ok(next, 'home-next missing');
   assert.includes(next.textContent, 'Neste i kurset');
+});
+
+// --- dragging the card away --------------------------------------------
+
+await go('#/barnehagen');
+
+check('card drag: a long pull dismisses the sheet', () => {
+  // The drag only applies to the phone layout, which the shim reports by
+  // answering matchMedia.
+  globalThis.matchMedia = (q) => ({ matches: /max-width/.test(q) });
+  reader().querySelectorAll('.w')[0].click();
+  assert.equal($('card').hidden, false, 'card should be open');
+
+  const card = $('card');
+  card.scrollTop = 0;
+  card.dispatch('pointerdown', { isPrimary: true, pointerId: 1, clientY: 100, timeStamp: 0, target: card });
+  card.dispatch('pointermove', { pointerId: 1, clientY: 180, timeStamp: 80, preventDefault() {} });
+  assert.includes(card.style.transform ?? '', 'translateY', 'sheet should follow the finger');
+  card.dispatch('pointerup', { pointerId: 1, clientY: 260, timeStamp: 160 });
+  // The card is still on screen here: it falls away first, then closes.
+  assert.equal($('card').hidden, false, 'dismissal animates before it closes');
+});
+
+await new Promise((r) => setTimeout(r, 220));
+
+check('card drag: (continued) the card is closed afterwards', () => {
+  assert.equal($('card').hidden, true, 'card should have closed');
+  assert.equal($('card-scrim').hidden, true);
+});
+
+check('card drag: a short pull springs back and keeps the card open', () => {
+  reader().querySelectorAll('.w')[0].click();
+  const card = $('card');
+  card.scrollTop = 0;
+  card.dispatch('pointerdown', { isPrimary: true, pointerId: 2, clientY: 100, timeStamp: 0, target: card });
+  card.dispatch('pointermove', { pointerId: 2, clientY: 130, timeStamp: 300, preventDefault() {} });
+  card.dispatch('pointerup', { pointerId: 2, clientY: 130, timeStamp: 600 });
+  assert.equal($('card').hidden, false, 'a 30px drag must not dismiss');
+  assert.equal(card.style.transform, '', 'sheet should spring back');
+  $('card-close').click();
+});
+
+check('card drag: a pull starting on a button does not drag', () => {
+  reader().querySelectorAll('.w')[0].click();
+  const card = $('card');
+  const button = $('card-close');
+  card.dispatch('pointerdown', { isPrimary: true, pointerId: 3, clientY: 100, timeStamp: 0, target: button });
+  card.dispatch('pointermove', { pointerId: 3, clientY: 250, timeStamp: 80, preventDefault() {} });
+  assert.equal(card.style.transform ?? '', '', 'a drag from a control must be ignored');
+  $('card-close').click();
+  delete globalThis.matchMedia;
 });
 
 // --- chrome invariants -------------------------------------------------

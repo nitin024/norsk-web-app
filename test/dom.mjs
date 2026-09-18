@@ -195,6 +195,17 @@ class Element {
   querySelector(selector) {
     return this.querySelectorAll(selector)[0] ?? null;
   }
+  /** Nearest self-or-ancestor matching the selector, as the DOM does. */
+  closest(selector) {
+    let node = this;
+    while (node && node instanceof Element) {
+      if (matches(node, selector)) return node;
+      node = node.parentNode;
+    }
+    return null;
+  }
+  setPointerCapture() {}
+  releasePointerCapture() {}
 
   // --- events / layout stubs ---
   addEventListener(type, fn) {
@@ -288,6 +299,10 @@ class Document extends Element {
   createElement(tag) {
     return new Element(tag, this);
   }
+  /** SVG elements behave like any other here; the namespace is ignored. */
+  createElementNS(_ns, tag) {
+    return new Element(tag, this);
+  }
   createTextNode(text) {
     return new TextNode(text, this);
   }
@@ -362,6 +377,9 @@ export function installGlobals(doc, root) {
     removeItem: (k) => store.delete(k),
     clear: () => store.clear(),
   };
+
+  // The ring schedules its fill on the next frame.
+  define('requestAnimationFrame', (fn) => setTimeout(() => fn(Date.now()), 0));
 
   globalThis.window = {
     addEventListener: (type, fn) => doc.addEventListener(type, fn),

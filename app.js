@@ -2728,6 +2728,50 @@ function stepInfo(step, grammarRules) {
   }
 }
 
+/**
+ * A progress ring: an SVG circle whose dash gap shrinks as steps complete.
+ * The level's own name sits inside it, so the ring labels itself.
+ */
+function progressRing(done, total, label) {
+  const R = 20;
+  const C = 2 * Math.PI * R;
+  const fraction = total > 0 ? done / total : 0;
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', 'ring' + (fraction >= 1 ? ' is-complete' : ''));
+  svg.setAttribute('viewBox', '0 0 48 48');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', `${label}: ${done} av ${total} steg gjort`);
+
+  const track = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  track.setAttribute('class', 'ring-track');
+  track.setAttribute('cx', '24');
+  track.setAttribute('cy', '24');
+  track.setAttribute('r', String(R));
+
+  const fill = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  fill.setAttribute('class', 'ring-fill');
+  fill.setAttribute('cx', '24');
+  fill.setAttribute('cy', '24');
+  fill.setAttribute('r', String(R));
+  fill.setAttribute('stroke-dasharray', String(C));
+  // Starts empty and animates to its value, so returning to the page shows
+  // the progress arriving rather than just sitting there.
+  fill.setAttribute('stroke-dashoffset', String(C));
+  requestAnimationFrame(() => fill.setAttribute('stroke-dashoffset', String(C * (1 - fraction))));
+
+  const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  text.setAttribute('class', 'ring-label');
+  text.setAttribute('x', '24');
+  text.setAttribute('y', '24');
+  text.setAttribute('text-anchor', 'middle');
+  text.setAttribute('dominant-baseline', 'central');
+  text.textContent = fraction >= 1 ? '✓' : label;
+
+  svg.append(track, fill, text);
+  return svg;
+}
+
 /** The first unfinished step across the course, for the home page. */
 async function nextCourseStep() {
   const [course, grammar] = await Promise.all([ensureCourse(), ensureGrammar()]);
@@ -2777,12 +2821,25 @@ async function showCourse() {
     const meta = index.levels.find((l) => l.level === level.level);
     const section = document.createElement('section');
     section.className = 'level';
-    const h = document.createElement('h2');
-    h.className = 'level-title';
     const infos = level.steps.map((s) => stepInfo(s, rules)).filter(Boolean);
     const done = infos.filter((i) => i.done).length;
-    h.textContent = `${meta?.label ?? level.level} · ${done} av ${infos.length}`;
-    section.append(h);
+
+    // The heading is a ring and a label rather than a sentence: how far
+    // through the level you are should be readable without counting.
+    const head = document.createElement('div');
+    head.className = 'level-head';
+    head.append(progressRing(done, infos.length, level.level));
+
+    const h = document.createElement('h2');
+    h.className = 'level-title';
+    h.textContent = meta?.label ?? level.level;
+    const count = document.createElement('p');
+    count.className = 'level-count';
+    count.textContent = done === infos.length ? 'Ferdig' : `${done} av ${infos.length} steg`;
+    const labels = document.createElement('div');
+    labels.append(h, count);
+    head.append(labels);
+    section.append(head);
 
     const ol = document.createElement('ol');
     ol.className = 'course-steps';
@@ -3296,6 +3353,7 @@ function clearHighlight() {
 function closeCard() {
   const card = document.getElementById('card');
   if (card.hidden) return;
+  resetCardDrag(card);
   card.hidden = true;
   document.getElementById('card-scrim').hidden = true;
   setBackgroundInert(false);
@@ -3312,7 +3370,96 @@ function closeCard() {
   syncTabs();
 }
 
+// --- dragging the card away --------------------------------------------
+//
+// On a phone the card is a bottom sheet, and a sheet you cannot flick away
+// feels stuck. It follows the finger, resists upward (there is nothing above
+// it), and dismisses past a threshold of distance or speed — whichever comes
+// first, so a short fast flick works as well as a slow long drag.
+
+const DRAG_DISMISS_PX = 110;
+const DRAG_DISMISS_VELOCITY = 0.55; // px per ms
+
+function resetCardDrag(card) {
+  card.style.transform = '';
+  card.style.transition = '';
+  card.classList.remove('is-dragging');
+}
+
+function wireCardDrag() {
+  const card = document.getElementById('card');
+  if (!card) return;
+
+  let startY = 0;
+  let lastY = 0;
+  let lastT = 0;
+  let velocity = 0;
+  let dragging = false;
+  let pointerId = null;
+
+  const onDown = (e) => {
+    // Only a phone-shaped sheet drags, only with one primary pointer, and
+    // never from a control: a drag starting on a button would swallow taps.
+    if (!isPhone() || !e.isPrimary || card.hidden) return;
+    if (e.target.closest('button, a, input, textarea, table')) return;
+    // A scrolled sheet drags its content, not itself.
+    if (card.scrollTop > 0) return;
+    dragging = true;
+    pointerId = e.pointerId;
+    startY = lastY = e.clientY;
+    lastT = e.timeStamp;
+    velocity = 0;
+    card.classList.add('is-dragging');
+  };
+
+  const onMove = (e) => {
+    if (!dragging || e.pointerId !== pointerId) return;
+    const dy = e.clientY - startY;
+    const dt = e.timeStamp - lastT;
+    if (dt > 0) velocity = (e.clientY - lastY) / dt;
+    lastY = e.clientY;
+    lastT = e.timeStamp;
+    // Rubber-band upward rather than allowing it: the sheet is already at the
+    // top of its travel.
+    const offset = dy < 0 ? dy / 4 : dy;
+    card.style.transform = `translateY(${offset}px)`;
+    if (dy > 0) {
+      // Taking over the gesture from the browser's scrolling.
+      card.setPointerCapture?.(pointerId);
+      e.preventDefault();
+    }
+  };
+
+  const onUp = (e) => {
+    if (!dragging || (pointerId !== null && e.pointerId !== pointerId)) return;
+    dragging = false;
+    pointerId = null;
+    card.classList.remove('is-dragging');
+    const dy = e.clientY - startY;
+    if (dy > DRAG_DISMISS_PX || (dy > 24 && velocity > DRAG_DISMISS_VELOCITY)) {
+      // Let it finish falling before it disappears, or the dismissal reads as
+      // a glitch rather than a gesture.
+      card.style.transition = 'transform 160ms ease-in, opacity 160ms ease-in';
+      card.style.transform = `translateY(${Math.max(card.offsetHeight, 300)}px)`;
+      card.style.opacity = '0';
+      setTimeout(() => {
+        card.style.opacity = '';
+        closeCard();
+      }, 150);
+      return;
+    }
+    card.style.transition = 'transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1)';
+    card.style.transform = '';
+  };
+
+  card.addEventListener('pointerdown', onDown);
+  card.addEventListener('pointermove', onMove);
+  card.addEventListener('pointerup', onUp);
+  card.addEventListener('pointercancel', onUp);
+}
+
 function wireChrome() {
+  wireCardDrag();
   // The wordmark is the way out of anywhere; on a phone that is the course.
   const brand = document.getElementById('brand');
   if (brand) {

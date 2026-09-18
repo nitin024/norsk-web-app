@@ -806,6 +806,8 @@ body[data-view='home'] .reader {
   }
 }
 
+/* The grabber. Also the hint that the sheet can be dragged away, so it sits
+   in a band with room for a thumb rather than tight against the content. */
 .card::before {
   content: '';
   display: block;
@@ -814,6 +816,17 @@ body[data-view='home'] .reader {
   margin: var(--s-2) auto var(--s-4);
   border-radius: 2px;
   background: var(--rule);
+}
+
+/* While a finger is on it: no animation to fight the transform, no text
+   selection, and no browser scroll stealing the gesture. */
+.card.is-dragging {
+  animation: none;
+  transition: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  cursor: grabbing;
 }
 
 .card-close {
@@ -1258,6 +1271,66 @@ body[data-view='home'] .reader {
   font-size: var(--t-sm);
   color: var(--accent);
   text-decoration: none;
+}
+
+.level-head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin: 0 0 var(--s-3);
+}
+
+.level-head .level-title {
+  margin: 0;
+}
+
+.level-count {
+  margin: 2px 0 0;
+  font-size: var(--t-xs);
+  color: var(--ink-faint);
+}
+
+.ring {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  /* 12 o'clock start, filling clockwise. */
+  transform: rotate(-90deg);
+}
+
+.ring-track {
+  fill: none;
+  stroke: var(--rule-soft);
+  stroke-width: 4;
+}
+
+.ring-fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.ring-label {
+  /* Undo the ring's rotation so the text reads level. */
+  transform: rotate(90deg);
+  transform-origin: 24px 24px;
+  fill: var(--ink-soft);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.ring.is-complete .ring-label {
+  fill: var(--accent);
+  font-size: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring-fill {
+    transition: none;
+  }
 }
 
 .course-steps {
@@ -1746,6 +1819,12 @@ body:not([data-view='home']) .reader {
 
   .card::before {
     display: none;
+  }
+
+  /* A centred dialog does not drag, so the JS bails and any stray transform
+     must not fight the centring. */
+  .card.is-dragging {
+    transform: translate(-50%, -50%) !important;
   }
 
   @keyframes rise {
