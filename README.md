@@ -30,6 +30,64 @@ To read it on your phone over the same wifi:
     PORT=8080 python3 -m http.server 8080 --bind 0.0.0.0
     # then visit http://<your-mac-ip>:8080
 
+## Tests and validation
+
+    npm test              # validator + all three test suites
+    node validate.js      # content checks only; exits 1 on any error
+    node validate.js --unused   # also list every lexicon entry no text uses
+
+The same command runs in GitHub Actions on every push and pull request.
+
+## What the app does
+
+- **Lesetekster** — 19 texts, grouped by level or by topic. Each text opens with
+  the examiner's note and a link to its topic page.
+- **Tema** — one theme across levels: its texts, the vocabulary they share, and
+  every speaking prompt.
+- **Les / Fyll inn / Snakk** — read with tap-to-look-up, fill in the blanked
+  inflections with the base form as hint, or hide the text and talk for two
+  minutes with the key words and a timer.
+- **Les høyt** — sentence and word playback through the browser's Norwegian
+  voice, where one is installed.
+- **Øving** — every word you looked up while reading becomes a flip card on a
+  spaced schedule: "Kunne det" moves it up a box and pushes the next review out
+  by 1, 3, 7, 14 then 30 days; "Øv mer" drops it back to today. Box 4 and up
+  count as learnt, but nothing is retired for good, and looking a word up again
+  in a text resets it. When nothing is due the page says when the next word is.
+- **Progress** — each text remembers when it was opened, the mode it was left
+  in, the best cloze score and whether the speaking timer ran out. The list
+  shows "lest" and "✓ ferdig" badges; home shows a count and a "Fortsett" link
+  back into the last text. A text is finished when the cloze is solved in full
+  and the two-minute talk was completed.
+
+Everything above lives in the browser's localStorage, so progress is per
+device and never leaves it.
+
+## Offline use
+
+A service worker caches the app shell and every text you open, so the site
+keeps working without a connection afterwards. It uses network-first, so a
+local `./serve.sh` never serves stale files. Add the page to your phone's home
+screen for a standalone window.
+
+## Generating a new text with Claude
+
+    npm run generate -- --topic arbeid --level A2
+    npm run generate -- --topic helse --level B1 --title "På apoteket"
+
+The script (`tools/generate.mjs`) sends Claude the topic, the level, the
+annotation rules and the list of words the lexicon already knows, and asks
+for a text that leans on them. The draft lands in
+`data/paragraphs/<id>.draft.json` and the validator runs on it at once, so the
+follow-up is the same as for a hand-written text: paste the stubs, pin the
+ambiguous words, rename to `.json`, add to `data/index.json`.
+
+It needs `ANTHROPIC_API_KEY` (or an `ant auth login` profile) and the SDK,
+which is a devDependency: `npm install`. The simplest place for the key is a
+`.env` file in the project root (`ANTHROPIC_API_KEY=sk-ant-...`); it is
+gitignored and `npm run generate` reads it automatically. The app itself stays dependency-free.
+Add `--dry-run` to print the prompt without calling the API.
+
 ## Content format
 
 Content is split so each word is annotated once and reused everywhere.
@@ -55,7 +113,9 @@ gloss, for things the table cannot express.
 
 ### Paragraphs — `data/paragraphs/*.json`
 
-`body` is an array of sentences. **Write plain Norwegian.** Bare words resolve
+`body` is an array of sentences. `topic` must name an id from `topics` in
+`data/index.json`; `examNote` is shown above the text and on the topic page.
+**Write plain Norwegian.** Bare words resolve
 against every inflected form in the lexicon, so `Mannen min heter Carlos` needs
 no annotation at all. Only three things are ever marked by hand:
 
@@ -82,6 +142,14 @@ remember which ones they are.
 **Proper nouns** — `<Norge>`, `<Carlos>`, `<tv>` render as plain, non-tappable
 text: never looked up, never reported as a gap. Without this every name in the
 corpus becomes a permanent `unresolved` warning.
+
+### Adding lexicon entries in bulk
+
+    node tools/add-entries.mjs new-entries.json
+
+Merges `{ "<lemma>": { entry }, ... }` into `data/lexicon.json`, skipping any
+lemma or id that already exists and leaving the file's formatting untouched.
+Re-running with the same file is harmless.
 
 ### Writing a new paragraph
 

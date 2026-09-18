@@ -1,5 +1,5 @@
 {
-  "$comment": "Paragraph manifest. `file` is relative to data/paragraphs/. Levels follow the CEFR bands used by Norskprøven; the muntlig exam is normally sat at A1-A2, A2-B1 or B1-B2.",
+  "$comment": "Paragraph manifest. `file` is relative to data/paragraphs/. Levels follow the CEFR bands used by Norskprøven; the muntlig exam is normally sat at A1-A2, A2-B1 or B1-B2. `topic` groups texts by theme across levels; every value must be declared in `topics`.",
   "levels": [
     {
       "level": "A1",
@@ -22,19 +22,62 @@
       "description": "Drøfte samfunnstema med nyansert argumentasjon."
     }
   ],
+  "topics": [
+    {
+      "id": "presentasjon",
+      "label": "Om deg selv",
+      "description": "Hvem du er, familien din og hvor du kommer fra. Del 1 av muntlig prøve."
+    },
+    {
+      "id": "hverdag",
+      "label": "Hverdagen",
+      "description": "Rutiner, klokkeslett, barnehage og fritid."
+    },
+    {
+      "id": "arbeid",
+      "label": "Arbeid",
+      "description": "Jobben din, arbeidslivet i Norge og hjemmekontor."
+    },
+    {
+      "id": "helse",
+      "label": "Helse",
+      "description": "Hos legen, symptomer og å bestille time."
+    },
+    {
+      "id": "bolig",
+      "label": "Bolig og nabolag",
+      "description": "Der du bor, boligen og nærmiljøet."
+    },
+    {
+      "id": "utdanning",
+      "label": "Utdanning",
+      "description": "Skole, kurs og planer for framtiden."
+    },
+    {
+      "id": "samfunn",
+      "label": "Samfunn og miljø",
+      "description": "Transport, integrering og miljø: drøfting med argumenter."
+    }
+  ],
   "paragraphs": [
-    { "id": "presentasjon", "title": "Å presentere seg selv", "level": "A1", "file": "presentasjon.json" },
-    { "id": "familien", "title": "Familien min", "level": "A1", "file": "familien.json" },
-    { "id": "hverdagen", "title": "Hverdagen min", "level": "A1", "file": "hverdagen.json" },
-    { "id": "barnehagen", "title": "I barnehagen", "level": "A2", "file": "barnehagen.json" },
-    { "id": "jobben", "title": "Jobben min", "level": "A2", "file": "jobben.json" },
-    { "id": "hos-legen", "title": "Hos legen", "level": "A2", "file": "hos-legen.json" },
-    { "id": "der-jeg-bor", "title": "Der jeg bor", "level": "A2", "file": "der-jeg-bor.json" },
-    { "id": "hjemmekontor", "title": "Fordeler og ulemper med hjemmekontor", "level": "B1", "file": "hjemmekontor.json" },
-    { "id": "utdanning", "title": "Utdanning og videre planer", "level": "B1", "file": "utdanning.json" },
-    { "id": "transport", "title": "Kollektivtransport eller bil?", "level": "B1", "file": "transport.json" },
-    { "id": "integrering", "title": "Integrering i det norske samfunnet", "level": "B2", "file": "integrering.json" },
-    { "id": "miljo", "title": "Miljø og personlig ansvar", "level": "B2", "file": "miljo.json" },
-    { "id": "arbeidsliv", "title": "Det norske arbeidslivet", "level": "B2", "file": "arbeidsliv.json" }
+    { "id": "presentasjon", "title": "Å presentere seg selv", "level": "A1", "file": "presentasjon.json", "topic": "presentasjon" },
+    { "id": "familien", "title": "Familien min", "level": "A1", "file": "familien.json", "topic": "presentasjon" },
+    { "id": "hverdagen", "title": "Hverdagen min", "level": "A1", "file": "hverdagen.json", "topic": "hverdag" },
+    { "id": "barnehagen", "title": "I barnehagen", "level": "A2", "file": "barnehagen.json", "topic": "hverdag" },
+    { "id": "jobben", "title": "Jobben min", "level": "A2", "file": "jobben.json", "topic": "arbeid" },
+    { "id": "hos-legen", "title": "Hos legen", "level": "A2", "file": "hos-legen.json", "topic": "helse" },
+    { "id": "der-jeg-bor", "title": "Der jeg bor", "level": "A2", "file": "der-jeg-bor.json", "topic": "bolig" },
+    { "id": "hjemmekontor", "title": "Fordeler og ulemper med hjemmekontor", "level": "B1", "file": "hjemmekontor.json", "topic": "arbeid" },
+    { "id": "utdanning", "title": "Utdanning og videre planer", "level": "B1", "file": "utdanning.json", "topic": "utdanning" },
+    { "id": "transport", "title": "Kollektivtransport eller bil?", "level": "B1", "file": "transport.json", "topic": "samfunn" },
+    { "id": "integrering", "title": "Integrering i det norske samfunnet", "level": "B2", "file": "integrering.json", "topic": "samfunn" },
+    { "id": "miljo", "title": "Miljø og personlig ansvar", "level": "B2", "file": "miljo.json", "topic": "samfunn" },
+    { "id": "arbeidsliv", "title": "Det norske arbeidslivet", "level": "B2", "file": "arbeidsliv.json", "topic": "arbeid" },
+    { "id": "leiligheten-min", "title": "Leiligheten min", "level": "A1", "file": "leiligheten-min.json", "topic": "bolig" },
+    { "id": "et-sunt-liv", "title": "Et sunt liv", "level": "A2", "file": "et-sunt-liv.json", "topic": "helse" },
+    { "id": "norskkurs", "title": "På norskkurs", "level": "A2", "file": "norskkurs.json", "topic": "utdanning" },
+    { "id": "leie-eller-eie", "title": "Leie eller eie?", "level": "B1", "file": "leie-eller-eie.json", "topic": "bolig" },
+    { "id": "fastlegen", "title": "Fastlegen og helsetjenesten", "level": "B1", "file": "fastlegen.json", "topic": "helse" },
+    { "id": "livslang-laering", "title": "Livslang læring", "level": "B2", "file": "livslang-laering.json", "topic": "utdanning" }
   ]
 }

@@ -1,0 +1,14 @@
+{
+  "name": "Norsk — lesing",
+  "short_name": "Norsk",
+  "description": "Norsk lesetrening: trykk på et ord for bøyning og oversettelse.",
+  "lang": "nb",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#faf8f5",
+  "theme_color": "#faf8f5",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

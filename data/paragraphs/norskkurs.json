@@ -1,0 +1,18 @@
+{
+  "id": "norskkurs",
+  "title": "På norskkurs",
+  "level": "A2",
+  "topic": "utdanning",
+  "gloss": "At Norwegian class",
+  "examNote": "Del 2: fortell hvordan du lærer norsk. Øv på «jeg synes det er vanskelig å ...» og «jeg har lært at ...».",
+  "body": [
+    "Jeg går på norskkurs {tre:tre} kvelder i uka.",
+    "Vi er tolv elever fra ni forskjellige land.",
+    "Læreren snakker sakte og tydelig, og hun forklarer grammatikken godt.",
+    "Jeg synes det er vanskelig å uttale ordene riktig.",
+    "Vi øver på å snakke sammen i små grupper.",
+    "Hjemme gjør jeg lekser og leser enkle tekster på norsk.",
+    "Jeg har lært at det er lurt å gjøre feil, fordi man {lærer:lære} av dem.",
+    "Målet mitt er å bestå norskprøven til {våren:vår-n}."
+  ]
+}

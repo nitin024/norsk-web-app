@@ -147,6 +147,15 @@ class Element {
   remove() {
     this.parentNode?.removeChild(this);
   }
+  replaceWith(node) {
+    const parent = this.parentNode;
+    if (!parent) return;
+    const i = parent.childNodes.indexOf(this);
+    node.parentNode?.removeChild?.(node);
+    node.parentNode = parent;
+    parent.childNodes.splice(i, 1, node);
+    this.parentNode = null;
+  }
   replaceChildren(...nodes) {
     this.childNodes.forEach((n) => (n.parentNode = null));
     this.childNodes = [];

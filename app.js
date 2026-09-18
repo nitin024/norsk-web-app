@@ -1,4 +1,14 @@
 import { parseParagraph, reportDiagnostics, lookupEntry } from './parser.js';
+import { lexiconStub, guessLemma } from './stub.js';
+import { canSpeak, speak, stopSpeaking } from './speech.js';
+import {
+  recordLookup, allLookups, dueLookups, markKnown, markAgain, reviewCounts, describeWait,
+  INTERVALS_DAYS, MAX_BOX,
+} from './review.js';
+import {
+  recordOpen, recordMode, recordCloze, recordSpoke, getProgress, isRead, isFinished,
+  lastTouched, progressSummary,
+} from './progress.js';
 
 // Bump by hand on each deploy — there is no build step to inject it.
 // Shown on the home page and stamped into every feedback mail.
@@ -28,6 +38,11 @@ const POS_LABEL = {
 };
 
 // How a form is *named* to the learner. This is the headline of the card.
+//
+// Deliberately English while the rest of the chrome is Norwegian: the card is
+// the one place the learner is *told* something rather than reading Norwegian,
+// and grammatical terms ("preterite", "definite plural") are what the
+// English-language textbooks and Norskprøven prep material use. Keep it so.
 const FORM_LABEL = {
   lemma: null,
   infinitive: 'infinitive',
@@ -69,15 +84,28 @@ let occurrencesPromise = null;
 // the sentence you are already reading as an "example".
 let currentParaId = null;
 
+// The open text, so the reader can switch mode (read / cloze / speak) without
+// refetching or reparsing.
+let currentDoc = null;
+let readerMode = 'read';
+
 async function main() {
-  const [lexRes, idxRes] = await Promise.all([fetch(LEXICON_URL), fetch(INDEX_URL)]);
-  if (!lexRes.ok || !idxRes.ok) {
-    showError('Kunne ikke laste innholdet.');
-    console.error('[norsk] fetch failed', lexRes.status, idxRes.status);
+  try {
+    const [lexRes, idxRes] = await Promise.all([fetch(LEXICON_URL), fetch(INDEX_URL)]);
+    if (!lexRes.ok || !idxRes.ok) {
+      throw new Error(`HTTP ${lexRes.status} / ${idxRes.status}`);
+    }
+    lexicon = await lexRes.json();
+    index = await idxRes.json();
+  } catch (err) {
+    // Offline, or a broken deploy. Say so rather than leaving a blank page;
+    // the service worker makes the first case rare after the first visit.
+    showError('Kunne ikke laste innholdet. Sjekk nettforbindelsen og prøv igjen.');
+    console.error('[norsk] failed to load content', err);
     return;
   }
-  lexicon = await lexRes.json();
-  index = await idxRes.json();
+
+  registerServiceWorker();
 
   window.addEventListener('hashchange', route);
   // Re-measure when the viewport changes: rotation, dynamic type, the URL bar
@@ -95,6 +123,11 @@ function route() {
   if (id === 'ordbok') return showDictionary();
   if (id === 'skriv') return showScratch();
   if (id === 'tekster') return showTexts();
+  if (id === 'ov') return showReview();
+  if (id.startsWith('tema/')) {
+    const topic = (index.topics ?? []).find((t) => t.id === id.slice(5));
+    if (topic) return showTopic(topic);
+  }
   if (id) {
     const meta = index.paragraphs.find((p) => p.id === id);
     if (meta) return showParagraph(meta);
@@ -102,13 +135,6 @@ function route() {
   showHome();
 }
 
-/** Hide every view-specific control. Each view then re-enables its own. */
-/**
- * Publish the real heights of the frozen layers as custom properties, so the
- * sticky offsets below them are correct rather than guessed. They change with
- * the safe-area inset, font scaling and the filter row wrapping, none of which
- * a hardcoded value survives.
- */
 /**
  * Publish the real heights of the frozen layers as custom properties, so the
  * sticky offsets below them are correct rather than guessed. They change with
@@ -125,10 +151,12 @@ function measureChrome() {
   set('--dict-controls-h', document.getElementById('dict-controls'));
 }
 
+/** Hide every view-specific control. Each view then re-enables its own. */
 function resetChrome() {
   document.getElementById('dict-controls').hidden = true;
   document.getElementById('scratch-controls').hidden = true;
   currentParaId = null;
+  stopSpeaking();
 }
 
 /**
@@ -154,9 +182,11 @@ function showHome() {
   nav.className = 'home-nav';
   nav.setAttribute('aria-label', 'Hovedmeny');
 
+  const due = reviewCounts().due;
   const destinations = [
     ['#/tekster', 'Lesetekster', String(index.paragraphs.length)],
     ['#/ordbok', 'Ordbok', String(Object.keys(lexicon.entries).length)],
+    ['#/ov', 'Øving', due ? String(due) : ''],
     ['#/skriv', 'Egen tekst', ''],
   ];
 
@@ -180,6 +210,33 @@ function showHome() {
   }
 
   main.append(nav);
+
+  // Where you are: how much is read, and a way straight back into the last
+  // text in the mode it was left in.
+  const summary = progressSummary();
+  const last = lastTouched();
+  const lastMeta = last && index.paragraphs.find((p) => p.id === last.paraId);
+  if (summary.read > 0 || lastMeta) {
+    const status = document.createElement('section');
+    status.className = 'home-status';
+
+    const stats = document.createElement('p');
+    stats.className = 'home-stats';
+    stats.textContent =
+      `${summary.read} av ${index.paragraphs.length} tekster lest` +
+      (summary.finished ? ` · ${summary.finished} ferdig` : '');
+    status.append(stats);
+
+    if (lastMeta) {
+      const a = document.createElement('a');
+      a.className = 'home-continue';
+      a.href = `#/${lastMeta.id}`;
+      const modeLabel = READER_MODES.find(([m]) => m === last.mode)?.[1] ?? 'Les';
+      a.textContent = `Fortsett: ${lastMeta.title} · ${modeLabel}`;
+      status.append(a);
+    }
+    main.append(status);
+  }
 
   const footer = document.createElement('footer');
   footer.className = 'home-footer';
@@ -226,6 +283,26 @@ function feedbackHref() {
   );
 }
 
+// The list can be read two ways: by level (what can I manage?) or by topic
+// (what will the examiner ask about?). The choice sticks.
+const TEXTS_GROUP_KEY = 'norsk:textsGroup';
+
+function readTextsGroup() {
+  try {
+    return localStorage.getItem(TEXTS_GROUP_KEY) === 'topic' ? 'topic' : 'level';
+  } catch {
+    return 'level';
+  }
+}
+
+function writeTextsGroup(mode) {
+  try {
+    localStorage.setItem(TEXTS_GROUP_KEY, mode);
+  } catch {
+    /* ignore */
+  }
+}
+
 function showTexts() {
   document.body.dataset.view = 'texts';
   resetChrome();
@@ -234,49 +311,258 @@ function showTexts() {
 
   const main = document.getElementById('reader');
   main.replaceChildren();
-  const lastRead = readLastRead();
   measureChrome();
   announce('Lesetekster');
 
-  for (const level of index.levels) {
-    const items = index.paragraphs.filter((p) => p.level === level.level);
-    if (items.length === 0) continue;
+  const grouping = readTextsGroup();
+  main.append(
+    chipRow(
+      [
+        ['level', 'Etter nivå'],
+        ['topic', 'Etter tema'],
+      ],
+      grouping,
+      (mode) => {
+        writeTextsGroup(mode);
+        showTexts();
+      },
+      'Sorter tekstene'
+    )
+  );
 
-    const section = document.createElement('section');
-    section.className = 'level';
-
-    const h = document.createElement('h2');
-    h.className = 'level-title';
-    h.textContent = level.label;
-    section.append(h);
-
-    if (level.description) {
-      const d = document.createElement('p');
-      d.className = 'level-desc';
-      d.textContent = level.description;
-      section.append(d);
+  if (grouping === 'topic' && index.topics?.length) {
+    for (const topic of index.topics) {
+      const items = index.paragraphs.filter((p) => p.topic === topic.id);
+      if (items.length === 0) continue;
+      main.append(
+        textSection(topic.label, topic.description, items, {
+          href: `#/tema/${topic.id}`,
+          showLevel: true,
+        })
+      );
     }
+  } else {
+    for (const level of index.levels) {
+      const items = index.paragraphs.filter((p) => p.level === level.level);
+      if (items.length === 0) continue;
+      main.append(textSection(level.label, level.description, items, {}));
+    }
+  }
+}
 
+/** A row of mutually exclusive chips. `onPick` receives the chosen value. */
+function chipRow(options, current, onPick, label) {
+  const wrap = document.createElement('div');
+  wrap.className = 'chip-row';
+  wrap.setAttribute('role', 'group');
+  if (label) wrap.setAttribute('aria-label', label);
+  for (const [value, text] of options) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'chip' + (current === value ? ' is-on' : '');
+    btn.textContent = text;
+    btn.setAttribute('aria-pressed', String(current === value));
+    btn.addEventListener('click', () => onPick(value));
+    wrap.append(btn);
+  }
+  return wrap;
+}
+
+/** One heading + description + list of texts, as used by both groupings. */
+function textSection(title, description, items, { href, showLevel }) {
+  const lastRead = readLastRead();
+  const section = document.createElement('section');
+  section.className = 'level';
+
+  const h = document.createElement('h2');
+  h.className = 'level-title';
+  if (href) {
+    const a = document.createElement('a');
+    a.className = 'level-title-link';
+    a.href = href;
+    a.textContent = title;
+    h.append(a);
+  } else {
+    h.textContent = title;
+  }
+  section.append(h);
+
+  if (description) {
+    const d = document.createElement('p');
+    d.className = 'level-desc';
+    d.textContent = description;
+    section.append(d);
+  }
+
+  const ul = document.createElement('ul');
+  ul.className = 'para-list';
+  for (const item of items) {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.className = 'para-link';
+    a.href = `#/${item.id}`;
+    a.textContent = item.title;
+    if (showLevel) {
+      const lvl = document.createElement('span');
+      lvl.className = 'para-level';
+      lvl.textContent = item.level;
+      a.append(lvl);
+    }
+    const record = getProgress(item.id);
+    if (isFinished(record)) {
+      const badge = document.createElement('span');
+      badge.className = 'badge badge-done';
+      badge.textContent = '✓ ferdig';
+      a.append(badge);
+    } else if (lastRead === item.id) {
+      const badge = document.createElement('span');
+      badge.className = 'badge';
+      badge.textContent = 'sist lest';
+      a.append(badge);
+    } else if (isRead(record)) {
+      const badge = document.createElement('span');
+      badge.className = 'badge badge-read';
+      badge.textContent = 'lest';
+      a.append(badge);
+    }
+    li.append(a);
+    ul.append(li);
+  }
+  section.append(ul);
+  return section;
+}
+
+// --- topic page -------------------------------------------------------
+//
+// One theme across levels: its texts, the vocabulary they share, and the
+// speaking prompts each text carries. This is the page to open the night
+// before the exam.
+
+const CONTENT_POS = new Set(['noun', 'verb', 'adjective', 'phrase']);
+
+async function showTopic(topic) {
+  document.body.dataset.view = 'topic';
+  resetChrome();
+  document.getElementById('back').hidden = false;
+
+  const items = index.paragraphs.filter((p) => p.topic === topic.id);
+  setHeader(topic.label, `${items.length} tekster · tema`);
+
+  const main = document.getElementById('reader');
+  main.replaceChildren();
+
+  if (topic.description) {
+    const d = document.createElement('p');
+    d.className = 'topic-desc';
+    d.textContent = topic.description;
+    main.append(d);
+  }
+
+  main.append(textSection('Tekster', '', items, { showLevel: true }));
+
+  // Vocabulary and prompts need every paragraph in the topic parsed.
+  const vocabSection = document.createElement('section');
+  vocabSection.className = 'level';
+  const vh = document.createElement('h2');
+  vh.className = 'level-title';
+  vh.textContent = 'Nøkkelord';
+  vocabSection.append(vh);
+  const loading = document.createElement('p');
+  loading.className = 'level-desc';
+  loading.textContent = 'Henter ord …';
+  vocabSection.append(loading);
+  main.append(vocabSection);
+
+  const promptSection = document.createElement('section');
+  promptSection.className = 'level';
+  main.append(promptSection);
+
+  measureChrome();
+  window.scrollTo(0, 0);
+  announce(topic.label);
+
+  const occ = await ensureOccurrences();
+  if (document.body.dataset.view !== 'topic') return; // navigated away
+
+  const ids = new Set(items.map((p) => p.id));
+  const ranked = [];
+  for (const [entryId, uses] of occ) {
+    const here = uses.filter((u) => ids.has(u.paraId));
+    if (here.length === 0) continue;
+    const hit = lookupEntry(lexicon, entryId);
+    if (!hit || !CONTENT_POS.has(hit.entry.pos)) continue;
+    const texts = new Set(here.map((u) => u.paraId)).size;
+    ranked.push({ entryId, lemma: hit.lemma, entry: hit.entry, texts, uses: here.length });
+  }
+  // Shared across texts first, then most used. Twenty is a page, not a list.
+  ranked.sort((a, b) => b.texts - a.texts || b.uses - a.uses || collator.compare(a.lemma, b.lemma));
+  const top = ranked.slice(0, 20);
+
+  loading.remove();
+  if (top.length === 0) {
+    const none = document.createElement('p');
+    none.className = 'level-desc';
+    none.textContent = 'Ingen ord ennå.';
+    vocabSection.append(none);
+  } else {
+    const desc = document.createElement('p');
+    desc.className = 'level-desc';
+    desc.textContent = 'Ordene som går igjen i tekstene om dette temaet. Trykk for å se bøyning.';
+    vocabSection.append(desc);
+    vocabSection.append(wordChips(top));
+  }
+
+  const prompts = [];
+  for (const meta of items) {
+    try {
+      const doc = await fetchParagraph(meta);
+      if (doc.examNote) prompts.push({ meta, note: doc.examNote });
+    } catch {
+      /* the text list already links it; a missing note is not fatal */
+    }
+  }
+  if (prompts.length > 0 && document.body.dataset.view === 'topic') {
+    const ph = document.createElement('h2');
+    ph.className = 'level-title';
+    ph.textContent = 'Til muntlig';
+    promptSection.append(ph);
     const ul = document.createElement('ul');
-    ul.className = 'para-list';
-    for (const item of items) {
+    ul.className = 'prompt-list';
+    for (const { meta, note } of prompts) {
       const li = document.createElement('li');
+      li.className = 'prompt-item';
       const a = document.createElement('a');
-      a.className = 'para-link';
-      a.href = `#/${item.id}`;
-      a.textContent = item.title;
-      if (lastRead === item.id) {
-        const badge = document.createElement('span');
-        badge.className = 'badge';
-        badge.textContent = 'sist lest';
-        a.append(badge);
-      }
-      li.append(a);
+      a.className = 'prompt-src';
+      a.href = `#/${meta.id}`;
+      a.textContent = `${meta.title} · ${meta.level}`;
+      const p = document.createElement('p');
+      p.className = 'prompt-text';
+      p.textContent = note;
+      li.append(a, p);
       ul.append(li);
     }
-    section.append(ul);
-    main.append(section);
+    promptSection.append(ul);
   }
+}
+
+/** Tappable word chips that open the ordinary card. */
+function wordChips(items) {
+  const wrap = document.createElement('div');
+  wrap.className = 'word-chips';
+  for (const { entryId, lemma, entry } of items) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'word-chip';
+    btn.lang = 'nb';
+    btn.textContent = headword(lemma, entry);
+    btn.setAttribute('aria-expanded', 'false');
+    btn.dataset.entryId = entryId;
+    btn.addEventListener('click', () =>
+      openCard({ surface: lemma, lemma, entryId, formName: null, groupId: null }, btn)
+    );
+    wrap.append(btn);
+  }
+  return wrap;
 }
 
 
@@ -456,27 +742,6 @@ function renderScratch(text) {
 }
 
 /**
- * Strip a likely definite/plural ending so the stub proposes a base form
- * rather than an inflected one. "statsråden" -> "statsråd", not a lemma
- * "statsråden" whose definite would come out "statsrådenen".
- *
- * A heuristic, and it will sometimes be wrong — the card says so.
- */
-function guessLemma(word) {
-  // Longest endings first, so "kritikerne" loses "erne" rather than "e".
-  const SUFFIXES = ['erne', 'ene', 'ane', 'ene', 'er', 'en', 'et', 'ne', 'a'];
-  for (const suffix of SUFFIXES) {
-    if (word.length > suffix.length + 2 && word.endsWith(suffix)) {
-      let stem = word.slice(0, -suffix.length);
-      // Nouns in -e keep it in the base form: "kroner" -> "krone", not "kron".
-      if (suffix === 'er' && !/[aeiouyæøå]$/.test(stem)) stem += 'e';
-      return { lemma: stem, guessed: true };
-    }
-  }
-  return { lemma: word, guessed: false };
-}
-
-/**
  * Card for a word that is not in the lexicon. Instead of a dictionary entry it
  * offers a ready-made stub, so reading an article feeds the lexicon directly.
  */
@@ -510,7 +775,7 @@ function openUnknownCard(surface, el) {
 
   const word = surface.toLowerCase();
   const { lemma, guessed } = guessLemma(word);
-  const stub = `"${lemma}": { "id": "${lemma}-n", "pos": "noun", "gender": "en", "gloss": "", "forms": { "indefinite_sg": "${lemma}", "definite_sg": "${lemma}en", "indefinite_pl": "${lemma}er", "definite_pl": "${lemma}ene" } },`;
+  const stub = lexiconStub(lemma, 'noun') + ',';
 
   if (guessed) {
     const guess = document.createElement('p');
@@ -757,26 +1022,55 @@ function dictRow({ lemma, entry }) {
   return li;
 }
 
+// Parsed paragraph documents, keyed by index id. Each file is fetched once:
+// the reader, the "last read" badge and the occurrence index all want the
+// same 13 files, and a phone on a train should not refetch them per tap.
+const paragraphCache = new Map();
+
+async function fetchParagraph(meta) {
+  if (paragraphCache.has(meta.id)) return paragraphCache.get(meta.id);
+  const promise = fetch(PARAGRAPH_DIR + meta.file).then(async (res) => {
+    if (!res.ok) throw new Error(`HTTP ${res.status} for ${meta.file}`);
+    return res.json();
+  });
+  paragraphCache.set(meta.id, promise);
+  // A failed fetch must not poison the cache: let the next attempt retry.
+  promise.catch(() => paragraphCache.delete(meta.id));
+  return promise;
+}
+
+// Monotonic token so a slow fetch cannot paint over a newer navigation.
+let paragraphRequest = 0;
+
 async function showParagraph(meta) {
   document.body.dataset.view = 'reader';
   resetChrome();
   document.getElementById('back').hidden = false;
 
-  const res = await fetch(PARAGRAPH_DIR + meta.file);
-  if (!res.ok) {
+  const request = ++paragraphRequest;
+  let doc;
+  try {
+    doc = await fetchParagraph(meta);
+  } catch (err) {
+    if (request !== paragraphRequest) return;
     showError(`Kunne ikke laste «${meta.title}».`);
-    console.error('[norsk] fetch failed', meta.file, res.status);
+    console.error('[norsk] failed to load paragraph', err);
     return;
   }
-  const doc = await res.json();
+  // The user has navigated on while we waited; the newer view owns the DOM.
+  if (request !== paragraphRequest) return;
 
   const { sentences, diagnostics } = parseParagraph(doc, lexicon);
   reportDiagnostics(diagnostics, doc.id);
 
   currentParaId = meta.id;
+  currentDoc = { meta, doc, sentences };
   setHeader(doc.title, [doc.level, doc.gloss].filter(Boolean).join(' · '));
   writeLastRead(meta.id);
-  render(sentences);
+  recordOpen(meta.id);
+  // Reopen in the mode it was left in, so "Fortsett" means continue.
+  readerMode = getProgress(meta.id)?.mode ?? 'read';
+  renderReader();
   measureChrome();
   window.scrollTo(0, 0);
   // Move focus to the heading so keyboard and screen-reader users land in the
@@ -819,14 +1113,91 @@ function writeLastRead(id) {
 }
 
 // --- rendering --------------------------------------------------------
+//
+// A text has three modes. Reading is the default; the other two reuse the
+// same parsed sentences, so switching is instant and nothing is refetched.
 
-function render(sentences) {
+const READER_MODES = [
+  ['read', 'Les'],
+  ['cloze', 'Fyll inn'],
+  ['speak', 'Snakk'],
+];
+
+function renderReader() {
+  const { meta, doc, sentences } = currentDoc;
   const reader = document.getElementById('reader');
   reader.replaceChildren();
+  stopSpeaking();
+
+  reader.append(examNoteBox(meta, doc));
+  reader.append(
+    chipRow(READER_MODES, readerMode, (mode) => {
+      readerMode = mode;
+      recordMode(meta.id, mode);
+      renderReader();
+    }, 'Velg øvelse')
+  );
+
+  if (readerMode === 'cloze') renderCloze(reader, sentences);
+  else if (readerMode === 'speak') renderSpeak(reader, doc, sentences);
+  else {
+    render(reader, sentences);
+    reader.append(lookupsSection(meta.id));
+  }
+}
+
+/** The examiner's-eye note and topic link above the text. */
+function examNoteBox(meta, doc) {
+  const box = document.createElement('aside');
+  box.className = 'exam-note';
+
+  const topic = (index.topics ?? []).find((t) => t.id === meta.topic);
+  if (topic) {
+    const a = document.createElement('a');
+    a.className = 'exam-note-topic';
+    a.href = `#/tema/${topic.id}`;
+    a.textContent = `Tema: ${topic.label}`;
+    box.append(a);
+  }
+
+  if (doc.examNote) {
+    const p = document.createElement('p');
+    p.className = 'exam-note-text';
+    p.textContent = doc.examNote;
+    box.append(p);
+  }
+  return box;
+}
+
+/** A button that reads `text` aloud, or null when the browser cannot. */
+function speakButton(text, label = 'Les høyt') {
+  if (!canSpeak()) return null;
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'speak';
+  btn.setAttribute('aria-label', label);
+  btn.title = label;
+  btn.textContent = '🔊';
+  btn.addEventListener('click', () => speak(text));
+  return btn;
+}
+
+function render(reader, sentences) {
+  const whole = speakButton(sentences.map(sentenceText).join(' '), 'Les hele teksten høyt');
+  if (whole) {
+    const bar = document.createElement('div');
+    bar.className = 'read-tools';
+    whole.classList.add('speak-all');
+    whole.textContent = '🔊 Les hele teksten';
+    bar.append(whole);
+    reader.append(bar);
+  }
 
   for (const nodes of sentences) {
     const p = document.createElement('p');
     p.className = 'sentence';
+    const sp = speakButton(sentenceText(nodes), 'Les setningen høyt');
+    if (sp) p.append(sp);
 
     nodes.forEach((node, i) => {
       if (node.kind === 'punct') {
@@ -867,6 +1238,403 @@ function render(sentences) {
   }
 }
 
+/**
+ * Words the reader looked up in this text, so a session ends with a list of
+ * what to revisit rather than a vague sense of having struggled.
+ */
+function lookupsSection(paraId) {
+  const section = document.createElement('section');
+  section.className = 'lookups';
+  const mine = allLookups().filter((r) => r.para === paraId);
+  if (mine.length === 0) return section;
+
+  const h = document.createElement('h2');
+  h.className = 'level-title';
+  h.textContent = 'Ord du slo opp';
+  section.append(h);
+
+  const items = [];
+  for (const r of mine) {
+    const hit = lookupEntry(lexicon, r.entryId);
+    if (hit) items.push({ entryId: r.entryId, lemma: hit.lemma, entry: hit.entry });
+  }
+  section.append(wordChips(items));
+
+  const a = document.createElement('a');
+  a.className = 'lookups-link';
+  a.href = '#/ov';
+  a.textContent = 'Øv på ordene →';
+  section.append(a);
+  return section;
+}
+
+function refreshLookups() {
+  if (document.body.dataset.view !== 'reader' || readerMode !== 'read' || !currentDoc) return;
+  const old = document.getElementById('reader').querySelector('.lookups');
+  if (old) old.replaceWith(lookupsSection(currentDoc.meta.id));
+}
+
+// --- cloze -------------------------------------------------------------
+//
+// Every third content word becomes a blank with its base form as the hint,
+// so the exercise is "produce the right inflection", which is exactly what
+// the inflection tables are teaching. Phrase words and short function words
+// are left alone: blanking "og" teaches nothing.
+
+function clozeTargets(sentences) {
+  const targets = new Set();
+  let i = 0;
+  sentences.forEach((nodes, si) => {
+    for (const node of nodes) {
+      if (node.kind !== 'word' || !node.lemma || node.groupId || node.surface.length < 4) continue;
+      // Offset by sentence so consecutive texts do not blank the same slots.
+      if ((i + si) % 3 === 0) targets.add(node);
+      i++;
+    }
+  });
+  return targets;
+}
+
+function normalise(s) {
+  return s.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function renderCloze(reader, sentences) {
+  const targets = clozeTargets(sentences);
+  const inputs = [];
+
+  const intro = document.createElement('p');
+  intro.className = 'level-desc';
+  intro.textContent = 'Skriv riktig form av ordet i parentes. Trykk Enter eller «Sjekk» for å rette.';
+  reader.append(intro);
+
+  for (const nodes of sentences) {
+    const p = document.createElement('p');
+    p.className = 'sentence';
+
+    nodes.forEach((node, i) => {
+      if (node.kind === 'punct') {
+        const span = document.createElement('span');
+        span.className = 'punct';
+        span.textContent = node.surface;
+        p.append(span);
+        return;
+      }
+      const prev = nodes[i - 1];
+      if (i > 0 && prev.kind === 'word') p.append(' ');
+
+      if (!targets.has(node)) {
+        const span = document.createElement('span');
+        span.className = 'w-plain';
+        span.lang = 'nb';
+        span.textContent = node.surface;
+        p.append(span);
+        return;
+      }
+
+      const hit = lookupEntry(lexicon, node.entryId ?? node.lemma);
+      const label = document.createElement('label');
+      label.className = 'cloze';
+
+      const input = document.createElement('input');
+      input.className = 'cloze-input';
+      input.type = 'text';
+      input.lang = 'nb';
+      input.autocomplete = 'off';
+      input.autocapitalize = 'off';
+      input.spellcheck = false;
+      input.size = Math.max(4, node.surface.length);
+      input.dataset.answer = node.surface;
+      input.setAttribute('aria-label', `Fyll inn en form av ${node.lemma}`);
+      label.append(input);
+
+      const hint = document.createElement('span');
+      hint.className = 'cloze-hint';
+      hint.textContent = `(${hit ? displayLemma(hit.lemma, hit.entry) : node.lemma})`;
+      label.append(hint);
+
+      inputs.push(input);
+      p.append(label);
+    });
+
+    reader.append(p);
+  }
+
+  const bar = document.createElement('div');
+  bar.className = 'scratch-actions';
+  const check = document.createElement('button');
+  check.type = 'button';
+  check.className = 'btn-primary';
+  check.textContent = 'Sjekk';
+  const reveal = document.createElement('button');
+  reveal.type = 'button';
+  reveal.className = 'btn-quiet';
+  reveal.textContent = 'Vis fasit';
+  const status = document.createElement('p');
+  status.className = 'scratch-stats';
+  status.setAttribute('role', 'status');
+  bar.append(check, reveal);
+  reader.append(bar, status);
+
+  const grade = (revealed = false) => {
+    let right = 0;
+    for (const input of inputs) {
+      const value = input.value ?? '';
+      const ok = normalise(value) === normalise(input.dataset.answer);
+      input.classList.toggle('is-right', ok);
+      input.classList.toggle('is-wrong', !ok && value.trim() !== '');
+      if (ok) right++;
+    }
+    status.textContent = `${right} av ${inputs.length} riktige`;
+    // A revealed answer is not an attempt.
+    if (!revealed && currentDoc) recordCloze(currentDoc.meta.id, right, inputs.length);
+  };
+  check.addEventListener('click', () => grade());
+  reveal.addEventListener('click', () => {
+    for (const input of inputs) input.value = input.dataset.answer;
+    grade(true);
+  });
+  reader.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.classList?.contains('cloze-input')) {
+      e.preventDefault();
+      grade();
+    }
+  });
+  inputs[0]?.focus();
+}
+
+// --- speaking practice -------------------------------------------------
+//
+// The exam is oral. This mode hides the text and leaves the candidate with
+// what they will have in the room: the prompt, a handful of key words, and
+// a clock.
+
+function renderSpeak(reader, doc, sentences) {
+  const intro = document.createElement('p');
+  intro.className = 'level-desc';
+  intro.textContent = doc.examNote
+    ? 'Snakk i to minutter om temaet. Bruk nøkkelordene under som støtte.'
+    : 'Fortell om teksten med egne ord i to minutter.';
+  reader.append(intro);
+
+  // Key words: the text's own content words, once each, in reading order.
+  const seen = new Set();
+  const items = [];
+  for (const node of sentences.flat()) {
+    if (node.kind !== 'word' || !node.entryId || seen.has(node.entryId)) continue;
+    const hit = lookupEntry(lexicon, node.entryId);
+    if (!hit || !CONTENT_POS.has(hit.entry.pos)) continue;
+    seen.add(node.entryId);
+    items.push({ entryId: node.entryId, lemma: hit.lemma, entry: hit.entry });
+    if (items.length >= 14) break;
+  }
+  reader.append(wordChips(items));
+
+  const timer = document.createElement('div');
+  timer.className = 'timer';
+  const clock = document.createElement('p');
+  clock.className = 'timer-clock';
+  clock.setAttribute('role', 'timer');
+  const start = document.createElement('button');
+  start.type = 'button';
+  start.className = 'btn-primary';
+  const reset = document.createElement('button');
+  reset.type = 'button';
+  reset.className = 'btn-quiet';
+  reset.textContent = 'Nullstill';
+  const actions = document.createElement('div');
+  actions.className = 'scratch-actions';
+  actions.append(start, reset);
+  timer.append(clock, actions);
+  reader.append(timer);
+
+  const TOTAL = 120;
+  let left = TOTAL;
+  let handle = null;
+  const show = () => {
+    const m = Math.floor(left / 60);
+    const sec = String(left % 60).padStart(2, '0');
+    clock.textContent = `${m}:${sec}`;
+    clock.classList.toggle('is-done', left === 0);
+    start.textContent = handle ? 'Pause' : left === TOTAL ? 'Start' : left === 0 ? 'Ferdig' : 'Fortsett';
+  };
+  const stop = () => {
+    clearInterval(handle);
+    handle = null;
+    show();
+  };
+  start.addEventListener('click', () => {
+    if (handle) return stop();
+    if (left === 0) return;
+    handle = setInterval(() => {
+      left--;
+      if (left <= 0) {
+        left = 0;
+        stop();
+        if (currentDoc) recordSpoke(currentDoc.meta.id);
+        announce('Tiden er ute');
+      } else show();
+    }, 1000);
+    show();
+  });
+  reset.addEventListener('click', () => {
+    stop();
+    left = TOTAL;
+    show();
+  });
+  show();
+
+  // Leaving the view must not leave a ticking interval behind.
+  window.addEventListener('hashchange', stop, { once: true });
+
+  const after = document.createElement('p');
+  after.className = 'level-desc';
+  after.textContent = 'Etterpå: bytt til «Les» og sammenlikn med teksten.';
+  reader.append(after);
+}
+
+// --- review ------------------------------------------------------------
+//
+// Flip cards over the words the reader looked up. Norwegian on the front,
+// the full card on the back, two buttons. That is the whole feature.
+
+function showReview() {
+  document.body.dataset.view = 'review';
+  resetChrome();
+  document.getElementById('back').hidden = false;
+
+  const counts = reviewCounts();
+  setHeader('Øving', `${counts.due} å øve på nå · ${counts.learnt} lært`);
+
+  const main = document.getElementById('reader');
+  main.replaceChildren();
+  measureChrome();
+  window.scrollTo(0, 0);
+  announce('Øving');
+
+  const deck = dueLookups()
+    .map((r) => ({ ...r, hit: lookupEntry(lexicon, r.entryId) }))
+    .filter((r) => r.hit);
+
+  if (deck.length === 0) {
+    const p = document.createElement('p');
+    p.className = 'review-empty';
+    if (counts.total === 0) {
+      p.textContent = 'Ingen ord ennå. Les en tekst og trykk på ordene du ikke kan — de havner her.';
+    } else {
+      // Everything is scheduled for later: say when, so the learner knows
+      // that coming back tomorrow is the plan, not a bug.
+      p.textContent =
+        `Ingenting å øve på nå. ${counts.waiting} ord venter — neste ${describeWait(counts.nextDue)}.`;
+    }
+    main.append(p);
+    const a = document.createElement('a');
+    a.className = 'lookups-link';
+    a.href = '#/tekster';
+    a.textContent = 'Til tekstene →';
+    main.append(a);
+    return;
+  }
+
+  let i = 0;
+  const card = document.createElement('section');
+  card.className = 'flip';
+  main.append(card);
+
+  const progress = document.createElement('p');
+  progress.className = 'review-progress';
+  main.append(progress);
+
+  const show = () => {
+    card.replaceChildren();
+    if (i >= deck.length) {
+      const done = document.createElement('p');
+      done.className = 'review-empty';
+      done.textContent = 'Ferdig for nå.';
+      card.append(done);
+      const again = document.createElement('button');
+      again.type = 'button';
+      again.className = 'btn-quiet';
+      again.textContent = 'Gå gjennom igjen';
+      again.addEventListener('click', showReview);
+      card.append(again);
+      progress.textContent = '';
+      return;
+    }
+    const item = deck[i];
+    const { lemma, entry } = item.hit;
+    progress.textContent = `${i + 1} av ${deck.length}`;
+
+    const front = document.createElement('h2');
+    front.className = 'flip-word';
+    front.lang = 'nb';
+    front.textContent = headword(lemma, entry);
+    card.append(front);
+
+    const sp = speakButton(displayLemma(lemma, entry));
+    if (sp) card.append(sp);
+
+    const box = document.createElement('p');
+    box.className = 'flip-box';
+    const nextBox = Math.min(MAX_BOX, item.box + 1);
+    const days = INTERVALS_DAYS[nextBox];
+    box.textContent =
+      `boks ${item.box + 1} av ${MAX_BOX + 1} · kunne det: neste ` +
+      (days === 1 ? 'i morgen' : `om ${days} dager`);
+    card.append(box);
+
+    const back = document.createElement('div');
+    back.className = 'flip-back';
+    back.hidden = true;
+    const pos = document.createElement('p');
+    pos.className = 'card-pos';
+    pos.textContent = [POS_LABEL[entry.pos] || entry.pos, entry.gender].filter(Boolean).join(' · ');
+    const gloss = document.createElement('p');
+    gloss.className = 'card-gloss';
+    gloss.textContent = entry.gloss;
+    back.append(pos, gloss);
+    if (entry.forms) back.append(buildTable(entry, null));
+    card.append(back);
+
+    const actions = document.createElement('div');
+    actions.className = 'flip-actions';
+    const flip = document.createElement('button');
+    flip.type = 'button';
+    flip.className = 'btn-primary';
+    flip.textContent = 'Vis';
+    const knew = document.createElement('button');
+    knew.type = 'button';
+    knew.className = 'btn-primary';
+    knew.textContent = 'Kunne det';
+    knew.hidden = true;
+    const again = document.createElement('button');
+    again.type = 'button';
+    again.className = 'btn-quiet';
+    again.textContent = 'Øv mer';
+    again.hidden = true;
+    flip.addEventListener('click', () => {
+      back.hidden = false;
+      flip.hidden = true;
+      knew.hidden = false;
+      again.hidden = false;
+      knew.focus();
+    });
+    knew.addEventListener('click', () => {
+      markKnown(item.entryId);
+      i++;
+      show();
+    });
+    again.addEventListener('click', () => {
+      markAgain(item.entryId);
+      i++;
+      show();
+    });
+    actions.append(flip, knew, again);
+    card.append(actions);
+  };
+  show();
+}
+
 // --- corpus occurrences ------------------------------------------------
 
 /**
@@ -898,8 +1666,7 @@ async function buildOccurrences() {
   const docs = await Promise.all(
     index.paragraphs.map(async (meta) => {
       try {
-        const res = await fetch(PARAGRAPH_DIR + meta.file);
-        return res.ok ? { meta, doc: await res.json() } : null;
+        return { meta, doc: await fetchParagraph(meta) };
       } catch {
         return null;
       }
@@ -1034,12 +1801,18 @@ function openCard(node, el) {
     body.append(h);
   }
 
-  // 2. The dictionary headword.
+  // 2. The dictionary headword, with a speaker where the browser has one.
   const head = document.createElement('h2');
   head.className = 'card-headword';
   head.id = 'card-headword';
   head.textContent = headword(node.lemma, entry);
+  const sp = speakButton(displayLemma(node.lemma, entry), 'Uttale');
+  if (sp) head.append(' ', sp);
   body.append(head);
+
+  // Only taps in a text count as "looked up". Browsing the dictionary or a
+  // topic's word list is not a sign the word is unknown.
+  if (currentParaId && entry.id) recordLookup(entry.id, currentParaId);
 
   const pos = document.createElement('p');
   pos.className = 'card-pos';
@@ -1192,6 +1965,7 @@ function closeCard() {
     cardOpener.focus();
   }
   cardOpener = null;
+  refreshLookups();
 }
 
 function wireChrome() {
@@ -1202,9 +1976,27 @@ function wireChrome() {
     if (!document.getElementById('card').hidden) trapFocus(e);
   });
   document.getElementById('back').addEventListener('click', () => {
-    // A paragraph belongs to the text list; the other views hang off home.
-    location.hash = document.body.dataset.view === 'reader' ? '#/tekster' : '';
+    // A paragraph and a topic belong to the text list; the rest hang off home.
+    const view = document.body.dataset.view;
+    location.hash = view === 'reader' || view === 'topic' ? '#/tekster' : '';
   });
+}
+
+/**
+ * Offline support. The worker caches the shell and every JSON it sees, so a
+ * text read once on wifi still opens on the train. Registration is deferred to
+ * load so it never competes with the first content fetch, and it is skipped
+ * entirely outside a secure context (plain http on a LAN) and in the DOM shim.
+ */
+function registerServiceWorker() {
+  const sw = globalThis.navigator?.serviceWorker;
+  if (!sw || !globalThis.isSecureContext) return;
+  const register = () =>
+    sw.register('sw.js').catch((err) => console.warn('[norsk] sw registration failed', err));
+  // main() awaits two fetches before reaching here, so `load` has often
+  // already fired; waiting for it then would wait forever.
+  if (document.readyState === 'complete') register();
+  else window.addEventListener('load', register, { once: true });
 }
 
 /** Announce a view change to assistive tech without re-reading the text. */

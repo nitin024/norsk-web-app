@@ -920,6 +920,324 @@ body[data-view='home'] .reader {
   font-weight: 600;
 }
 
+/* --- progress ------------------------------------------------------------- */
+
+.badge-read {
+  color: var(--ink-faint);
+  background: var(--rule-soft);
+}
+
+.badge-done {
+  color: var(--bg);
+  background: var(--accent);
+}
+
+.home-status {
+  margin: var(--s-5) 0 0;
+  padding: var(--s-3) var(--s-1);
+}
+
+.home-stats {
+  margin: 0 0 var(--s-1);
+  font-size: var(--t-xs);
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+}
+
+.home-continue {
+  display: inline-block;
+  font-size: var(--t-md);
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.home-continue::after {
+  content: ' →';
+}
+
+/* --- topics, exam notes, modes ----------------------------------------- */
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin: 0 0 var(--s-5);
+}
+
+.level-title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.level-title-link::after {
+  content: ' →';
+  color: var(--ink-faint);
+}
+
+.para-level {
+  font-size: var(--t-xs);
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+
+.topic-desc {
+  margin: 0 0 var(--s-5);
+  font-size: var(--t-md);
+  color: var(--ink-soft);
+}
+
+.prompt-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.prompt-item {
+  padding: var(--s-3) 0;
+  border-top: 1px solid var(--rule-soft);
+}
+
+.prompt-src {
+  font-size: var(--t-xs);
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+}
+
+.prompt-text {
+  margin: var(--s-1) 0 0;
+  font-size: var(--t-sm);
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.word-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin: 0 0 var(--s-4);
+}
+
+.word-chip {
+  min-height: 36px;
+  padding: var(--s-1) var(--s-3);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--t-sm);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.word-chip.is-active,
+.word-chip:active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.exam-note {
+  margin: 0 0 var(--s-4);
+  padding: var(--s-3) var(--s-4);
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.exam-note:empty {
+  display: none;
+}
+
+.exam-note-topic {
+  display: inline-block;
+  font-size: var(--t-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.exam-note-text {
+  margin: var(--s-1) 0 0;
+  font-size: var(--t-sm);
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+/* Speaker buttons: quiet, inline, big enough to hit. */
+.speak {
+  display: inline-grid;
+  place-items: center;
+  min-width: 32px;
+  min-height: 32px;
+  margin-right: var(--s-1);
+  padding: 0 var(--s-1);
+  border: 0;
+  border-radius: var(--s-2);
+  background: none;
+  font: inherit;
+  font-size: var(--t-sm);
+  color: var(--ink-faint);
+  cursor: pointer;
+  vertical-align: middle;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.speak:active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.read-tools {
+  margin: 0 0 var(--s-3);
+}
+
+.speak-all {
+  min-height: 40px;
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid var(--rule);
+  color: var(--ink-soft);
+}
+
+.lookups {
+  margin-top: var(--s-6);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--rule-soft);
+}
+
+.lookups:empty {
+  display: none;
+}
+
+.lookups-link {
+  display: inline-block;
+  margin-top: var(--s-2);
+  color: var(--accent);
+  font-size: var(--t-sm);
+  text-decoration: none;
+}
+
+/* --- cloze --------------------------------------------------------------- */
+
+.cloze {
+  display: inline;
+  white-space: nowrap;
+}
+
+.cloze-input {
+  padding: 2px var(--s-1);
+  border: 0;
+  border-bottom: 2px solid var(--rule);
+  border-radius: 0;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  /* 16px minimum, or iOS Safari zooms the viewport on focus. */
+  font-size: 16px;
+  text-align: center;
+}
+
+.cloze-input:focus {
+  outline: none;
+  border-bottom-color: var(--accent);
+}
+
+.cloze-input.is-right {
+  border-bottom-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.cloze-input.is-wrong {
+  border-bottom-color: #b5473a;
+  text-decoration: line-through;
+}
+
+.cloze-hint {
+  margin-left: 2px;
+  font-size: var(--t-xs);
+  color: var(--ink-faint);
+}
+
+/* --- speaking timer ------------------------------------------------------- */
+
+.timer {
+  margin: var(--s-5) 0;
+  padding: var(--s-4);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: center;
+}
+
+.timer-clock {
+  margin: 0 0 var(--s-3);
+  font-size: var(--t-2xl);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.timer-clock.is-done {
+  color: var(--accent);
+}
+
+.timer .scratch-actions {
+  justify-content: center;
+}
+
+/* --- review ---------------------------------------------------------------- */
+
+.flip {
+  padding: var(--s-5) var(--s-4);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: center;
+}
+
+.flip-word {
+  margin: 0;
+  font-size: var(--t-2xl);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.flip-box {
+  margin: var(--s-1) 0 var(--s-4);
+  font-size: var(--t-xs);
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+
+.flip-back {
+  text-align: left;
+  margin-bottom: var(--s-4);
+}
+
+.flip-back .table {
+  width: 100%;
+}
+
+.flip-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--s-2);
+}
+
+.review-empty {
+  margin: 0 0 var(--s-3);
+  font-size: var(--t-md);
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.review-progress {
+  margin: var(--s-3) 0 0;
+  text-align: center;
+  font-size: var(--t-xs);
+  color: var(--ink-faint);
+}
+
 /* --- wide screens -----------------------------------------------------
    Not a stretched phone: the chrome moves to a left rail and the text keeps
    a readable measure instead of running the width of the window. */

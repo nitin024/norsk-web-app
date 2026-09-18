@@ -6648,6 +6648,758 @@
       },
       "note": "Unchanged in the indefinite plural. Distinct from the adjective «dyr» (expensive).",
       "headword": "dyr"
+    },
+    "soverom": {
+      "id": "soverom-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "bedroom",
+      "forms": {
+        "indefinite_sg": "soverom",
+        "definite_sg": "soverommet",
+        "indefinite_pl": "soverom",
+        "definite_pl": "soverommene"
+      }
+    },
+    "ved siden av": {
+      "id": "ved-siden-av-phr",
+      "pos": "phrase",
+      "phrase": true,
+      "gloss": "next to, beside"
+    },
+    "nærhet": {
+      "id": "nærhet-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "vicinity, closeness ('i nærheten' = nearby)",
+      "forms": {
+        "indefinite_sg": "nærhet",
+        "definite_sg": "nærheten",
+        "indefinite_pl": "nærheter",
+        "definite_pl": "nærhetene"
+      }
+    },
+    "hilse": {
+      "id": "hilse-v",
+      "pos": "verb",
+      "gloss": "to greet, to say hello",
+      "forms": {
+        "infinitive": "hilse",
+        "present": "hilser",
+        "preterite": "hilste",
+        "perfect": "hilst"
+      }
+    },
+    "trives": {
+      "id": "trives-v",
+      "pos": "verb",
+      "gloss": "to thrive, to enjoy being somewhere",
+      "note": "A deponent verb: the -s form is the only form. 'Jeg trives på jobben' = I like it at work.",
+      "forms": {
+        "infinitive": "trives",
+        "present": "trives",
+        "preterite": "trivdes",
+        "perfect": "trivdes"
+      }
+    },
+    "eie": {
+      "id": "eie-v",
+      "pos": "verb",
+      "gloss": "to own",
+      "forms": {
+        "infinitive": "eie",
+        "present": "eier",
+        "preterite": "eide",
+        "perfect": "eid"
+      }
+    },
+    "bolig": {
+      "id": "bolig-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "home, dwelling",
+      "forms": {
+        "indefinite_sg": "bolig",
+        "definite_sg": "boligen",
+        "indefinite_pl": "boliger",
+        "definite_pl": "boligene"
+      }
+    },
+    "leie": {
+      "id": "leie-v",
+      "pos": "verb",
+      "gloss": "to rent",
+      "forms": {
+        "infinitive": "leie",
+        "present": "leier",
+        "preterite": "leide",
+        "perfect": "leid"
+      }
+    },
+    "forsvinne": {
+      "id": "forsvinne-v",
+      "pos": "verb",
+      "gloss": "to disappear",
+      "forms": {
+        "infinitive": "forsvinne",
+        "present": "forsvinner",
+        "preterite": "forsvant",
+        "perfect": "forsvunnet"
+      }
+    },
+    "bygge opp": {
+      "id": "bygge-opp-phr",
+      "pos": "phrase",
+      "phrase": true,
+      "gloss": "to build up",
+      "forms": {
+        "infinitive": "bygge opp",
+        "present": "bygger opp",
+        "preterite": "bygde opp",
+        "perfect": "bygd opp"
+      }
+    },
+    "egen": {
+      "id": "egen-det",
+      "pos": "determiner",
+      "gloss": "own",
+      "forms": {
+        "masculine": "egen",
+        "feminine": "egen",
+        "neuter": "eget",
+        "plural": "egne"
+      }
+    },
+    "trygghet": {
+      "id": "trygghet-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "security, safety",
+      "forms": {
+        "indefinite_sg": "trygghet",
+        "definite_sg": "tryggheten",
+        "indefinite_pl": "tryggheter",
+        "definite_pl": "trygghetene"
+      }
+    },
+    "verdt": {
+      "id": "verdt-adj",
+      "pos": "adjective",
+      "gloss": "worth",
+      "forms": {
+        "positive": "verdt",
+        "neuter": "verdt",
+        "plural": "verdt"
+      }
+    },
+    "egenkapital": {
+      "id": "egenkapital-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "equity, own capital (for a mortgage)",
+      "forms": {
+        "indefinite_sg": "egenkapital",
+        "definite_sg": "egenkapitalen",
+        "indefinite_pl": "egenkapitaler",
+        "definite_pl": "egenkapitalene"
+      }
+    },
+    "rente": {
+      "id": "rente-n",
+      "pos": "noun",
+      "gender": "en/ei",
+      "gloss": "interest (rate)",
+      "forms": {
+        "indefinite_sg": "rente",
+        "definite_sg": "renten",
+        "definite_sg_fem": "renta",
+        "indefinite_pl": "renter",
+        "definite_pl": "rentene"
+      }
+    },
+    "stige": {
+      "id": "stige-v",
+      "pos": "verb",
+      "gloss": "to rise, to climb",
+      "forms": {
+        "infinitive": "stige",
+        "present": "stiger",
+        "preterite": "steg",
+        "perfect": "steget"
+      }
+    },
+    "komme an på": {
+      "id": "komme-an-på-phr",
+      "pos": "phrase",
+      "phrase": true,
+      "gloss": "to depend on",
+      "forms": {
+        "infinitive": "komme an på",
+        "present": "kommer an på",
+        "preterite": "kom an på",
+        "perfect": "kommet an på"
+      }
+    },
+    "samme": {
+      "id": "samme-det",
+      "pos": "determiner",
+      "gloss": "same"
+    },
+    "nær": {
+      "id": "nær-prep",
+      "pos": "preposition",
+      "gloss": "near, close to"
+    },
+    "leve": {
+      "id": "leve-v",
+      "pos": "verb",
+      "gloss": "to live",
+      "forms": {
+        "infinitive": "leve",
+        "present": "lever",
+        "preterite": "levde",
+        "perfect": "levd"
+      }
+    },
+    "sunn": {
+      "id": "sunn-adj",
+      "pos": "adjective",
+      "gloss": "healthy",
+      "forms": {
+        "positive": "sunn",
+        "neuter": "sunt",
+        "plural": "sunne",
+        "comparative": "sunnere",
+        "superlative": "sunnest"
+      }
+    },
+    "i stedet for": {
+      "id": "i-stedet-for-phr",
+      "pos": "phrase",
+      "phrase": true,
+      "gloss": "instead of"
+    },
+    "treningssenter": {
+      "id": "treningssenter-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "gym, fitness centre",
+      "forms": {
+        "indefinite_sg": "treningssenter",
+        "definite_sg": "treningssenteret",
+        "indefinite_pl": "treningssentre",
+        "definite_pl": "treningssentrene"
+      }
+    },
+    "sjelden": {
+      "id": "sjelden-adv",
+      "pos": "adverb",
+      "gloss": "rarely, seldom"
+    },
+    "brus": {
+      "id": "brus-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "soft drink, soda",
+      "forms": {
+        "indefinite_sg": "brus",
+        "definite_sg": "brusen",
+        "indefinite_pl": "bruser",
+        "definite_pl": "brusene"
+      }
+    },
+    "røyke": {
+      "id": "røyke-v",
+      "pos": "verb",
+      "gloss": "to smoke",
+      "forms": {
+        "infinitive": "røyke",
+        "present": "røyker",
+        "preterite": "røykte",
+        "perfect": "røykt"
+      }
+    },
+    "holde seg": {
+      "id": "holde-seg-phr",
+      "pos": "phrase",
+      "phrase": true,
+      "gloss": "to stay, to keep (oneself)",
+      "forms": {
+        "infinitive": "holde seg",
+        "present": "holder seg",
+        "preterite": "holdt seg",
+        "perfect": "holdt seg"
+      }
+    },
+    "ett": {
+      "id": "ett-num",
+      "pos": "numeral",
+      "gloss": "one (neuter form of 'en')"
+    },
+    "rett": {
+      "id": "rett-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "right (entitlement)",
+      "forms": {
+        "indefinite_sg": "rett",
+        "definite_sg": "retten",
+        "indefinite_pl": "retter",
+        "definite_pl": "rettene"
+      }
+    },
+    "fastlege": {
+      "id": "fastlege-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "GP, regular doctor",
+      "forms": {
+        "indefinite_sg": "fastlege",
+        "definite_sg": "fastlegen",
+        "indefinite_pl": "fastleger",
+        "definite_pl": "fastlegene"
+      }
+    },
+    "første": {
+      "id": "første-adj",
+      "pos": "adjective",
+      "gloss": "first",
+      "forms": {
+        "positive": "første",
+        "neuter": "første",
+        "plural": "første"
+      }
+    },
+    "kontakte": {
+      "id": "kontakte-v",
+      "pos": "verb",
+      "gloss": "to contact",
+      "forms": {
+        "infinitive": "kontakte",
+        "present": "kontakter",
+        "preterite": "kontaktet",
+        "perfect": "kontaktet"
+      }
+    },
+    "nett": {
+      "id": "nett-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "net; the internet ('på nettet')",
+      "forms": {
+        "indefinite_sg": "nett",
+        "definite_sg": "nettet",
+        "indefinite_pl": "nett",
+        "definite_pl": "nettene"
+      }
+    },
+    "direkte": {
+      "id": "direkte-adv",
+      "pos": "adverb",
+      "gloss": "directly, straight"
+    },
+    "spesialist": {
+      "id": "spesialist-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "specialist",
+      "forms": {
+        "indefinite_sg": "spesialist",
+        "definite_sg": "spesialisten",
+        "indefinite_pl": "spesialister",
+        "definite_pl": "spesialistene"
+      }
+    },
+    "henvise": {
+      "id": "henvise-v",
+      "pos": "verb",
+      "gloss": "to refer (to a specialist)",
+      "forms": {
+        "infinitive": "henvise",
+        "present": "henviser",
+        "preterite": "henviste",
+        "perfect": "henvist"
+      }
+    },
+    "historie": {
+      "id": "historie-n",
+      "pos": "noun",
+      "gender": "en/ei",
+      "gloss": "history; story",
+      "forms": {
+        "indefinite_sg": "historie",
+        "definite_sg": "historien",
+        "definite_sg_fem": "historia",
+        "indefinite_pl": "historier",
+        "definite_pl": "historiene"
+      }
+    },
+    "følge opp": {
+      "id": "følge-opp-phr",
+      "pos": "phrase",
+      "phrase": true,
+      "gloss": "to follow up",
+      "forms": {
+        "infinitive": "følge opp",
+        "present": "følger opp",
+        "preterite": "fulgte opp",
+        "perfect": "fulgt opp"
+      }
+    },
+    "legebesøk": {
+      "id": "legebesøk-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "doctor's visit",
+      "forms": {
+        "indefinite_sg": "legebesøk",
+        "definite_sg": "legebesøket",
+        "indefinite_pl": "legebesøk",
+        "definite_pl": "legebesøkene"
+      }
+    },
+    "gravid": {
+      "id": "gravid-adj",
+      "pos": "adjective",
+      "gloss": "pregnant",
+      "forms": {
+        "positive": "gravid",
+        "neuter": "gravid",
+        "plural": "gravide"
+      }
+    },
+    "system": {
+      "id": "system-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "system",
+      "forms": {
+        "indefinite_sg": "system",
+        "definite_sg": "systemet",
+        "indefinite_pl": "systemer",
+        "definite_pl": "systemene"
+      }
+    },
+    "trygg": {
+      "id": "trygg-adj",
+      "pos": "adjective",
+      "gloss": "safe, secure",
+      "forms": {
+        "positive": "trygg",
+        "neuter": "trygt",
+        "plural": "trygge",
+        "comparative": "tryggere",
+        "superlative": "tryggest"
+      }
+    },
+    "ventetid": {
+      "id": "ventetid-n",
+      "pos": "noun",
+      "gender": "en/ei",
+      "gloss": "waiting time",
+      "forms": {
+        "indefinite_sg": "ventetid",
+        "definite_sg": "ventetiden",
+        "definite_sg_fem": "ventetida",
+        "indefinite_pl": "ventetider",
+        "definite_pl": "ventetidene"
+      }
+    },
+    "norskkurs": {
+      "id": "norskkurs-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "Norwegian course",
+      "forms": {
+        "indefinite_sg": "norskkurs",
+        "definite_sg": "norskkurset",
+        "indefinite_pl": "norskkurs",
+        "definite_pl": "norskkursene"
+      }
+    },
+    "tolv": {
+      "id": "tolv-num",
+      "pos": "numeral",
+      "gloss": "twelve"
+    },
+    "forskjellig": {
+      "id": "forskjellig-adj",
+      "pos": "adjective",
+      "gloss": "different",
+      "forms": {
+        "positive": "forskjellig",
+        "neuter": "forskjellig",
+        "plural": "forskjellige"
+      }
+    },
+    "sakte": {
+      "id": "sakte-adv",
+      "pos": "adverb",
+      "gloss": "slowly"
+    },
+    "gruppe": {
+      "id": "gruppe-n",
+      "pos": "noun",
+      "gender": "en/ei",
+      "gloss": "group",
+      "forms": {
+        "indefinite_sg": "gruppe",
+        "definite_sg": "gruppen",
+        "definite_sg_fem": "gruppa",
+        "indefinite_pl": "grupper",
+        "definite_pl": "gruppene"
+      }
+    },
+    "tekst": {
+      "id": "tekst-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "text",
+      "forms": {
+        "indefinite_sg": "tekst",
+        "definite_sg": "teksten",
+        "indefinite_pl": "tekster",
+        "definite_pl": "tekstene"
+      }
+    },
+    "lur": {
+      "id": "lur-adj",
+      "pos": "adjective",
+      "gloss": "smart, clever ('det er lurt å' = it is wise to)",
+      "forms": {
+        "positive": "lur",
+        "neuter": "lurt",
+        "plural": "lure",
+        "comparative": "lurere",
+        "superlative": "lurest"
+      }
+    },
+    "mål": {
+      "id": "mål-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "goal, aim",
+      "forms": {
+        "indefinite_sg": "mål",
+        "definite_sg": "målet",
+        "indefinite_pl": "mål",
+        "definite_pl": "målene"
+      }
+    },
+    "vår (substantiv)": {
+      "id": "vår-n",
+      "pos": "noun",
+      "gender": "en",
+      "headword": "vår",
+      "gloss": "spring (season)",
+      "forms": {
+        "indefinite_sg": "vår",
+        "definite_sg": "våren",
+        "indefinite_pl": "vårer",
+        "definite_pl": "vårene"
+      }
+    },
+    "endre": {
+      "id": "endre-v",
+      "pos": "verb",
+      "gloss": "to change",
+      "forms": {
+        "infinitive": "endre",
+        "present": "endrer",
+        "preterite": "endret",
+        "perfect": "endret"
+      }
+    },
+    "kompetanse": {
+      "id": "kompetanse-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "competence, skills",
+      "forms": {
+        "indefinite_sg": "kompetanse",
+        "definite_sg": "kompetansen",
+        "indefinite_pl": "kompetanser",
+        "definite_pl": "kompetansene"
+      }
+    },
+    "utdatert": {
+      "id": "utdatert-adj",
+      "pos": "adjective",
+      "gloss": "outdated",
+      "forms": {
+        "positive": "utdatert",
+        "neuter": "utdatert",
+        "plural": "utdaterte"
+      }
+    },
+    "livslang": {
+      "id": "livslang-adj",
+      "pos": "adjective",
+      "gloss": "lifelong",
+      "forms": {
+        "positive": "livslang",
+        "neuter": "livslangt",
+        "plural": "livslange"
+      }
+    },
+    "læring": {
+      "id": "læring-n",
+      "pos": "noun",
+      "gender": "en/ei",
+      "gloss": "learning",
+      "forms": {
+        "indefinite_sg": "læring",
+        "definite_sg": "læringen",
+        "definite_sg_fem": "læringa",
+        "indefinite_pl": "læringer",
+        "definite_pl": "læringene"
+      }
+    },
+    "oppdatert": {
+      "id": "oppdatert-adj",
+      "pos": "adjective",
+      "gloss": "up to date",
+      "forms": {
+        "positive": "oppdatert",
+        "neuter": "oppdatert",
+        "plural": "oppdaterte"
+      }
+    },
+    "tjene": {
+      "id": "tjene-v",
+      "pos": "verb",
+      "gloss": "to earn ('tjene på' = to benefit from)",
+      "forms": {
+        "infinitive": "tjene",
+        "present": "tjener",
+        "preterite": "tjente",
+        "perfect": "tjent"
+      }
+    },
+    "gratis": {
+      "id": "gratis-adj",
+      "pos": "adjective",
+      "gloss": "free of charge",
+      "forms": {
+        "positive": "gratis",
+        "neuter": "gratis",
+        "plural": "gratis"
+      }
+    },
+    "full": {
+      "id": "full-adj",
+      "pos": "adjective",
+      "gloss": "full",
+      "forms": {
+        "positive": "full",
+        "neuter": "fullt",
+        "plural": "fulle"
+      }
+    },
+    "riktignok": {
+      "id": "riktignok-adv",
+      "pos": "adverb",
+      "gloss": "admittedly, it is true that"
+    },
+    "støtteordning": {
+      "id": "støtteordning-n",
+      "pos": "noun",
+      "gender": "en/ei",
+      "gloss": "support scheme, subsidy",
+      "forms": {
+        "indefinite_sg": "støtteordning",
+        "definite_sg": "støtteordningen",
+        "definite_sg_fem": "støtteordninga",
+        "indefinite_pl": "støtteordninger",
+        "definite_pl": "støtteordningene"
+      }
+    },
+    "blant": {
+      "id": "blant-prep",
+      "pos": "preposition",
+      "gloss": "among"
+    },
+    "stat": {
+      "id": "stat-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "state, government",
+      "forms": {
+        "indefinite_sg": "stat",
+        "definite_sg": "staten",
+        "indefinite_pl": "stater",
+        "definite_pl": "statene"
+      }
+    },
+    "eksempel": {
+      "id": "eksempel-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "example",
+      "forms": {
+        "indefinite_sg": "eksempel",
+        "definite_sg": "eksempelet",
+        "indefinite_pl": "eksempler",
+        "definite_pl": "eksemplene"
+      }
+    },
+    "permisjon": {
+      "id": "permisjon-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "leave (from work)",
+      "forms": {
+        "indefinite_sg": "permisjon",
+        "definite_sg": "permisjonen",
+        "indefinite_pl": "permisjoner",
+        "definite_pl": "permisjonene"
+      }
+    },
+    "alternativ": {
+      "id": "alternativ-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "alternative",
+      "forms": {
+        "indefinite_sg": "alternativ",
+        "definite_sg": "alternativet",
+        "indefinite_pl": "alternativer",
+        "definite_pl": "alternativene"
+      }
+    },
+    "falle ut": {
+      "id": "falle-ut-phr",
+      "pos": "phrase",
+      "phrase": true,
+      "gloss": "to drop out",
+      "forms": {
+        "infinitive": "falle ut",
+        "present": "faller ut",
+        "preterite": "falt ut",
+        "perfect": "falt ut"
+      }
+    },
+    "spansk": {
+      "id": "spansk-adj",
+      "pos": "adjective",
+      "gloss": "Spanish",
+      "note": "Also the name of the language: 'jeg snakker spansk'.",
+      "forms": {
+        "positive": "spansk",
+        "neuter": "spansk",
+        "plural": "spanske"
+      }
+    },
+    "engelsk": {
+      "id": "engelsk-adj",
+      "pos": "adjective",
+      "gloss": "English",
+      "note": "Also the name of the language: 'jeg snakker engelsk'.",
+      "forms": {
+        "positive": "engelsk",
+        "neuter": "engelsk",
+        "plural": "engelske"
+      }
     }
   },
   "$idComment": "Every entry carries a stable `id` (<lemma>-<pos>). Annotations and SRS state should reference the id, not the lemma string: lemmas get renamed and can collide across parts of speech, ids do not."

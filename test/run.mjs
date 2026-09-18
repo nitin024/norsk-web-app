@@ -19,7 +19,12 @@ const failures = [];
 
 function check(name, fn) {
   try {
-    fn();
+    const result = fn();
+    // An async callback would resolve after the report is printed, so its
+    // assertions could never fail the run. Refuse it loudly instead.
+    if (result && typeof result.then === 'function') {
+      throw new Error('check() callbacks must be synchronous');
+    }
     passed++;
   } catch (err) {
     failures.push({ name, message: err.message });
@@ -68,14 +73,14 @@ async function go(hash) {
 
 await go('');
 
-check('home: renders three destinations', () => {
+check('home: renders four destinations', () => {
   const links = reader().querySelectorAll('.home-link');
-  assert.equal(links.length, 3);
+  assert.equal(links.length, 4);
 });
 
 check('home: destinations point at the right routes', () => {
   const hrefs = reader().querySelectorAll('.home-link').map((a) => a.getAttribute('href'));
-  assert.equal(hrefs.join(','), '#/tekster,#/ordbok,#/skriv');
+  assert.equal(hrefs.join(','), '#/tekster,#/ordbok,#/ov,#/skriv');
 });
 
 check('home: back button is hidden (regression)', () => {
@@ -135,7 +140,7 @@ check('feedback: version in the mail matches the version shown', () => {
 
 await go('#/tekster');
 
-check('texts: lists every paragraph in the index', async () => {
+check('texts: lists every paragraph in the index', () => {
   const links = reader().querySelectorAll('.para-link');
   assert.atLeast(links.length, 13);
 });
@@ -147,6 +152,50 @@ check('texts: groups by level', () => {
 
 check('texts: back button is visible', () => {
   assert.equal($('back').hidden, false);
+});
+
+check('texts: grouping chips are rendered, level is default', () => {
+  const chips = reader().querySelectorAll('.chip');
+  assert.equal(chips.length, 2);
+  assert.equal(chips[0].getAttribute('aria-pressed'), 'true');
+  assert.equal(reader().querySelectorAll('.level-title-link').length, 0);
+});
+
+check('texts: switching to topics groups by declared topic with links', () => {
+  reader().querySelectorAll('.chip')[1].click();
+  const links = reader().querySelectorAll('.level-title-link');
+  assert.atLeast(links.length, 5, 'expected one heading link per topic');
+  assert.ok(links.every((a) => a.getAttribute('href').startsWith('#/tema/')));
+  assert.atLeast(reader().querySelectorAll('.para-level').length, 13, 'level badges shown per text');
+  reader().querySelectorAll('.chip')[0].click(); // restore default
+});
+
+// --- topic page --------------------------------------------------------
+
+await go('#/tema/arbeid');
+await new Promise((r) => setTimeout(r, 20)); // occurrence index fetches every text
+
+check('topic: lists its texts and key vocabulary', () => {
+  assert.equal(doc.body.dataset.view, 'topic');
+  assert.includes($('doc-title').textContent, 'Arbeid');
+  assert.equal(reader().querySelectorAll('.para-link').length, 3);
+  assert.atLeast(reader().querySelectorAll('.word-chip').length, 5, 'key words missing');
+});
+
+check('topic: shows the speaking prompts of its texts', () => {
+  assert.atLeast(reader().querySelectorAll('.prompt-item').length, 2);
+});
+
+check('topic: a key word opens the card', () => {
+  reader().querySelector('.word-chip').click();
+  assert.equal($('card').hidden, false);
+  $('card-close').click();
+});
+
+check('topic: unknown topic falls back to home', () => {
+  globalThis.location.hash = '#/tema/nope';
+  doc.dispatch('hashchange');
+  assert.equal(doc.body.dataset.view, 'home');
 });
 
 // --- dictionary --------------------------------------------------------
@@ -282,6 +331,17 @@ check('reader: title is shown in the topbar', () => {
   assert.includes($('doc-title').textContent, 'barnehagen');
 });
 
+check('reader: exam note box links to the topic', () => {
+  const link = reader().querySelector('.exam-note-topic');
+  assert.ok(link, 'topic link missing');
+  assert.equal(link.getAttribute('href'), '#/tema/hverdag');
+});
+
+check('reader: mode chips offer read, cloze and speak', () => {
+  const chips = reader().querySelectorAll('.chip').map((c) => c.textContent);
+  assert.equal(chips.join(','), 'Les,Fyll inn,Snakk');
+});
+
 // --- word card ---------------------------------------------------------
 
 check('card: shows the gloss even when the list hides it', () => {
@@ -321,6 +381,158 @@ check('card: closes and restores state', () => {
   assert.equal($('card-scrim').hidden, true);
 });
 
+check('reader: looked-up words are listed under the text', () => {
+  const chips = reader().querySelector('.lookups').querySelectorAll('.word-chip');
+  assert.atLeast(chips.length, 1, 'tapping a word should add it to the list');
+  assert.ok(chips.some((c) => c.textContent.includes('gå')));
+});
+
+// --- cloze -------------------------------------------------------------
+
+check('cloze: blanks content words with the base form as hint', () => {
+  reader().querySelectorAll('.chip').find((c) => c.textContent === 'Fyll inn').click();
+  const inputs = reader().querySelectorAll('.cloze-input');
+  assert.atLeast(inputs.length, 5, 'expected blanks');
+  assert.ok(inputs.every((i) => i.dataset.answer.length >= 4));
+  assert.atLeast(reader().querySelectorAll('.cloze-hint').length, inputs.length);
+  assert.equal(reader().querySelectorAll('.w').length, 0, 'no tappable words in cloze mode');
+});
+
+check('cloze: grading marks right and wrong answers', () => {
+  const inputs = reader().querySelectorAll('.cloze-input');
+  inputs[0].value = inputs[0].dataset.answer.toUpperCase();
+  inputs[1].value = 'xxxx';
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Sjekk').click();
+  assert.ok(inputs[0].classList.contains('is-right'), 'case-insensitive match should pass');
+  assert.ok(inputs[1].classList.contains('is-wrong'));
+  assert.includes(reader().querySelector('.scratch-stats').textContent, 'riktige');
+});
+
+check('cloze: reveal fills every blank correctly', () => {
+  reader().querySelectorAll('.btn-quiet').find((b) => b.textContent === 'Vis fasit').click();
+  const inputs = reader().querySelectorAll('.cloze-input');
+  assert.ok(inputs.every((i) => i.classList.contains('is-right')));
+});
+
+// --- speaking practice -------------------------------------------------
+
+check('speak: shows key words and a two-minute timer', () => {
+  reader().querySelectorAll('.chip').find((c) => c.textContent === 'Snakk').click();
+  assert.atLeast(reader().querySelectorAll('.word-chip').length, 5);
+  assert.equal(reader().querySelector('.timer-clock').textContent, '2:00');
+  assert.equal(reader().querySelectorAll('.sentence').length, 0, 'text is hidden while speaking');
+});
+
+check('speak: switching back to read restores the text', () => {
+  reader().querySelectorAll('.chip').find((c) => c.textContent === 'Les').click();
+  assert.atLeast(reader().querySelectorAll('.sentence').length, 5);
+});
+
+// --- review ------------------------------------------------------------
+
+await go('#/ov');
+
+check('review: deck holds the words looked up in the reader', () => {
+  assert.equal(doc.body.dataset.view, 'review');
+  const word = reader().querySelector('.flip-word');
+  assert.ok(word, 'no flip card');
+  assert.includes(reader().querySelector('.review-progress').textContent, 'av');
+});
+
+check('review: flip reveals gloss, then grading advances', () => {
+  const before = reader().querySelector('.flip-word').textContent;
+  assert.equal(reader().querySelector('.flip-back').hidden, true);
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Vis').click();
+  assert.equal(reader().querySelector('.flip-back').hidden, false);
+  assert.ok(reader().querySelector('.flip-back').querySelector('.card-gloss').textContent.length > 0);
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Kunne det').click();
+  const after = reader().querySelector('.flip-word')?.textContent ?? reader().querySelector('.review-empty').textContent;
+  assert.ok(after !== before, 'deck should advance');
+});
+
+const reviewStore = () => JSON.parse(globalThis.localStorage.getItem('norsk:review'));
+const reopenReview = () => {
+  globalThis.location.hash = '';
+  doc.dispatch('hashchange');
+  globalThis.location.hash = '#/ov';
+  doc.dispatch('hashchange');
+};
+
+check('review: "Kunne det" schedules the word for later and it leaves today\'s deck', () => {
+  globalThis.localStorage.setItem('norsk:review', JSON.stringify({ 'gå-v': { n: 1, box: 0, last: 1, due: 1, para: 'barnehagen' } }));
+  reopenReview();
+  assert.includes($('doc-meta').textContent, '1 å øve på nå');
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Vis').click();
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Kunne det').click();
+  const r = reviewStore()['gå-v'];
+  assert.equal(r.box, 1);
+  const day = 24 * 60 * 60 * 1000;
+  assert.ok(r.due > Date.now() + day - 5000 && r.due <= Date.now() + day, 'box 1 is due in one day');
+  reopenReview();
+  assert.includes($('doc-meta').textContent, '0 å øve på nå');
+  const empty = reader().querySelector('.review-empty');
+  assert.ok(empty, 'empty state expected');
+  assert.includes(empty.textContent, '1 ord venter');
+  assert.includes(empty.textContent, 'i morgen');
+});
+
+check('review: box 4 counts as learnt but still comes back when due', () => {
+  globalThis.localStorage.setItem('norsk:review', JSON.stringify({ 'gå-v': { n: 1, box: 3, last: 1, due: 1, para: 'barnehagen' } }));
+  reopenReview();
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Vis').click();
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Kunne det').click();
+  reopenReview();
+  assert.includes($('doc-meta').textContent, '0 å øve på nå · 1 lært');
+  // Time passes: force the due date into the past and it is back in the deck.
+  const data = reviewStore();
+  data['gå-v'].due = Date.now() - 1000;
+  globalThis.localStorage.setItem('norsk:review', JSON.stringify(data));
+  reopenReview();
+  assert.includes($('doc-meta').textContent, '1 å øve på nå · 1 lært');
+});
+
+check('review: "Øv mer" drops a word back to box 0, due now', () => {
+  globalThis.localStorage.setItem('norsk:review', JSON.stringify({ 'gå-v': { n: 1, box: 3, last: 1, due: 1, para: 'barnehagen' } }));
+  reopenReview();
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Vis').click();
+  reader().querySelectorAll('.btn-quiet').find((b) => b.textContent === 'Øv mer').click();
+  const r = reviewStore()['gå-v'];
+  assert.equal(r.box, 0);
+  assert.ok(r.due <= Date.now());
+});
+
+check('review: records saved before scheduling existed are treated as due', () => {
+  globalThis.localStorage.setItem('norsk:review', JSON.stringify({ 'gå-v': { n: 1, box: 1, last: 1, para: 'barnehagen' } }));
+  reopenReview();
+  assert.includes($('doc-meta').textContent, '1 å øve på nå');
+});
+
+check('review: looking a scheduled word up again resets it to box 0', () => {
+  globalThis.localStorage.setItem('norsk:review', JSON.stringify({ 'gå-v': { n: 1, box: 3, last: 1, due: Date.now() + 1e9, para: 'barnehagen' } }));
+  globalThis.location.hash = '#/barnehagen';
+  doc.dispatch('hashchange');
+});
+
+await new Promise((r) => setImmediate(r));
+
+check('review: (continued) the reader tap is recorded as a reset', () => {
+  reader().querySelectorAll('.w').find((w) => w.getAttribute('data-lemma') === 'gå').click();
+  $('card-close').click();
+  const r = reviewStore()['gå-v'];
+  assert.equal(r.box, 0);
+  assert.ok(r.due <= Date.now());
+  assert.equal(r.n, 2);
+});
+
+check('review: empty store shows the onboarding text', () => {
+  globalThis.localStorage.removeItem('norsk:review');
+  globalThis.location.hash = '';
+  doc.dispatch('hashchange');
+  globalThis.location.hash = '#/ov';
+  doc.dispatch('hashchange');
+  assert.includes(reader().querySelector('.review-empty').textContent, 'Ingen ord');
+});
+
 // --- scratch -----------------------------------------------------------
 
 await go('#/skriv');
@@ -353,9 +565,93 @@ check('scratch: unknown word opens a stub card', () => {
   $('card-close').click();
 });
 
+// --- progress ----------------------------------------------------------
+
+const progress = () => JSON.parse(globalThis.localStorage.getItem('norsk:progress') ?? '{}');
+
+await go('#/jobben');
+
+check('progress: opening a text records it', () => {
+  const r = progress().jobben;
+  assert.ok(r, 'no record for jobben');
+  assert.atLeast(r.opens, 1);
+  assert.ok(r.first > 0 && r.last >= r.first);
+});
+
+check('progress: a graded cloze stores the best score, reveal does not', () => {
+  reader().querySelectorAll('.chip').find((c) => c.textContent === 'Fyll inn').click();
+  const inputs = reader().querySelectorAll('.cloze-input');
+  inputs[0].value = inputs[0].dataset.answer;
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Sjekk').click();
+  assert.equal(progress().jobben.cloze.best, 1);
+  assert.equal(progress().jobben.cloze.total, inputs.length);
+  reader().querySelectorAll('.btn-quiet').find((b) => b.textContent === 'Vis fasit').click();
+  assert.equal(progress().jobben.cloze.best, 1, 'revealing must not count as an attempt');
+});
+
+check('progress: the mode is remembered and restored on reopen', () => {
+  assert.equal(progress().jobben.mode, 'cloze');
+  globalThis.location.hash = '#/tekster';
+  doc.dispatch('hashchange');
+  globalThis.location.hash = '#/jobben';
+  doc.dispatch('hashchange');
+});
+
+await new Promise((r) => setImmediate(r));
+
+check('progress: reopened text lands in the saved mode', () => {
+  const on = reader().querySelectorAll('.chip').find((c) => c.getAttribute('aria-pressed') === 'true');
+  assert.equal(on.textContent, 'Fyll inn');
+  assert.atLeast(reader().querySelectorAll('.cloze-input').length, 1);
+});
+
+await go('#/tekster');
+
+check('progress: list marks read texts and the last one', () => {
+  const badgeFor = (id) => {
+    const a = reader().querySelectorAll('.para-link').find((l) => l.getAttribute('href') === `#/${id}`);
+    return a.querySelector('.badge')?.textContent ?? '';
+  };
+  assert.equal(badgeFor('jobben'), 'sist lest');
+  assert.equal(badgeFor('barnehagen'), 'lest');
+  assert.equal(badgeFor('miljo'), '', 'unopened text has no badge');
+});
+
+check('progress: finished = full cloze + speaking timer completed', () => {
+  const data = progress();
+  data.barnehagen = { ...data.barnehagen, spoke: true, cloze: { best: 4, total: 4 } };
+  globalThis.localStorage.setItem('norsk:progress', JSON.stringify(data));
+  globalThis.location.hash = '';
+  doc.dispatch('hashchange');
+  globalThis.location.hash = '#/tekster';
+  doc.dispatch('hashchange');
+  const a = reader().querySelectorAll('.para-link').find((l) => l.getAttribute('href') === '#/barnehagen');
+  assert.equal(a.querySelector('.badge').textContent, '✓ ferdig');
+});
+
+await go('');
+
+check('progress: home shows the summary and a continue link in the saved mode', () => {
+  assert.includes($('reader').querySelector('.home-stats').textContent, 'tekster lest');
+  assert.includes($('reader').querySelector('.home-stats').textContent, '1 ferdig');
+  const cont = $('reader').querySelector('.home-continue');
+  assert.ok(cont, 'continue link missing');
+  assert.equal(cont.getAttribute('href'), '#/jobben');
+  assert.includes(cont.textContent, 'Fyll inn');
+});
+
+check('progress: home without any history shows no status block', () => {
+  globalThis.localStorage.removeItem('norsk:progress');
+  globalThis.location.hash = '#/tekster';
+  doc.dispatch('hashchange');
+  globalThis.location.hash = '';
+  doc.dispatch('hashchange');
+  assert.equal($('reader').querySelector('.home-status'), null);
+});
+
 // --- chrome invariants -------------------------------------------------
 
-check('chrome: each view hides the others’ controls', async () => {
+check('chrome: each view hides the others’ controls', () => {
   // dictionary -> reader must not leave the search box behind
   const seen = [];
   for (const [hash, expectDict, expectScratch] of [

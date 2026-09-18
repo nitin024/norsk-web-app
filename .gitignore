@@ -20,3 +20,9 @@
 # Local scratch — drafts not yet added to data/index.json
 scratch/
 *.draft.json
+
+# Authoring tool dependency (tools/generate.mjs)
+node_modules/
+
+# API key for tools/generate.mjs — never committed
+.env

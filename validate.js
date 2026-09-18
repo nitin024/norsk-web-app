@@ -13,22 +13,36 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseParagraph, buildFormIndex } from './parser.js';
 
+// A colliding surface form is only safe where it is explicitly annotated.
+// Strip every annotation from the line first, then look for the form standing
+// bare — an annotated occurrence must not count as a safe hit. Phrase spans
+// go too: their words resolve through the phrase entry ("siden" in
+// [ved siden av] is not the adverb), and any non-phrase word left inside a
+// discontinuous span is still checked by the parser diagnostics above.
+const stripAnnotations = (line) =>
+  line
+    .replace(/\[[^\[\]]*\](?:\([^()]*\))?/g, ' ')
+    .replace(/\{[^{}]*\}/g, ' ')
+    .replace(/<[^<>]*>/g, ' ');
+
 // --- draft mode --------------------------------------------------------
 // `node validate.js --draft data/paragraphs/ny.json` reports what a
 // work-in-progress paragraph still needs: missing lexicon entries (with
 // paste-ready stubs) and bare words that are ambiguous.
 
+import { lexiconStub, guessLemma } from './stub.js';
+
+// The word-level stub generators. `lexiconStub` is shared with the scratch
+// card in the app so the two never drift: every stub carries the `id` that
+// the lexicon-id check below insists on.
 const STUBS = {
-  noun: (l) =>
-    `"${l}": { "pos": "noun", "gender": "en", "gloss": "", "forms": { "indefinite_sg": "${l}", "definite_sg": "${l}en", "indefinite_pl": "${l}er", "definite_pl": "${l}ene" } }`,
-  determiner: (l) => `"${l}": { "pos": "determiner", "gloss": "" }`,
-  pronoun: (l) => `"${l}": { "pos": "pronoun", "gloss": "" }`,
-  verb: (l) =>
-    `"${l}": { "pos": "verb", "gloss": "", "forms": { "infinitive": "${l}", "present": "${l}r", "preterite": "${l}te", "perfect": "${l}t" } }`,
-  adjective: (l) =>
-    `"${l}": { "pos": "adjective", "gloss": "", "forms": { "positive": "${l}", "neuter": "${l}t", "plural": "${l}e" } }`,
-  phrase: (l) => `"${l}": { "pos": "phrase", "phrase": true, "gloss": "" }`,
-  other: (l) => `"${l}": { "pos": "adverb", "gloss": "" }`,
+  noun: (l) => lexiconStub(l, 'noun'),
+  determiner: (l) => lexiconStub(l, 'determiner'),
+  pronoun: (l) => lexiconStub(l, 'pronoun'),
+  verb: (l) => lexiconStub(l, 'verb'),
+  adjective: (l) => lexiconStub(l, 'adjective'),
+  phrase: (l) => lexiconStub(l, 'phrase'),
+  other: (l) => lexiconStub(l, 'adverb'),
 };
 
 function runDraft(target) {
@@ -41,17 +55,21 @@ function runDraft(target) {
   // right than a bare adverb. Wrong guesses are cheap — you edit the stub.
   const guessPos = (word) => {
     if (word.includes(' ')) return 'phrase';
-    if (/(ere|ere|ne|re)$/.test(word) && /(er|re)$/.test(word)) return 'verb';
+    // Derivational noun and adjective suffixes are the most reliable signal,
+    // so they go before the verb guess: "utdanning" ends in -ing, not -er.
     if (/(else|ing|het|sjon|dom|skap)$/.test(word)) return 'noun';
     if (/(lig|som|full|løs|bar|isk)$/.test(word)) return 'adjective';
-    if (/(er|ere|te|de)$/.test(word)) return 'verb';
+    // -er / -te / -de are the present and preterite endings; what the draft
+    // saw was probably an inflected verb.
+    if (/(er|te|de)$/.test(word)) return 'verb';
     return 'noun';
   };
 
   const missing = new Map();
   for (const d of diagnostics) {
     if (d.kind === 'unresolved') {
-      const w = d.surface.toLowerCase();
+      // Propose the base form, not the inflected one that was seen.
+      const w = guessLemma(d.surface.toLowerCase()).lemma;
       missing.set(w, guessPos(w));
     } else if (d.kind === 'missing-lemma' || d.kind === 'unknown-phrase') {
       const w = d.lemma ?? d.surface;
@@ -62,7 +80,7 @@ function runDraft(target) {
   // Bare words in the source that resolve, but ambiguously.
   const ambiguous = new Map();
   for (const line of doc.body) {
-    const bare = line.replace(/\{[^{}]*\}/g, ' ').replace(/<[^<>]*>/g, ' ');
+    const bare = stripAnnotations(line);
     for (const m of bare.matchAll(/[\p{L}][\p{L}\d'’-]*/gu)) {
       const hits = index.get(m[0].toLowerCase());
       if (hits && hits.length > 1) {
@@ -193,6 +211,7 @@ const paragraphs = paragraphFiles.map((path) => ({
 const index = JSON.parse(readFileSync(INDEX_PATH, 'utf8'));
 const onDisk = new Set(paragraphFiles.map((p) => p.split('/').pop()));
 const declaredLevels = new Set(index.levels.map((l) => l.level));
+const declaredTopics = new Set((index.topics ?? []).map((t) => t.id));
 const seenIds = new Set();
 
 for (const item of index.paragraphs) {
@@ -203,6 +222,13 @@ for (const item of index.paragraphs) {
   seenIds.add(item.id);
   if (!declaredLevels.has(item.level)) {
     err('index', `"${item.id}" has level "${item.level}", which index.json does not declare`);
+  }
+  // Topic pages are built from this field; an undeclared topic is a text
+  // that no topic page can reach.
+  if (!item.topic) {
+    err('index', `"${item.id}" has no topic`);
+  } else if (!declaredTopics.has(item.topic)) {
+    err('index', `"${item.id}" has topic "${item.topic}", which index.json does not declare`);
   }
 }
 
@@ -220,6 +246,9 @@ for (const { path, doc } of paragraphs) {
   }
   if (entry && entry.level !== doc.level) {
     err('index', `${path}: doc level "${doc.level}" does not match index level "${entry.level}"`);
+  }
+  if (entry && doc.topic !== entry.topic) {
+    err('index', `${path}: doc topic "${doc.topic}" does not match index topic "${entry.topic}"`);
   }
 }
 
@@ -364,10 +393,7 @@ for (const { path, doc } of paragraphs) {
   }
 }
 
-// A colliding surface form is only safe where it is explicitly annotated.
-// Strip every {...} annotation from the line first, then look for the form
-// standing bare — an annotated occurrence must not count as a safe hit.
-const stripAnnotations = (line) => line.replace(/\{[^{}]*\}/g, ' ');
+
 const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 for (const [surface, lemmas] of collisions) {
@@ -393,11 +419,20 @@ for (const [surface, lemmas] of collisions) {
 }
 
 // --- 4. unused entries -------------------------------------------------
+// Hundreds of entries are unused by design — the dictionary is meant to run
+// ahead of the texts — so listing each one buries the warnings that matter.
+// Report a count by default; `--unused` prints the list.
 
-for (const lemma of Object.keys(lexicon.entries)) {
-  if (!usedLemmas.has(lemma)) {
+const unused = Object.keys(lexicon.entries).filter((lemma) => !usedLemmas.has(lemma));
+if (process.argv.includes('--unused')) {
+  for (const lemma of unused) {
     warn('unused-entry', `"${lemma}" is in the lexicon but no paragraph uses it`);
   }
+} else if (unused.length > 0) {
+  warn(
+    'unused-entry',
+    `${unused.length} lexicon entries are used by no paragraph (run with --unused to list them)`
+  );
 }
 
 // --- report ------------------------------------------------------------

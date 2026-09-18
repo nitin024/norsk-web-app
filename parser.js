@@ -35,8 +35,16 @@ const LITERAL = /^<([^<>]+)>/;
 const PHRASE_LEMMA = /^\(([^()]+)\)/;
 const WORD = /^[\p{L}][\p{L}\d'’-]*/u;
 
+// Per-lexicon caches. The lexicon object is loaded once and never mutated, so
+// a WeakMap keyed on it lets every parse and lookup share one index instead of
+// rebuilding a 640-entry map per paragraph, per card, per keystroke.
+const formIndexCache = new WeakMap();
+const idIndexCache = new WeakMap();
+
 /** Build surface-form -> [{lemma, id, formName}] index for auto-resolution. */
 export function buildFormIndex(lexicon) {
+  const cached = formIndexCache.get(lexicon);
+  if (cached) return cached;
   const index = new Map();
   const add = (surface, lemma, id, formName) => {
     const key = surface.toLowerCase();
@@ -51,7 +59,20 @@ export function buildFormIndex(lexicon) {
       if (surface !== lemma) add(surface, lemma, entry.id, formName);
     }
   }
+  formIndexCache.set(lexicon, index);
   return index;
+}
+
+/** entry.id -> { lemma, entry }, built once per lexicon. */
+function idIndex(lexicon) {
+  let map = idIndexCache.get(lexicon);
+  if (map) return map;
+  map = new Map();
+  for (const [lemma, entry] of Object.entries(lexicon.entries)) {
+    if (entry.id && !map.has(entry.id)) map.set(entry.id, { lemma, entry });
+  }
+  idIndexCache.set(lexicon, map);
+  return map;
 }
 
 /**
@@ -62,10 +83,7 @@ export function buildFormIndex(lexicon) {
 export function lookupEntry(lexicon, ref) {
   const direct = lexicon.entries[ref];
   if (direct) return { lemma: ref, entry: direct };
-  for (const [lemma, entry] of Object.entries(lexicon.entries)) {
-    if (entry.id === ref) return { lemma, entry };
-  }
-  return null;
+  return idIndex(lexicon).get(ref) ?? null;
 }
 
 /**
