@@ -35,6 +35,13 @@ Where the app stands and what is left. Delete a line when it ships.
   before this app has fetched its lexicon) or `--virtual-time-budget` (under
   which the module intermittently never evaluated). Unique debug port and
   profile per run, killed hard on exit. 16 checks, ~4s, no flakes.
+- **Reading chrome out of the way.** The mode chips moved from above the text
+  into their own bar docked over the tab bar, and the exam note collapses to
+  its label. Scrolling down in a text slides both bars away; any scroll up or
+  reaching the bottom brings them back. Only the reader hides them.
+- **Progress rings.** Each level on the course page carries an SVG ring that
+  fills as steps complete, labelled with the level inside it and a checkmark
+  when finished. Animates on arrival, respects reduced motion.
 - **Swipe the word card away.** On phones the sheet follows the finger, rubber
   bands upward, and dismisses past 110px or on a fast flick; a drag starting on
   a control or on a scrolled sheet is ignored. Desktop keeps the centred dialog.
@@ -50,25 +57,18 @@ None.
 
 Ordered by how much they change daily use.
 
-1. **Show progress as a ring, not a sentence.** "3 av 13 tekster lest" reads as
-   data. A small ring per level on the course page, filling as steps complete,
-   is read at a glance.
-2. **Group the reader's mode chips with the text, not above it.** They
-   currently sit between the exam note and the text, pushing the Norwegian
-   down. Moving them to a sticky footer bar keeps the text at the top where
-   the eye starts.
-3. **One accent colour for "you did this".** Right now green means active
+1. **One accent colour for "you did this".** Right now green means active
    word, correct answer, done step and current tab. Split into two: accent for
    interactive, a muted green only for completion.
-4. **Let the dictionary jump by letter.** A thin A–Å rail down the right edge
+2. **Let the dictionary jump by letter.** A thin A–Å rail down the right edge
    for 1080 entries, the way a phone contact list works.
-5. **Show the review queue as a stack.** One card floating over the next two
+3. **Show the review queue as a stack.** One card floating over the next two
    gives a sense of how much is left without a counter.
-6. **Long-press a word to hear it** without opening the card, for reading
+4. **Long-press a word to hear it** without opening the card, for reading
    aloud along with the text.
-7. **Dark mode contrast pass.** The muted ink on dark backgrounds sits near the
+5. **Dark mode contrast pass.** The muted ink on dark backgrounds sits near the
    accessibility floor in a few places (`--ink-faint` on `--surface`).
-8. **A real empty state for Egen tekst.** A short example paste and one line
+6. **A real empty state for Egen tekst.** A short example paste and one line
     saying what it does, instead of a blank box.
 
 ## Pending features

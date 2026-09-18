@@ -1473,6 +1473,26 @@ body[data-view='home'] .reader {
   display: none;
 }
 
+.exam-note-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+.exam-note-toggle {
+  flex: 0 0 auto;
+  padding: 2px var(--s-2);
+  border: 0;
+  border-radius: var(--s-2);
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: var(--t-xs);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
 .exam-note-topic {
   display: inline-block;
   font-size: var(--t-xs);
@@ -1700,10 +1720,58 @@ body[data-view='home'] .reader {
   }
 }
 
+/* --- the reading mode bar ------------------------------------------------
+   Sits directly above the tab bar, so the text owns the top of the screen.
+   On a wide screen there is no tab bar, so it sits on the bottom itself. */
+
+.mode-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+  z-index: 6;
+  display: flex;
+  justify-content: center;
+  padding: var(--s-2) var(--s-4);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  border-top: 1px solid var(--rule-soft);
+  transition: transform 200ms ease, opacity 200ms ease;
+}
+
+/* Slid away while scrolling down. Both bars move together, and the mode bar
+   travels far enough to clear the tab bar beneath it. */
+.bars-hidden .mode-bar {
+  transform: translateY(calc(100% + var(--tabbar-h) + env(safe-area-inset-bottom)));
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mode-bar .chip-row {
+  margin: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.mode-bar .chip-row::-webkit-scrollbar {
+  display: none;
+}
+
+/* The reader must scroll clear of both bars. */
+body[data-view='reader'] .reader {
+  padding-bottom: calc(30vh + var(--s-7));
+}
+
 /* --- bottom tab bar ------------------------------------------------------
    Phone navigation: the four destinations that carry the daily use, one tap
    from anywhere. Hidden at 900px and up, where the topbar and the home page
    already do this job. */
+
+:root {
+  --tabbar-h: 56px;
+}
 
 .tabbar {
   position: fixed;
@@ -1718,6 +1786,18 @@ body[data-view='home'] .reader {
   -webkit-backdrop-filter: saturate(180%) blur(12px);
   border-top: 1px solid var(--rule-soft);
   padding-bottom: env(safe-area-inset-bottom);
+  transition: transform 200ms ease;
+}
+
+.bars-hidden .tabbar {
+  transform: translateY(100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mode-bar,
+  .tabbar {
+    transition: none;
+  }
 }
 
 .tab {
@@ -1783,6 +1863,10 @@ body:not([data-view='home']) .reader {
 @media (min-width: 900px) {
   .tabbar {
     display: none;
+  }
+
+  .mode-bar {
+    bottom: 0;
   }
 
   .reader,

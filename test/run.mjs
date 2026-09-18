@@ -61,6 +61,13 @@ await new Promise((r) => setImmediate(r));
 
 const $ = (id) => doc.getElementById(id);
 const reader = () => $('reader');
+/** The reading-mode chips live in their own bar, not inside #reader. */
+const modeChips = () => $('mode-bar').querySelectorAll('.chip');
+const pickMode = (label) => {
+  const chip = modeChips().find((c) => c.textContent === label);
+  if (!chip) throw new Error(`no mode chip "${label}" (have: ${modeChips().map((c) => c.textContent).join(',')})`);
+  chip.click();
+};
 
 /** Drive the router the way a hash change would. */
 async function go(hash) {
@@ -425,6 +432,45 @@ check('reader: title is shown in the topbar', () => {
   assert.includes($('doc-title').textContent, 'barnehagen');
 });
 
+check('reader: the mode bar shows only while a text is open', () => {
+  assert.equal($('mode-bar').hidden, false, 'bar should show in the reader');
+  assert.equal(reader().querySelectorAll('.chip').length, 0, 'chips are not inside the text');
+  globalThis.location.hash = '#/ordbok';
+  doc.dispatch('hashchange');
+  assert.equal($('mode-bar').hidden, true, 'bar must not linger on other views');
+  globalThis.location.hash = '#/barnehagen';
+  doc.dispatch('hashchange');
+});
+
+await new Promise((r) => setImmediate(r));
+
+check('reader: a text without an exam note gets no toggle', () => {
+  // barnehagen has no examNote, so the box is just the topic link.
+  const note = reader().querySelector('.exam-note');
+  assert.ok(note, 'box should still carry the topic link');
+  assert.equal(note.querySelectorAll('.exam-note-toggle').length, 0);
+  assert.equal(note.querySelectorAll('.exam-note-text').length, 0);
+});
+
+await go('#/jobben');
+
+check('reader: the exam note collapses and the choice persists', () => {
+  const note = reader().querySelector('.exam-note');
+  const text = note.querySelector('.exam-note-text');
+  const toggle = note.querySelector('.exam-note-toggle');
+  assert.ok(toggle, 'toggle missing');
+  assert.equal(text.hidden, false, 'open by default');
+  assert.equal(toggle.textContent, 'Skjul');
+  toggle.click();
+  assert.equal(text.hidden, true);
+  assert.equal(toggle.textContent, 'Til muntlig');
+  assert.equal(globalThis.localStorage.getItem('norsk:examNoteOpen'), '0');
+  toggle.click();
+  assert.equal(text.hidden, false);
+});
+
+await go('#/barnehagen');
+
 check('reader: exam note box links to the topic', () => {
   const link = reader().querySelector('.exam-note-topic');
   assert.ok(link, 'topic link missing');
@@ -432,7 +478,7 @@ check('reader: exam note box links to the topic', () => {
 });
 
 check('reader: mode chips offer read, cloze, listen and speak', () => {
-  const chips = reader().querySelectorAll('.chip').map((c) => c.textContent);
+  const chips = modeChips().map((c) => c.textContent);
   assert.equal(chips.join(','), 'Les,Fyll inn,Lytt,Snakk');
 });
 
@@ -484,7 +530,7 @@ check('reader: looked-up words are listed under the text', () => {
 // --- cloze -------------------------------------------------------------
 
 check('cloze: blanks content words with the base form as hint', () => {
-  reader().querySelectorAll('.chip').find((c) => c.textContent === 'Fyll inn').click();
+  pickMode('Fyll inn');
   const inputs = reader().querySelectorAll('.cloze-input');
   assert.atLeast(inputs.length, 5, 'expected blanks');
   assert.ok(inputs.every((i) => i.dataset.answer.length >= 4));
@@ -534,14 +580,14 @@ check('cloze: hints can be hidden and the choice persists', () => {
 // --- speaking practice -------------------------------------------------
 
 check('speak: shows key words and a two-minute timer', () => {
-  reader().querySelectorAll('.chip').find((c) => c.textContent === 'Snakk').click();
+  pickMode('Snakk');
   assert.atLeast(reader().querySelectorAll('.word-chip').length, 5);
   assert.equal(reader().querySelector('.timer-clock').textContent, '2:00');
   assert.equal(reader().querySelectorAll('.sentence').length, 0, 'text is hidden while speaking');
 });
 
 check('speak: switching back to read restores the text', () => {
-  reader().querySelectorAll('.chip').find((c) => c.textContent === 'Les').click();
+  pickMode('Les');
   assert.atLeast(reader().querySelectorAll('.sentence').length, 5);
 });
 
@@ -696,7 +742,7 @@ check('progress: opening a text records it', () => {
 });
 
 check('progress: a graded cloze stores the best score, reveal does not', () => {
-  reader().querySelectorAll('.chip').find((c) => c.textContent === 'Fyll inn').click();
+  pickMode('Fyll inn');
   const inputs = reader().querySelectorAll('.cloze-input');
   inputs[0].value = inputs[0].dataset.answer;
   reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Sjekk').click();
@@ -717,7 +763,7 @@ check('progress: the mode is remembered and restored on reopen', () => {
 await new Promise((r) => setImmediate(r));
 
 check('progress: reopened text lands in the saved mode', () => {
-  const on = reader().querySelectorAll('.chip').find((c) => c.getAttribute('aria-pressed') === 'true');
+  const on = modeChips().find((c) => c.getAttribute('aria-pressed') === 'true');
   assert.equal(on.textContent, 'Fyll inn');
   assert.atLeast(reader().querySelectorAll('.cloze-input').length, 1);
 });
@@ -886,7 +932,7 @@ check('card: shows a pronunciation hint where the lexicon has one', () => {
 await go('#/barnehagen');
 
 check('reader: grammar toggle marks finite verbs and tags inversion', () => {
-  reader().querySelectorAll('.chip').find((c) => c.textContent === 'Les').click();
+  pickMode('Les');
   const toggle = reader().querySelector('.grammar-toggle');
   assert.ok(toggle, 'toggle missing');
   toggle.click();
@@ -898,9 +944,9 @@ check('reader: grammar toggle marks finite verbs and tags inversion', () => {
 });
 
 check('reader: listening mode explains itself when no voice is available', () => {
-  reader().querySelectorAll('.chip').find((c) => c.textContent === 'Lytt').click();
+  pickMode('Lytt');
   assert.includes(reader().querySelector('.level-desc').textContent, 'ingen norsk stemme');
-  reader().querySelectorAll('.chip').find((c) => c.textContent === 'Les').click();
+  pickMode('Les');
 });
 
 // --- drill -------------------------------------------------------------

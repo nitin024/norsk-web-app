@@ -181,6 +181,7 @@ function measureChrome() {
 function resetChrome() {
   document.getElementById('dict-controls').hidden = true;
   document.getElementById('scratch-controls').hidden = true;
+  document.getElementById('mode-bar').hidden = true;
   currentParaId = null;
   stopSpeaking();
 }
@@ -1461,14 +1462,19 @@ function renderReader() {
   reader.replaceChildren();
   stopSpeaking();
 
-  reader.append(examNoteBox(meta, doc));
-  reader.append(
+  // The modes live in their own bar at the bottom of the screen, so the
+  // Norwegian starts where the eye does.
+  const bar = document.getElementById('mode-bar');
+  bar.replaceChildren(
     chipRow(READER_MODES, readerMode, (mode) => {
       readerMode = mode;
       recordMode(meta.id, mode);
       renderReader();
     }, 'Velg øvelse')
   );
+  bar.hidden = false;
+
+  reader.append(examNoteBox(meta, doc));
 
   if (readerMode === 'cloze') renderCloze(reader, sentences);
   else if (readerMode === 'listen') renderListen(reader, sentences);
@@ -1480,25 +1486,64 @@ function renderReader() {
 }
 
 /** The examiner's-eye note and topic link above the text. */
+const EXAM_NOTE_KEY = 'norsk:examNoteOpen';
+
 function examNoteBox(meta, doc) {
   const box = document.createElement('aside');
   box.className = 'exam-note';
 
   const topic = (index.topics ?? []).find((t) => t.id === meta.topic);
+  const head = document.createElement('div');
+  head.className = 'exam-note-head';
+
   if (topic) {
     const a = document.createElement('a');
     a.className = 'exam-note-topic';
     a.href = `#/tema/${topic.id}`;
     a.textContent = `Tema: ${topic.label}`;
-    box.append(a);
+    head.append(a);
   }
 
-  if (doc.examNote) {
-    const p = document.createElement('p');
-    p.className = 'exam-note-text';
-    p.textContent = doc.examNote;
-    box.append(p);
+  if (!doc.examNote) {
+    box.append(head);
+    return box;
   }
+
+  // The note matters before you read and is in the way afterwards, so it
+  // collapses to its label. The choice sticks across texts.
+  let open = true;
+  try {
+    open = localStorage.getItem(EXAM_NOTE_KEY) !== '0';
+  } catch {
+    /* default to open */
+  }
+
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'exam-note-toggle';
+  head.append(toggle);
+  box.append(head);
+
+  const p = document.createElement('p');
+  p.className = 'exam-note-text';
+  p.textContent = doc.examNote;
+  box.append(p);
+
+  const sync = () => {
+    p.hidden = !open;
+    toggle.textContent = open ? 'Skjul' : 'Til muntlig';
+    toggle.setAttribute('aria-expanded', String(open));
+  };
+  toggle.addEventListener('click', () => {
+    open = !open;
+    try {
+      localStorage.setItem(EXAM_NOTE_KEY, open ? '1' : '0');
+    } catch {
+      /* ignore */
+    }
+    sync();
+  });
+  sync();
   return box;
 }
 
@@ -3458,8 +3503,55 @@ function wireCardDrag() {
   card.addEventListener('pointercancel', onUp);
 }
 
+/**
+ * Get the bars out of the way while reading.
+ *
+ * Scrolling down hides the mode bar and the tab bar; any scroll up brings
+ * them straight back, as does reaching the bottom. This is the phone reading
+ * pattern: the controls are there when you look for them and gone when you
+ * are reading. Only the reader hides them — on a list you are navigating, and
+ * a bar that disappears while you hunt for a tab is worse than one that
+ * takes up room.
+ */
+const SCROLL_HIDE_AFTER = 64;
+
+function wireScrollHide() {
+  let lastY = 0;
+  let ticking = false;
+
+  const apply = () => {
+    ticking = false;
+    const y = Math.max(0, window.scrollY ?? 0);
+    const readerView = document.body.dataset.view === 'reader';
+    const atBottom = y + window.innerHeight >= document.documentElement.scrollHeight - 8;
+    const goingDown = y > lastY;
+    // A small jitter should not flip the bars; only a real move counts.
+    if (Math.abs(y - lastY) > 4) {
+      const hide = readerView && goingDown && y > SCROLL_HIDE_AFTER && !atBottom;
+      document.body.classList.toggle('bars-hidden', hide);
+      lastY = y;
+    }
+  };
+
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(apply);
+    },
+    { passive: true }
+  );
+  // A new view starts with the bars showing.
+  window.addEventListener('hashchange', () => {
+    lastY = 0;
+    document.body.classList.remove('bars-hidden');
+  });
+}
+
 function wireChrome() {
   wireCardDrag();
+  wireScrollHide();
   // The wordmark is the way out of anywhere; on a phone that is the course.
   const brand = document.getElementById('brand');
   if (brand) {
