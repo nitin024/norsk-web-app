@@ -1619,6 +1619,85 @@ body[data-view='home'] .reader {
   color: var(--ink-faint);
 }
 
+/* At phone width the tab bar already offers these four, so home shows only
+   what the bar does not carry. */
+@media (max-width: 899px) {
+  .home-link.is-primary {
+    display: none;
+  }
+}
+
+/* --- bottom tab bar ------------------------------------------------------
+   Phone navigation: the four destinations that carry the daily use, one tap
+   from anywhere. Hidden at 900px and up, where the topbar and the home page
+   already do this job. */
+
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 7;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  border-top: 1px solid var(--rule-soft);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: var(--tap-min);
+  padding: var(--s-2) 0 var(--s-1);
+  color: var(--ink-faint);
+  text-decoration: none;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab svg {
+  width: 22px;
+  height: 22px;
+}
+
+.tab.is-on {
+  color: var(--accent);
+}
+
+.tab-badge {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  margin-left: 6px;
+  min-width: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+}
+
+/* The bar floats over the content, so every scrolling surface needs room to
+   scroll past it. The reader already reserves 30vh; these do not. */
+body:not([data-view='home']) .reader {
+  padding-bottom: calc(30vh + var(--s-7));
+}
+
+.card {
+  padding-bottom: calc(var(--s-6) + env(safe-area-inset-bottom));
+}
+
 /* --- wide screens -----------------------------------------------------
    Not a stretched phone: the chrome moves to a left rail and the text keeps
    a readable measure instead of running the width of the window. */
@@ -1629,7 +1708,12 @@ body[data-view='home'] .reader {
    better with a mouse than a bottom sheet does. */
 
 @media (min-width: 900px) {
-  .reader {
+  .tabbar {
+    display: none;
+  }
+
+  .reader,
+  body:not([data-view='home']) .reader {
     padding: var(--s-6) var(--s-4) 30vh;
   }
 

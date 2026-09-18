@@ -125,6 +125,9 @@ async function main() {
 
 function route() {
   closeCard();
+  // The tab bar is always on screen, so it follows the route rather than
+  // each view remembering to update it.
+  setTimeout(syncTabs, 0);
   const id = location.hash.replace(/^#\/?/, '');
   if (id === 'ordbok') return showDictionary();
   if (id === 'skriv') return showScratch();
@@ -134,6 +137,7 @@ function route() {
   if (id === 'tall') return showDrill();
   if (id === 'prove') return showExam();
   if (id === 'kurs') return showCourse();
+  if (id === 'mer') return showHome();
   if (id.startsWith('tema/')) {
     const topic = (index.topics ?? []).find((t) => t.id === id.slice(5));
     if (topic) return showTopic(topic);
@@ -142,7 +146,19 @@ function route() {
     const meta = index.paragraphs.find((p) => p.id === id);
     if (meta) return showParagraph(meta);
   }
+  // On a phone the tab bar is the menu, so opening the app lands on the
+  // course. On a wide screen there is no bar and the home menu is the way in.
+  if (isPhone()) return showCourse();
   showHome();
+}
+
+/**
+ * Phone layout, matching the CSS breakpoint that hides the tab bar. Read at
+ * call time rather than cached: a window can be resized, and the DOM shim in
+ * the tests has no matchMedia at all.
+ */
+function isPhone() {
+  return globalThis.matchMedia ? globalThis.matchMedia('(max-width: 899px)').matches : false;
 }
 
 /**
@@ -181,9 +197,13 @@ function showHome() {
   setHeader('', '');
   document.title = 'Norsk — lesing';
 
+  // As «Mer» on a phone it is a destination like any other and needs a way
+  // back; as home on a wide screen it is the root.
   const back = document.getElementById('back');
-  if (document.activeElement === back) document.getElementById('doc-title').focus();
-  back.hidden = true;
+  const asMenu = isPhone();
+  if (!asMenu && document.activeElement === back) document.getElementById('doc-title').focus();
+  back.hidden = !asMenu;
+  if (asMenu) setHeader('Mer', '');
 
   const main = document.getElementById('reader');
   main.replaceChildren();
@@ -192,21 +212,29 @@ function showHome() {
   nav.className = 'home-nav';
   nav.setAttribute('aria-label', 'Hovedmeny');
 
+  // The four everyday destinations live in the tab bar on phones, so home
+  // lists what the bar does not carry. On a wide screen there is no bar, so
+  // home stays the full menu.
   const due = reviewCounts().due;
-  const destinations = [
+  const primary = [
     ['#/kurs', 'Kurs', ''],
     ['#/tekster', 'Lesetekster', String(index.paragraphs.length)],
     ['#/ordbok', 'Ordbok', String(Object.keys(lexicon.entries).length)],
     ['#/ov', 'Øving', due ? String(due) : ''],
+  ];
+  const secondary = [
     ['#/grammatikk', 'Grammatikk', ''],
     ['#/tall', 'Tall og klokka', ''],
     ['#/prove', 'Prøve', ''],
     ['#/skriv', 'Egen tekst', ''],
   ];
+  const destinations = [...primary, ...secondary];
 
   for (const [href, label, count] of destinations) {
     const a = document.createElement('a');
-    a.className = 'home-link';
+    // Duplicates of the tab bar are hidden by CSS at phone width rather than
+    // omitted, so the same markup serves both layouts.
+    a.className = 'home-link' + (primary.some(([h]) => h === href) ? ' is-primary' : '');
     a.href = href;
 
     const name = document.createElement('span');
@@ -1278,10 +1306,12 @@ function renderDictCards(reader, deck) {
       addIfMissing(entry.id);
       markKnown(entry.id);
       advance();
+      syncTabs();
     });
     again.addEventListener('click', () => {
       recordLookup(entry.id, null);
       advance();
+      syncTabs();
     });
     actions.append(prev, flip, knew, again, next);
     card.append(actions);
@@ -2714,7 +2744,9 @@ async function nextCourseStep() {
 async function showCourse() {
   document.body.dataset.view = 'course';
   resetChrome();
-  document.getElementById('back').hidden = false;
+  // On a phone the course is the landing view, so there is nothing to go
+  // back to; reached from the menu on a wide screen there is.
+  document.getElementById('back').hidden = isPhone() && !location.hash.replace(/^#\/?/, '');
   setHeader('Kurs', 'A1 → B2, steg for steg');
 
   const main = document.getElementById('reader');
@@ -2924,11 +2956,13 @@ function showReview() {
       markKnown(item.entryId);
       i++;
       show();
+      syncTabs();
     });
     again.addEventListener('click', () => {
       markAgain(item.entryId);
       i++;
       show();
+      syncTabs();
     });
     actions.append(flip, knew, again);
     card.append(actions);
@@ -3275,9 +3309,20 @@ function closeCard() {
   }
   cardOpener = null;
   refreshLookups();
+  syncTabs();
 }
 
 function wireChrome() {
+  // The wordmark is the way out of anywhere; on a phone that is the course.
+  const brand = document.getElementById('brand');
+  if (brand) {
+    brand.addEventListener('click', (e) => {
+      if (!isPhone()) return;
+      e.preventDefault();
+      location.hash = '#/kurs';
+    });
+  }
+
   document.getElementById('card-scrim').addEventListener('click', closeCard);
   document.getElementById('card-close').addEventListener('click', closeCard);
   document.addEventListener('keydown', (e) => {
@@ -3285,9 +3330,11 @@ function wireChrome() {
     if (!document.getElementById('card').hidden) trapFocus(e);
   });
   document.getElementById('back').addEventListener('click', () => {
-    // A paragraph and a topic belong to the text list; the rest hang off home.
+    // A paragraph and a topic belong to the text list; the rest hang off the
+    // menu, which on a phone is «Mer» and on a wide screen is home.
     const view = document.body.dataset.view;
-    location.hash = view === 'reader' || view === 'topic' ? '#/tekster' : '';
+    if (view === 'reader' || view === 'topic') location.hash = '#/tekster';
+    else location.hash = isPhone() ? '#/mer' : '';
   });
 }
 
@@ -3311,6 +3358,42 @@ function registerServiceWorker() {
   // already fired; waiting for it then would wait forever.
   if (document.readyState === 'complete') register();
   else window.addEventListener('load', register, { once: true });
+}
+
+/**
+ * Light the tab that owns the current view, and show how many words are due.
+ * A view with no tab of its own (a text, a topic) still belongs to one: a
+ * paragraph is part of Tekster, the drill and the exam part of Kurs.
+ */
+const VIEW_TAB = {
+  home: 'more',
+  scratch: 'more',
+  course: 'course',
+  texts: 'texts',
+  reader: 'texts',
+  topic: 'texts',
+  dict: 'dict',
+  review: 'review',
+  drill: 'course',
+  exam: 'course',
+  grammar: 'course',
+};
+
+function syncTabs() {
+  const view = document.body.dataset.view;
+  const active = VIEW_TAB[view] ?? null;
+  for (const tab of document.querySelectorAll('.tab')) {
+    const on = tab.dataset.tab === active;
+    tab.classList.toggle('is-on', on);
+    if (on) tab.setAttribute('aria-current', 'page');
+    else tab.removeAttribute('aria-current');
+  }
+  const badge = document.getElementById('tab-review-badge');
+  if (badge) {
+    const due = reviewCounts().due;
+    badge.textContent = due > 99 ? '99+' : String(due);
+    badge.hidden = due === 0;
+  }
 }
 
 /** Announce a view change to assistive tech without re-reading the text. */

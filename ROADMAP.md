@@ -29,44 +29,45 @@ Where the app stands and what is left. Delete a line when it ships.
 - **Tooling.** `generate` (prompt or API), `import-text`, `add-entries`,
   `promote`, and a validator that checks texts, lexicon, grammar and course.
 - **Offline.** Service worker, manifest, installable.
+- **Render tests over CDP.** `test/render.mjs` drives one headless Chrome via
+  the DevTools protocol and polls each route until it has actually rendered,
+  instead of shelling out to `--dump-dom` (which fires on the load event, long
+  before this app has fetched its lexicon) or `--virtual-time-budget` (under
+  which the module intermittently never evaluated). Unique debug port and
+  profile per run, killed hard on exit. 16 checks, ~4s, no flakes.
+- **Phone navigation.** A five-tab bottom bar (Kurs, Tekster, Ordbok, Øving,
+  Mer) with a due badge on Øving. The app opens on the course at phone width
+  and on the home menu above 900px, where the bar is hidden.
 
 ## Open issue
 
-- **Flaky render test.** `test/render.mjs` fails intermittently (1 in 4 runs):
-  headless Chrome under `--virtual-time-budget` sometimes never evaluates the
-  app module, so the probe reports zero items. Not a bug in the app — the same
-  page loads in 80 ms in a real browser and in most headless runs. Fix by
-  moving the probe off the virtual clock (use `--timeout` and real time) or by
-  retrying a stalled probe once before failing.
+None.
 
 ## UI improvements
 
 Ordered by how much they change daily use.
 
-1. **A bottom tab bar on phones.** Home now has eight destinations, which is a
-   list to read rather than a place to act. Four tabs (Kurs, Tekster, Ordbok,
-   Øving) with the rest behind Kurs would cut most navigation to one tap.
-2. **Make the word card a bottom sheet you can swipe away.** It is already a
+1. **Make the word card a bottom sheet you can swipe away.** It is already a
    sheet on phones; add drag-to-dismiss and a small grabber so it feels native.
-3. **Show progress as a ring, not a sentence.** "3 av 13 tekster lest" reads as
+2. **Show progress as a ring, not a sentence.** "3 av 13 tekster lest" reads as
    data. A small ring per level on the course page, filling as steps complete,
    is read at a glance.
-4. **Group the reader's mode chips with the text, not above it.** They
+3. **Group the reader's mode chips with the text, not above it.** They
    currently sit between the exam note and the text, pushing the Norwegian
    down. Moving them to a sticky footer bar keeps the text at the top where
    the eye starts.
-5. **One accent colour for "you did this".** Right now green means active
+4. **One accent colour for "you did this".** Right now green means active
    word, correct answer, done step and current tab. Split into two: accent for
    interactive, a muted green only for completion.
-6. **Let the dictionary jump by letter.** A thin A–Å rail down the right edge
+5. **Let the dictionary jump by letter.** A thin A–Å rail down the right edge
    for 1080 entries, the way a phone contact list works.
-7. **Show the review queue as a stack.** One card floating over the next two
+6. **Show the review queue as a stack.** One card floating over the next two
    gives a sense of how much is left without a counter.
-8. **Long-press a word to hear it** without opening the card, for reading
+7. **Long-press a word to hear it** without opening the card, for reading
    aloud along with the text.
-9. **Dark mode contrast pass.** The muted ink on dark backgrounds sits near the
+8. **Dark mode contrast pass.** The muted ink on dark backgrounds sits near the
    accessibility floor in a few places (`--ink-faint` on `--surface`).
-10. **A real empty state for Egen tekst.** A short example paste and one line
+9. **A real empty state for Egen tekst.** A short example paste and one line
     saying what it does, instead of a blank box.
 
 ## Pending features
