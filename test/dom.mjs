@@ -126,6 +126,9 @@ class Element {
   get children() {
     return this.childNodes.filter((n) => n instanceof Element);
   }
+  get firstElementChild() {
+    return this.children[0] ?? null;
+  }
   append(...nodes) {
     for (const node of nodes) {
       const n = typeof node === 'string' ? new TextNode(node, this.ownerDocument) : node;
@@ -438,6 +441,54 @@ export function installGlobals(doc, root) {
     cancel() {},
   });
   globalThis.__spoken = spoken;
+
+  // Recording: off by default, because most of the app must work without a
+  // microphone. `__enableRecording` turns on a fake one a test can drive.
+  globalThis.__enableRecording = (behaviour = 'ok') => {
+    define('MediaRecorder', class {
+      constructor() {
+        this.state = 'inactive';
+        this._on = new Map();
+      }
+      addEventListener(type, fn) {
+        if (!this._on.has(type)) this._on.set(type, []);
+        this._on.get(type).push(fn);
+      }
+      start() {
+        this.state = 'recording';
+        globalThis.__recorder = this;
+      }
+      stop() {
+        this.state = 'inactive';
+        for (const fn of this._on.get('dataavailable') ?? []) fn({ data: { size: 12, type: 'audio/webm' } });
+        for (const fn of this._on.get('stop') ?? []) fn({});
+      }
+    });
+    define('Blob', class {
+      constructor(parts, opts) {
+        this.parts = parts;
+        this.type = opts?.type;
+      }
+    });
+    define('URL', { createObjectURL: () => 'blob:fake', revokeObjectURL() {} });
+    define('Audio', class {
+      play() {
+        globalThis.__played = (globalThis.__played ?? 0) + 1;
+      }
+      pause() {}
+    });
+    define('navigator', {
+      ...globalThis.navigator,
+      mediaDevices: {
+        getUserMedia: async () => {
+          if (behaviour === 'denied') {
+            const e = new Error('no'); e.name = 'NotAllowedError'; throw e;
+          }
+          return { getTracks: () => [{ stop() {} }] };
+        },
+      },
+    });
+  };
 
   /**
    * Replay an utterance the way a speech engine would: one `boundary` per

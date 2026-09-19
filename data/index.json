@@ -100,6 +100,16 @@
     { "id": "matboks-eller-varm-lunsj", "title": "Matboks eller varm lunsj", "level": "B1", "file": "matboks-eller-varm-lunsj.json", "topic": "mat" },
     { "id": "middag-i-to-land", "title": "Middag i to land", "level": "A1", "file": "middag-i-to-land.json", "topic": "mat" },
     { "id": "tur-eller-sofa", "title": "Tur eller sofa?", "level": "B1", "file": "tur-eller-sofa.json", "topic": "fritid" },
-    { "id": "vi-handler-mat", "title": "Vi handler mat", "level": "A1", "file": "vi-handler-mat.json", "topic": "penger" }
+    { "id": "vi-handler-mat", "title": "Vi handler mat", "level": "A1", "file": "vi-handler-mat.json", "topic": "penger" },
+    { "id": "boliger-og-parker", "title": "Boliger og parker", "level": "B2", "file": "boliger-og-parker.json", "topic": "bolig" },
+    { "id": "darlig-vaer-darlige-klaer", "title": "Dårlig vær, dårlige klær", "level": "B2", "file": "darlig-vaer-darlige-klaer.json", "topic": "fritid" },
+    { "id": "faste-rutiner", "title": "Faste rutiner", "level": "B1", "file": "faste-rutiner.json", "topic": "hverdag" },
+    { "id": "forste-dugnad", "title": "Første dugnad", "level": "A2", "file": "forste-dugnad.json", "topic": "samfunn" },
+    { "id": "hjemme-i-to-land", "title": "Hjemme i to land", "level": "B2", "file": "hjemme-i-to-land.json", "topic": "presentasjon" },
+    { "id": "legen-pa-skjermen", "title": "Legen på skjermen", "level": "B2", "file": "legen-pa-skjermen.json", "topic": "helse" },
+    { "id": "fullt-program", "title": "Fullt program", "level": "B2", "file": "fullt-program.json", "topic": "hverdag" },
+    { "id": "lordagsgodt", "title": "Lørdagsgodt", "level": "B2", "file": "lordagsgodt.json", "topic": "mat" },
+    { "id": "norskkurs-pa-kvelden", "title": "Norskkurs på kvelden", "level": "A1", "file": "norskkurs-pa-kvelden.json", "topic": "samfunn" },
+    { "id": "spare-eller-bruke", "title": "Spare eller bruke?", "level": "B2", "file": "spare-eller-bruke.json", "topic": "penger" }
   ]
 }

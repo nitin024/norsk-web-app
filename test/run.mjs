@@ -10,9 +10,19 @@
 
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { readFileSync } from 'node:fs';
 import { buildDocument, installGlobals } from './dom.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+
+// The same files the app fetches. Counting against these is what makes an
+// assertion about "every text" or "every rule" mean anything: a floor like
+// `atLeast(13)` passes just as happily when half the corpus fails to render.
+const DATA = (name) => JSON.parse(readFileSync(join(ROOT, 'data', name), 'utf8'));
+const index = DATA('index.json');
+const grammar = DATA('grammar.json');
+const course = DATA('course.json');
+const allRules = grammar.sections.flatMap((s) => s.rules);
 
 let passed = 0;
 const failures = [];
@@ -163,7 +173,16 @@ await go('#/tekster');
 
 check('texts: lists every paragraph in the index', () => {
   const links = reader().querySelectorAll('.para-link');
-  assert.atLeast(links.length, 13);
+  assert.equal(links.length, index.paragraphs.length, 'every text in index.json should be listed');
+});
+
+check('texts: every level in the index gets a heading', () => {
+  const headings = reader().querySelectorAll('.level-title').map((h) => h.textContent);
+  for (const level of index.levels) {
+    if (!headings.some((h) => h.includes(level.label))) {
+      throw new Error(`no heading for ${level.level}; got ${headings.join(' | ')}`);
+    }
+  }
 });
 
 check('texts: groups by level', () => {
@@ -191,9 +210,9 @@ check('texts: grouping chips are rendered, level is default', () => {
 check('texts: switching to topics groups by declared topic with links', () => {
   reader().querySelectorAll('.chip')[1].click();
   const links = reader().querySelectorAll('.level-title-link');
-  assert.atLeast(links.length, 5, 'expected one heading link per topic');
+  assert.equal(links.length, index.topics.length, 'one heading link per declared topic');
   assert.ok(links.every((a) => a.getAttribute('href').startsWith('#/tema/')));
-  assert.atLeast(reader().querySelectorAll('.para-level').length, 13, 'level badges shown per text');
+  assert.equal(reader().querySelectorAll('.para-level').length, index.paragraphs.length, 'a level badge per text');
   reader().querySelectorAll('.chip')[0].click(); // restore default
 });
 
@@ -229,9 +248,10 @@ check('topic: unknown topic falls back to home', () => {
 
 await go('#/ordbok');
 
-check('dict: renders entry rows (regression: was empty)', () => {
+check('dict: renders a row for every lexicon entry', () => {
+  const lexicon = DATA('lexicon.json');
   const rows = reader().querySelectorAll('.dict-row');
-  assert.atLeast(rows.length, 600, `dictionary rendered ${rows.length} rows`);
+  assert.equal(rows.length, Object.keys(lexicon.entries).length, 'every entry should get a row');
 });
 
 check('dict: renders letter headings', () => {
@@ -326,7 +346,7 @@ check('dict: closing the search clears the query it was filtering by', () => {
 
   $('dict-search-close').click();
   assert.equal(search.value, '', 'the field is emptied');
-  assert.atLeast(reader().querySelectorAll('.dict-row').length, 600, 'the full list is back');
+  assert.atLeast(reader().querySelectorAll('.dict-row').length, 1000, 'the full list is back');
 });
 
 check('dict: Escape clears and closes the search', () => {
@@ -701,6 +721,13 @@ check('cloze: hints can be hidden and the choice persists', () => {
 
 // --- speaking practice -------------------------------------------------
 
+check('speak: no recorder is offered when the browser cannot record', () => {
+  pickMode('Snakk');
+  assert.equal(reader().querySelectorAll('.recorder').length, 0, 'no microphone, no promise of one');
+  assert.ok(reader().querySelector('.timer'), 'the timer is still there');
+  pickMode('Les');
+});
+
 check('speak: shows key words and a two-minute timer', () => {
   pickMode('Snakk');
   assert.atLeast(reader().querySelectorAll('.word-chip').length, 5);
@@ -712,6 +739,70 @@ check('speak: switching back to read restores the text', () => {
   pickMode('Les');
   assert.atLeast(reader().querySelectorAll('.sentence').length, 5);
 });
+
+// --- speaking feedback -------------------------------------------------
+
+globalThis.__enableRecording('ok');
+await go('#/jobben');
+
+check('recorder: appears once the browser can record', () => {
+  pickMode('Snakk');
+  const rec = reader().querySelector('.recorder');
+  assert.ok(rec, 'the recorder should be offered');
+  assert.includes(rec.querySelector('.level-desc').textContent, 'sendes ingen steder');
+  assert.equal(rec.querySelectorAll('.btn-quiet').find((b) => b.textContent === 'Spill av').disabled, true,
+    'playback is disabled until something is recorded');
+});
+
+// Starting the microphone is async, so the click and the wait live outside
+// the check; the assertions then run against a settled state.
+reader().querySelector('.recorder')
+  .querySelectorAll('.btn-primary')
+  .find((b) => b.textContent.includes('Ta opp'))
+  .click();
+await new Promise((r) => setTimeout(r, 40));
+
+check('recorder: recording shows it is live', () => {
+  const rec = reader().querySelector('.recorder');
+  const btn = rec.querySelectorAll('.btn-primary')[0];
+  assert.includes(btn.textContent, 'Stopp');
+  assert.includes(rec.querySelector('.scratch-stats').textContent, 'Tar opp');
+});
+
+reader().querySelector('.recorder').querySelectorAll('.btn-primary')[0].click();
+await new Promise((r) => setTimeout(r, 40));
+
+check('recorder: stopping produces a playable clip', () => {
+  const rec = reader().querySelector('.recorder');
+  const play = rec.querySelectorAll('.btn-quiet').find((b) => b.textContent === 'Spill av');
+  assert.equal(play.disabled, false, 'a recorded clip should be playable');
+  globalThis.__played = 0;
+  play.click();
+  assert.equal(globalThis.__played, 1);
+});
+
+check('recorder: "Hør appen" speaks the text for comparison', () => {
+  globalThis.__spoken.length = 0;
+  reader().querySelector('.recorder').querySelectorAll('.btn-quiet').find((b) => b.textContent === 'Hør appen').click();
+  assert.equal(globalThis.__spoken.length, 1);
+  assert.includes(globalThis.__spoken[0], 'Jeg jobber');
+});
+
+globalThis.__enableRecording('denied');
+await go('#/barnehagen');
+await go('#/jobben');
+pickMode('Snakk');
+reader().querySelector('.recorder').querySelectorAll('.btn-primary')[0].click();
+await new Promise((r) => setTimeout(r, 40));
+
+check('recorder: a refused microphone says so and stays usable', () => {
+  const rec = reader().querySelector('.recorder');
+  assert.includes(rec.querySelector('.scratch-stats').textContent, 'mikrofonen');
+  assert.includes(rec.querySelectorAll('.btn-primary')[0].textContent, 'Ta opp',
+    'the button resets rather than sticking on "Stopp"');
+});
+
+pickMode('Les');
 
 // --- review ------------------------------------------------------------
 
@@ -1005,9 +1096,14 @@ await new Promise((r) => setTimeout(r, 20));
 
 check('grammar: renders every section and rule from grammar.json', () => {
   assert.equal(doc.body.dataset.view, 'grammar');
-  const sections = reader().querySelectorAll('.level');
-  assert.atLeast(sections.length, 3);
-  assert.atLeast(reader().querySelectorAll('.rule').length, 10);
+  assert.equal(reader().querySelectorAll('.level').length, grammar.sections.length);
+  assert.equal(reader().querySelectorAll('.rule').length, allRules.length, 'every rule should render');
+});
+
+check('grammar: every rule the data declares is reachable by id', () => {
+  for (const rule of allRules) {
+    if (!$(`rule-${rule.id}`)) throw new Error(`rule "${rule.id}" did not render`);
+  }
 });
 
 check('grammar: every rule carries a note for English speakers', () => {
@@ -1085,12 +1181,67 @@ check('grammar: a choice exercise marks the rule passed', () => {
   assert.ok(rule.classList.contains('is-passed'));
 });
 
+check('grammar: a join exercise shows both clauses and the connector', () => {
+  const rule = $('rule-leddsetning');
+  const join = rule.querySelectorAll('.exercise').find((e) => e.querySelectorAll('.exercise-parts').length > 0);
+  assert.ok(join, 'leddsetning should have a join exercise');
+  assert.includes(join.querySelector('.exercise-parts').textContent, 'Jeg blir hjemme');
+  assert.includes(join.querySelector('.exercise-hint').textContent, 'fordi');
+
+  const input = join.querySelector('.dictation-input');
+  input.value = 'Jeg blir hjemme fordi jeg ikke er frisk';
+  join.querySelectorAll('.btn-primary').find((b) => b.textContent === 'Sjekk').click();
+  assert.ok(join.classList.contains('is-right'), 'the subordinate order should pass');
+});
+
+check('grammar: a join rejects the main-clause word order', () => {
+  const rule = $('rule-leddsetning');
+  const join = rule.querySelectorAll('.exercise').find((e) => e.querySelectorAll('.exercise-parts').length > 0);
+  const input = join.querySelector('.dictation-input');
+  input.value = 'Jeg blir hjemme fordi jeg er ikke frisk';
+  join.querySelectorAll('.btn-primary').find((b) => b.textContent === 'Sjekk').click();
+  assert.ok(join.classList.contains('is-wrong'), '«er ikke» after fordi is the mistake being tested');
+});
+
+check('grammar: a tense exercise shows the infinitive and the time word', () => {
+  const rule = $('rule-preteritum');
+  const tense = rule.querySelectorAll('.exercise').find((e) => {
+    const h = e.querySelector('.exercise-hint');
+    return h && h.textContent.includes('å være');
+  });
+  assert.ok(tense, 'preteritum should have a tense exercise');
+  assert.includes(tense.querySelector('.exercise-hint').textContent, 'i går');
+
+  const input = tense.querySelector('.dictation-input');
+  input.value = 'var';
+  tense.querySelectorAll('.btn-primary').find((b) => b.textContent === 'Sjekk').click();
+  assert.ok(tense.classList.contains('is-right'));
+});
+
 check('grammar: a fill exercise grades loosely on case and punctuation', () => {
   const rule = $('rule-preteritum');
   const ex = rule.querySelector('.exercise');
   const input = ex.querySelector('.dictation-input');
   input.value = ' VAR ';
   ex.querySelectorAll('.btn-primary').find((b) => b.textContent === 'Sjekk').click();
+  assert.ok(ex.classList.contains('is-right'));
+});
+
+check('grammar: possessives and reflexives have a section of their own', () => {
+  const titles = reader().querySelectorAll('.level-title').map((h) => h.textContent);
+  assert.ok(titles.some((t) => t.startsWith('Eiendom og refleksiv')), `sections: ${titles.join(' | ')}`);
+  // The two rules English gives no help with.
+  assert.ok($('rule-sin-hans'), 'sin vs hans needs its own rule');
+  assert.ok($('rule-refleksiv'), 'reflexive pronouns need their own rule');
+});
+
+check('grammar: the sin/hans rule drills the distinction English cannot make', () => {
+  const rule = $('rule-sin-hans');
+  const ex = rule.querySelectorAll('.exercise')[0];
+  const wrong = ex.querySelectorAll('.scramble-chip').find((c) => c.textContent === 'hans');
+  wrong.click();
+  assert.ok(ex.classList.contains('is-wrong'), '«hans» is the mistake being tested');
+  ex.querySelectorAll('.scramble-chip').find((c) => c.textContent === 'sin').click();
   assert.ok(ex.classList.contains('is-right'));
 });
 
@@ -1168,6 +1319,61 @@ check('drill: a right answer counts, with "klokka" prefix tolerated', () => {
 
 // --- exam --------------------------------------------------------------
 
+await go('#/prove');
+await new Promise((r) => setTimeout(r, 30));
+
+check('exam: the band picker offers the three Norskprøven bands', () => {
+  const chips = reader().querySelectorAll('.chip').map((c) => c.textContent);
+  assert.equal(chips.join(','), 'A1–A2,A2–B1,B1–B2');
+  assert.includes($('doc-meta').textContent, 'A2–B1', 'the header names the band');
+});
+
+// A1–A2 must not hand a beginner a B2 discussion text. Changing band
+// re-runs the whole view, which fetches, so the assertions wait for it.
+reader().querySelectorAll('.chip').find((c) => c.textContent === 'A1–A2').click();
+await new Promise((r) => setTimeout(r, 40));
+
+check('exam: choosing a band changes which texts it draws from', () => {
+  assert.equal(globalThis.localStorage.getItem('norsk:examBand'), 'A1-A2');
+  assert.includes($('doc-meta').textContent, 'A1–A2');
+  assert.includes(reader().querySelector('.level-title').textContent, 'A1–A2');
+});
+
+check('exam: the band survives moving through the parts', () => {
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Neste del').click();
+  assert.equal(reader().querySelectorAll('.chip').length, 3, 'the picker stays available');
+  const on = reader().querySelectorAll('.chip').find((c) => c.getAttribute('aria-pressed') === 'true');
+  assert.equal(on.textContent, 'A1–A2');
+});
+
+// Back to the default band, and start the sitting from Del 1 again.
+reader().querySelectorAll('.chip').find((c) => c.textContent === 'A2–B1').click();
+await new Promise((r) => setTimeout(r, 40));
+
+check('exam: draws its material from the live index, not a fixed list', () => {
+  // Del 2 offers a topic that actually has a text at the chosen band, and
+  // Del 3 quotes one of those texts. Both come from index.json at run time,
+  // so texts added later are in the exam without touching the exam code.
+  const band = { 'A1-A2': ['A1', 'A2'], 'A2-B1': ['A2', 'B1'], 'B1-B2': ['B1', 'B2'] };
+  const stored = globalThis.localStorage.getItem('norsk:examBand') ?? 'A2-B1';
+  const levels = band[stored];
+  const inBand = index.paragraphs.filter((p) => levels.includes(p.level));
+  assert.atLeast(inBand.length, 10, 'the band should have texts to draw from');
+
+  const heading = reader().querySelector('.level-title').textContent;
+  // Del 1 is showing; step to Del 2, where the topic is named.
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Neste del').click();
+  const topicHeading = reader().querySelector('.level-title').textContent;
+  const named = index.topics.find((t) => topicHeading.includes(t.label));
+  assert.ok(named, `Del 2 should name a declared topic, got "${topicHeading}"`);
+  assert.ok(
+    inBand.some((p) => p.topic === named.id),
+    `topic "${named.id}" has no text at ${levels.join('/')}, so its key words would be empty`
+  );
+  assert.ok(heading.includes('Del 1'), 'started from Del 1');
+});
+
+// That check stepped into Del 2; start a fresh sitting for what follows.
 await go('#/prove');
 await new Promise((r) => setTimeout(r, 30));
 

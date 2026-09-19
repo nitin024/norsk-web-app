@@ -129,6 +129,22 @@
               "prompt": "Sett sammen med «fordi»: «Jeg er trøtt.» + «Jeg sov dårlig.»",
               "answer": "Jeg er trøtt fordi jeg sov dårlig",
               "hint": "skriv hele setningen"
+            },
+            {
+              "type": "join",
+              "prompt": "Sett sammen til én setning.",
+              "first": "Jeg blir hjemme.",
+              "second": "Jeg er ikke frisk.",
+              "connector": "fordi",
+              "answer": "Jeg blir hjemme fordi jeg ikke er frisk"
+            },
+            {
+              "type": "join",
+              "prompt": "Sett sammen til én setning.",
+              "first": "Vi tar bussen.",
+              "second": "Det regner.",
+              "connector": "når",
+              "answer": "Vi tar bussen når det regner"
             }
           ]
         },
@@ -190,6 +206,20 @@
               "type": "fill",
               "prompt": "Hver dag ___ jeg frokost klokka sju. (spise)",
               "answer": "spiser"
+            },
+            {
+              "type": "tense",
+              "prompt": "Skriv verbet i riktig form.",
+              "verb": "å spise",
+              "when": "hver dag",
+              "answer": "spiser"
+            },
+            {
+              "type": "tense",
+              "prompt": "Skriv verbet i riktig form.",
+              "verb": "å jobbe",
+              "when": "nå",
+              "answer": "jobber"
             }
           ]
         },
@@ -212,6 +242,27 @@
             {
               "type": "fill",
               "prompt": "For to år siden ___ vi til <Norge>. (flytte)",
+              "answer": "flyttet"
+            },
+            {
+              "type": "tense",
+              "prompt": "Skriv verbet i riktig form.",
+              "verb": "å være",
+              "when": "i går",
+              "answer": "var"
+            },
+            {
+              "type": "tense",
+              "prompt": "Skriv verbet i riktig form.",
+              "verb": "å komme",
+              "when": "for to år siden",
+              "answer": "kom"
+            },
+            {
+              "type": "tense",
+              "prompt": "Skriv verbet i riktig form.",
+              "verb": "å flytte",
+              "when": "i fjor",
               "answer": "flyttet"
             }
           ]
@@ -236,6 +287,20 @@
               "type": "fill",
               "prompt": "Har du ___ frokost? (spise)",
               "answer": "spist"
+            },
+            {
+              "type": "tense",
+              "prompt": "Skriv verbet i riktig form (med «har»).",
+              "verb": "å bo",
+              "when": "i fem år",
+              "answer": "har bodd"
+            },
+            {
+              "type": "tense",
+              "prompt": "Skriv verbet i riktig form (med «har»).",
+              "verb": "å spise",
+              "when": "allerede",
+              "answer": "har spist"
             }
           ]
         },
@@ -310,6 +375,13 @@
                 "skal"
               ],
               "answer": "kommer til å"
+            },
+            {
+              "type": "tense",
+              "prompt": "Skriv verbet i riktig form.",
+              "verb": "å reise",
+              "when": "i morgen",
+              "answer": "reiser"
             }
           ]
         },
@@ -452,7 +524,7 @@
         {
           "id": "eiendom",
           "title": "Possessives: «boka mi» or «min bok»",
-          "explanation": "Possessives agree with the noun too: «min bil», «mi bok», «mitt hus», «mine barn». They can go after the noun, which then takes the definite form («bilen min»), or before it with the noun in the indefinite («min bil»). After the noun is the everyday choice; before the noun adds emphasis. «sin/si/sitt/sine» means «his/her/their own» and points back to the subject: «Han liker jobben sin».",
+          "explanation": "Possessives agree with the thing owned: «min bil», «mi bok», «mitt hus», «mine barn». They usually follow the noun, which then takes its definite form: «bilen min». «sin» points back to the subject of the clause. The section «Eiendom og refleksiv» works all of this through in full.",
           "english": "Both orders are correct, which surprises English speakers; use the after-the-noun form by default. «sin» has no English equivalent: «Han vasker bilen sin» is his own car, «Han vasker bilen hans» is someone else's. Getting this right is a mark of a strong B1 speaker.",
           "examples": [
             "Bilen min er gammel.",
@@ -477,6 +549,210 @@
               "type": "fill",
               "prompt": "«my book» = boka ___",
               "answer": "mi"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "eiendom-refleksiv",
+      "title": "Eiendom og refleksiv — possessives and «seg»",
+      "summary": "Who owns what, and when a sentence points back at its own subject. «sin» and «seg» have no English equivalent, and they are what separates a B1 speaker from an A2 one.",
+      "rules": [
+        {
+          "id": "eiendomsord",
+          "title": "The possessive table: min, di, sitt, våre",
+          "explanation": "A possessive agrees with the thing owned, not with the owner. «min» for en-words, «mi» for ei-words, «mitt» for et-words, «mine» for plurals — and the same four endings on «din», «sin» and «vår». The ones that never change are «hans», «hennes» and «deres».\n\nEn: min, din, sin, vår, deres. Ei: mi, di, si, vår, deres. Et: mitt, ditt, sitt, vårt, deres. Flertall: mine, dine, sine, våre, deres.",
+          "english": "English picks the form from the owner — «his book», «her book». Norwegian picks it from the noun: «boka hans», «boka hennes», both «boka». Ask what is owned, not who owns it. The good news is that «hans», «hennes» and «deres» never change at all.",
+          "examples": [
+            "Bilen {min:min} er gammel.",
+            "Boka {mi:min} ligger på bordet.",
+            "Huset {mitt:min} er lite.",
+            "Barna {mine:min} går på skolen.",
+            "Jeg liker jobben {din:din}."
+          ],
+          "exercises": [
+            {
+              "type": "fill",
+              "prompt": "«my house» = huset ___",
+              "answer": "mitt"
+            },
+            {
+              "type": "fill",
+              "prompt": "«my children» = barna ___",
+              "answer": "mine"
+            },
+            {
+              "type": "choice",
+              "prompt": "boka ___",
+              "options": [
+                "mi",
+                "mitt",
+                "mine"
+              ],
+              "answer": "mi"
+            },
+            {
+              "type": "choice",
+              "prompt": "huset ___",
+              "options": [
+                "vårt",
+                "vår",
+                "våre"
+              ],
+              "answer": "vårt"
+            }
+          ]
+        },
+        {
+          "id": "eiendom-plass",
+          "title": "«bilen min» or «min bil»: both, but not the same",
+          "explanation": "After the noun is the everyday order, and the noun takes its definite form: «bilen min», «boka mi», «huset mitt». Before the noun is possible too, and then the noun stays indefinite: «min bil». That order adds emphasis or contrast — «MIN bil, ikke din» — and is more common in writing.",
+          "english": "English has only one order, so the after-the-noun form feels backwards at first. Use it by default: it is what people say. The trap is mixing the two, «min bilen», which is wrong in both directions.",
+          "examples": [
+            "Jeg tar bilen {min:min} til jobben.",
+            "Det er {min:min} bil, ikke {din:din}.",
+            "Søsteren {mi:min} bor i <Spania>.",
+            "Vennene {mine:min} kommer i kveld."
+          ],
+          "exercises": [
+            {
+              "type": "choice",
+              "prompt": "Det vanligste: ___",
+              "options": [
+                "bilen min",
+                "min bilen",
+                "min bil"
+              ],
+              "answer": "bilen min"
+            },
+            {
+              "type": "fill",
+              "prompt": "Skriv om til vanlig ordstilling: «mitt hus» → ___ mitt",
+              "answer": "huset"
+            }
+          ]
+        },
+        {
+          "id": "sin-hans",
+          "title": "«sin» or «hans»: whose is it, really?",
+          "explanation": "«sin/si/sitt/sine» points back to the subject of its own clause. «hans», «hennes» and «deres» point at somebody else.\n\n«Han vasker bilen sin» — he washes his own car.\n«Han vasker bilen hans» — he washes another man's car.\n\nThe rule is mechanical: if the owner is the subject of the same clause, use «sin». «sin» can never be the subject itself, so a sentence never starts with it.",
+          "english": "English cannot make this distinction at all — «he washes his car» is both readings, and context does the work. Norwegian forces you to choose, so translating word for word will be wrong half the time. Ask one question: is the owner the subject of this clause? Yes, «sin». No, «hans» or «hennes».",
+          "examples": [
+            "Han liker jobben {sin:sin}.",
+            "Hun tar sykkelen {sin:sin} til byen.",
+            "<Alex> vasker bilen {sin:sin}.",
+            "Barna liker læreren {sin:sin}.",
+            "Jeg møtte <Alex> og kona {hans:hans}."
+          ],
+          "exercises": [
+            {
+              "type": "choice",
+              "prompt": "Han vasker bilen ___ (his own).",
+              "options": [
+                "sin",
+                "hans"
+              ],
+              "answer": "sin"
+            },
+            {
+              "type": "choice",
+              "prompt": "Jeg kjenner <Alex> og kona ___.",
+              "options": [
+                "hans",
+                "sin"
+              ],
+              "answer": "hans"
+            },
+            {
+              "type": "choice",
+              "prompt": "Hun glemte nøkkelen ___ hjemme (her own).",
+              "options": [
+                "sin",
+                "hennes"
+              ],
+              "answer": "sin"
+            },
+            {
+              "type": "fill",
+              "prompt": "«She likes her own job» = Hun liker jobben ___",
+              "answer": "sin"
+            }
+          ]
+        },
+        {
+          "id": "refleksiv",
+          "title": "Reflexive pronouns: meg, deg, seg, oss",
+          "explanation": "When the object is the same person as the subject, Norwegian uses a reflexive pronoun: «meg, deg, seg, oss, dere, seg». Only the third person has its own word — «seg» covers han, hun, den, det and de.\n\nJeg vasker meg. Du vasker deg. Han vasker seg. Vi vasker oss. De vasker seg.\n\nCompare «Han vasker ham», which means he washes somebody else.",
+          "english": "English adds «-self»: myself, yourself, himself. Norwegian just reuses the object pronoun, except in the third person where «seg» replaces «ham/henne/dem». The mistake to avoid is «han vasker ham» when you mean he washes himself.",
+          "examples": [
+            "Jeg vasker meg om morgenen.",
+            "Han {satte:sette} seg {ned:ned} på stolen.",
+            "Vi [gleder oss](glede seg) til helgen.",
+            "Barna [kjeder seg](kjede seg) når det regner.",
+            "[Skynd deg](skynde seg) — bussen kommer!"
+          ],
+          "exercises": [
+            {
+              "type": "fill",
+              "prompt": "Vi vasker ___ (ourselves).",
+              "answer": "oss"
+            },
+            {
+              "type": "choice",
+              "prompt": "Han setter ___ ned.",
+              "options": [
+                "seg",
+                "ham",
+                "han"
+              ],
+              "answer": "seg"
+            },
+            {
+              "type": "fill",
+              "prompt": "Jeg gleder ___ til sommeren.",
+              "answer": "meg"
+            },
+            {
+              "type": "choice",
+              "prompt": "De kjeder ___.",
+              "options": [
+                "seg",
+                "dem",
+                "de"
+              ],
+              "answer": "seg"
+            }
+          ]
+        },
+        {
+          "id": "refleksive-verb",
+          "title": "Verbs that always take «seg»",
+          "explanation": "Some verbs carry a reflexive pronoun as part of their meaning, and dropping it makes the sentence wrong rather than merely different: «glede seg til» (look forward to), «kjede seg» (be bored), «skynde seg» (hurry), «legge seg» (go to bed), «sette seg» (sit down), «føle seg» (feel), «tilpasse seg» (adapt), «lære seg» (learn).\n\nThe pronoun changes with the subject, so the dictionary form «glede seg» becomes «jeg gleder meg», «vi gleder oss».",
+          "english": "English has a few of these — «enjoy yourself», «help yourself» — but far fewer, so the instinct is to drop the pronoun. «Jeg gleder til helgen» is not a sentence. Learn each of these verbs with its «seg» attached, the way the word card shows it.",
+          "examples": [
+            "Jeg [gleder meg](glede seg) til helgen.",
+            "Barna [legger seg](legge seg) {klokka:klokka} åtte.",
+            "Hun [føler seg](føle seg) {bedre:god} i dag.",
+            "Man må [tilpasse seg] et nytt land."
+          ],
+          "exercises": [
+            {
+              "type": "fill",
+              "prompt": "Jeg ___ meg til helgen. (glede seg, presens)",
+              "answer": "gleder"
+            },
+            {
+              "type": "fill",
+              "prompt": "Barna legger ___ klokka åtte.",
+              "answer": "seg"
+            },
+            {
+              "type": "tense",
+              "prompt": "Skriv verbet i riktig form.",
+              "verb": "å føle seg",
+              "when": "i dag",
+              "answer": "føler seg"
             }
           ]
         }
@@ -511,6 +787,14 @@
                 "derfor"
               ],
               "answer": "men"
+            },
+            {
+              "type": "join",
+              "prompt": "Sett sammen med «men».",
+              "first": "Leiligheten er liten.",
+              "second": "Den er lys.",
+              "connector": "men",
+              "answer": "Leiligheten er liten men den er lys"
             }
           ]
         },
@@ -560,6 +844,14 @@
                 "men"
               ],
               "answer": "hvis"
+            },
+            {
+              "type": "join",
+              "prompt": "Sett sammen til én setning.",
+              "first": "Jeg lærer norsk.",
+              "second": "Jeg vil jobbe her.",
+              "connector": "fordi",
+              "answer": "Jeg lærer norsk fordi jeg vil jobbe her"
             }
           ]
         },
@@ -598,6 +890,22 @@
                 "jeg blir"
               ],
               "answer": "blir jeg"
+            },
+            {
+              "type": "join",
+              "prompt": "Sett sammen. Husk inversjon etter «derfor».",
+              "first": "Jeg er syk.",
+              "second": "Jeg blir hjemme.",
+              "connector": "derfor",
+              "answer": "Jeg er syk. Derfor blir jeg hjemme"
+            },
+            {
+              "type": "join",
+              "prompt": "Sett sammen med «likevel».",
+              "first": "Det er dyrt.",
+              "second": "Jeg kjøper det.",
+              "connector": "likevel",
+              "answer": "Det er dyrt. Likevel kjøper jeg det"
             }
           ]
         }

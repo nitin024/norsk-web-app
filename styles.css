@@ -1470,6 +1470,22 @@ body[data-view='dict'] .reader {
   color: var(--ink);
 }
 
+.exercise-parts {
+  margin: 0 0 var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  border-left: 2px solid var(--accent-soft);
+  font-size: var(--t-sm);
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.exercise-hint {
+  margin: 0 0 var(--s-2);
+  font-size: var(--t-xs);
+  letter-spacing: 0.02em;
+  color: var(--ink-faint);
+}
+
 .exercise-options {
   display: flex;
   flex-wrap: wrap;
@@ -1917,6 +1933,17 @@ body[data-view='dict'] .reader {
 
 .timer .scratch-actions {
   justify-content: center;
+}
+
+.recorder {
+  margin: var(--s-5) 0 0;
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--rule-soft);
+}
+
+.btn-primary.is-recording {
+  background: var(--danger);
+  border-color: var(--danger);
 }
 
 /* --- review ---------------------------------------------------------------- */

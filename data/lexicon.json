@@ -223,7 +223,8 @@
         "infinitive": "spise",
         "present": "spiser",
         "preterite": "spiste",
-        "perfect": "spist"
+        "perfect": "spist",
+        "passive": "spises"
       }
     },
     "hente": {
@@ -245,7 +246,8 @@
         "infinitive": "si",
         "present": "sier",
         "preterite": "sa",
-        "perfect": "sagt"
+        "perfect": "sagt",
+        "passive": "sies"
       }
     },
     "regn": {
@@ -867,7 +869,9 @@
         "infinitive": "møte",
         "present": "møter",
         "preterite": "møtte",
-        "perfect": "møtt"
+        "perfect": "møtt",
+        "passive": "møtes",
+        "imperative": "møt"
       }
     },
     "oppgave": {
@@ -1869,7 +1873,8 @@
         "infinitive": "kjøpe",
         "present": "kjøper",
         "preterite": "kjøpte",
-        "perfect": "kjøpt"
+        "perfect": "kjøpt",
+        "passive": "kjøpes"
       }
     },
     "betale": {
@@ -1892,7 +1897,8 @@
         "infinitive": "bruke",
         "present": "bruker",
         "preterite": "brukte",
-        "perfect": "brukt"
+        "perfect": "brukt",
+        "passive": "brukes"
       }
     },
     "trene": {
@@ -1914,7 +1920,8 @@
         "infinitive": "føle",
         "present": "føler",
         "preterite": "følte",
-        "perfect": "følt"
+        "perfect": "følt",
+        "passive": "føles"
       }
     },
     "tenke": {
@@ -2081,7 +2088,8 @@
         "infinitive": "gi",
         "present": "gir",
         "preterite": "ga",
-        "perfect": "gitt"
+        "perfect": "gitt",
+        "passive": "gis"
       }
     },
     "se": {
@@ -2138,7 +2146,8 @@
         "infinitive": "forstå",
         "present": "forstår",
         "preterite": "forsto",
-        "perfect": "forstått"
+        "perfect": "forstått",
+        "passive": "forstås"
       }
     },
     "vite": {
@@ -2304,7 +2313,8 @@
         "infinitive": "redusere",
         "present": "reduserer",
         "preterite": "reduserte",
-        "perfect": "redusert"
+        "perfect": "redusert",
+        "passive": "reduseres"
       }
     },
     "oppleve": {
@@ -2315,7 +2325,8 @@
         "infinitive": "oppleve",
         "present": "opplever",
         "preterite": "opplevde",
-        "perfect": "opplevd"
+        "perfect": "opplevd",
+        "passive": "oppleves"
       }
     },
     "delta": {
@@ -2414,7 +2425,8 @@
         "infinitive": "spare",
         "present": "sparer",
         "preterite": "sparte",
-        "perfect": "spart"
+        "perfect": "spart",
+        "passive": "spares"
       }
     },
     "miste": {
@@ -2548,7 +2560,8 @@
         "neuter": "viktig",
         "plural": "viktige",
         "comparative": "viktigere",
-        "superlative": "viktigst"
+        "superlative": "viktigst",
+        "superlative_definite": "viktigste"
       }
     },
     "travel": {
@@ -3380,7 +3393,8 @@
         "infinitive": "kreve",
         "present": "krever",
         "preterite": "krevde",
-        "perfect": "krevd"
+        "perfect": "krevd",
+        "passive": "kreves"
       }
     },
     "legetime": {
@@ -3947,7 +3961,8 @@
         "infinitive": "legge",
         "present": "legger",
         "preterite": "la",
-        "perfect": "lagt"
+        "perfect": "lagt",
+        "passive": "legges"
       }
     },
     "ligge": {
@@ -4080,7 +4095,8 @@
         "infinitive": "forvente",
         "present": "forventer",
         "preterite": "forventet",
-        "perfect": "forventet"
+        "perfect": "forventet",
+        "passive": "forventes"
       }
     },
     "virke": {
@@ -4124,7 +4140,8 @@
         "infinitive": "bestille",
         "present": "bestiller",
         "preterite": "bestilte",
-        "perfect": "bestilt"
+        "perfect": "bestilt",
+        "passive": "bestilles"
       }
     },
     "undersøke": {
@@ -4135,7 +4152,8 @@
         "infinitive": "undersøke",
         "present": "undersøker",
         "preterite": "undersøkte",
-        "perfect": "undersøkt"
+        "perfect": "undersøkt",
+        "passive": "undersøkes"
       }
     },
     "gift": {
@@ -6491,7 +6509,8 @@
         "infinitive": "sette",
         "present": "setter",
         "preterite": "satte",
-        "perfect": "satt"
+        "perfect": "satt",
+        "passive": "settes"
       },
       "note": "Irregular: satte / satt."
     },
@@ -6503,7 +6522,8 @@
         "infinitive": "holde",
         "present": "holder",
         "preterite": "holdt",
-        "perfect": "holdt"
+        "perfect": "holdt",
+        "passive": "holdes"
       }
     },
     "følge": {
@@ -6537,7 +6557,8 @@
         "infinitive": "stoppe",
         "present": "stopper",
         "preterite": "stoppet",
-        "perfect": "stoppet"
+        "perfect": "stoppet",
+        "passive": "stoppes"
       }
     },
     "fortsette": {
@@ -6616,7 +6637,8 @@
         "infinitive": "tilby",
         "present": "tilbyr",
         "preterite": "tilbød",
-        "perfect": "tilbudt"
+        "perfect": "tilbudt",
+        "passive": "tilbys"
       }
     },
     "lei seg": {
@@ -7249,7 +7271,8 @@
         "infinitive": "endre",
         "present": "endrer",
         "preterite": "endret",
-        "perfect": "endret"
+        "perfect": "endret",
+        "passive": "endres"
       }
     },
     "kompetanse": {
@@ -7883,7 +7906,9 @@
       "forms": {
         "positive": "kort",
         "neuter": "kort",
-        "plural": "korte"
+        "plural": "korte",
+        "comparative": "kortere",
+        "superlative": "kortest"
       }
     },
     "venstre": {
@@ -9462,7 +9487,8 @@
         "infinitive": "bygge",
         "present": "bygger",
         "preterite": "bygde",
-        "perfect": "bygd"
+        "perfect": "bygd",
+        "passive": "bygges"
       }
     },
     "reparere": {
@@ -9663,7 +9689,8 @@
         "infinitive": "skynde seg",
         "present": "skynder seg",
         "preterite": "skyndte seg",
-        "perfect": "skyndt seg"
+        "perfect": "skyndt seg",
+        "imperative": "skynd seg"
       }
     },
     "glede seg": {
@@ -10998,7 +11025,8 @@
         "infinitive": "hevde",
         "present": "hevder",
         "preterite": "hevdet",
-        "perfect": "hevdet"
+        "perfect": "hevdet",
+        "passive": "hevdes"
       }
     },
     "understreke": {
@@ -11098,7 +11126,8 @@
         "infinitive": "unngå",
         "present": "unngår",
         "preterite": "unngikk",
-        "perfect": "unngått"
+        "perfect": "unngått",
+        "passive": "unngås"
       }
     },
     "ta hensyn til": {
@@ -11165,7 +11194,8 @@
         "infinitive": "styrke",
         "present": "styrker",
         "preterite": "styrket",
-        "perfect": "styrket"
+        "perfect": "styrket",
+        "passive": "styrkes"
       }
     },
     "svekke": {
@@ -11429,6 +11459,420 @@
         "definite_sg_fem": "bønna",
         "indefinite_pl": "bønner",
         "definite_pl": "bønnene"
+      }
+    },
+    "bruk": {
+      "id": "bruk-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "use",
+      "forms": {
+        "indefinite_sg": "bruk",
+        "definite_sg": "bruken",
+        "indefinite_pl": "bruker",
+        "definite_pl": "brukene"
+      }
+    },
+    "ned": {
+      "id": "ned-adv",
+      "pos": "adverb",
+      "gloss": "down (with movement)",
+      "note": "Movement: «gå ned». Position: «nede»."
+    },
+    "tilbake": {
+      "id": "tilbake-adv",
+      "pos": "adverb",
+      "gloss": "back"
+    },
+    "uttrykk": {
+      "id": "uttrykk-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "expression",
+      "forms": {
+        "indefinite_sg": "uttrykk",
+        "definite_sg": "uttrykket",
+        "indefinite_pl": "uttrykk",
+        "definite_pl": "uttrykkene"
+      }
+    },
+    "normal": {
+      "id": "normal-adj",
+      "pos": "adjective",
+      "gloss": "normal",
+      "forms": {
+        "positive": "normal",
+        "neuter": "normalt",
+        "plural": "normale"
+      }
+    },
+    "fast": {
+      "id": "fast-adj",
+      "pos": "adjective",
+      "gloss": "fixed, regular; permanent",
+      "forms": {
+        "positive": "fast",
+        "neuter": "fast",
+        "plural": "faste"
+      }
+    },
+    "rutine": {
+      "id": "rutine-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "routine",
+      "forms": {
+        "indefinite_sg": "rutine",
+        "definite_sg": "rutinen",
+        "indefinite_pl": "rutiner",
+        "definite_pl": "rutinene"
+      }
+    },
+    "dugnad": {
+      "id": "dugnad-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "communal volunteer work",
+      "note": "A Norwegian institution: neighbours or a club working together unpaid, often on a spring clean-up.",
+      "forms": {
+        "indefinite_sg": "dugnad",
+        "definite_sg": "dugnaden",
+        "indefinite_pl": "dugnader",
+        "definite_pl": "dugnadene"
+      }
+    },
+    "måte": {
+      "id": "måte-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "way, manner ('på denne måten')",
+      "forms": {
+        "indefinite_sg": "måte",
+        "definite_sg": "måten",
+        "indefinite_pl": "måter",
+        "definite_pl": "måtene"
+      }
+    },
+    "valg": {
+      "id": "valg-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "choice; election",
+      "forms": {
+        "indefinite_sg": "valg",
+        "definite_sg": "valget",
+        "indefinite_pl": "valg",
+        "definite_pl": "valgene"
+      }
+    },
+    "digital": {
+      "id": "digital-adj",
+      "pos": "adjective",
+      "gloss": "digital",
+      "forms": {
+        "positive": "digital",
+        "neuter": "digitalt",
+        "plural": "digitale"
+      }
+    },
+    "slik": {
+      "id": "slik-adv",
+      "pos": "adverb",
+      "gloss": "like this, such; 'slik at' = so that"
+    },
+    "stille (verb)": {
+      "id": "stille-v",
+      "pos": "verb",
+      "headword": "stille",
+      "gloss": "to put, to place; to ask (a question)",
+      "forms": {
+        "infinitive": "stille",
+        "present": "stiller",
+        "preterite": "stilte",
+        "perfect": "stilt",
+        "passive": "stilles"
+      }
+    },
+    "enten": {
+      "id": "enten-conj",
+      "pos": "conjunction",
+      "gloss": "either (enten ... eller = either ... or)"
+    },
+    "møtes": {
+      "id": "møtes-v",
+      "pos": "verb",
+      "gloss": "to meet (each other)",
+      "note": "The -s form of «møte» used reciprocally: «vi møttes» = we met.",
+      "forms": {
+        "infinitive": "møtes",
+        "present": "møtes",
+        "preterite": "møttes",
+        "perfect": "møttes"
+      }
+    },
+    "møte (substantiv)": {
+      "id": "møte-n",
+      "pos": "noun",
+      "gender": "et",
+      "headword": "møte",
+      "gloss": "meeting",
+      "forms": {
+        "indefinite_sg": "møte",
+        "definite_sg": "møtet",
+        "indefinite_pl": "møter",
+        "definite_pl": "møtene"
+      }
+    },
+    "hans": {
+      "id": "hans-det",
+      "pos": "determiner",
+      "gloss": "his (someone else's, not the subject's own)",
+      "note": "Never changes. «bilen hans» = his car, where «han» is not the subject of the sentence. If the owner is the subject, use «sin»."
+    },
+    "hennes": {
+      "id": "hennes-det",
+      "pos": "determiner",
+      "gloss": "her, hers (someone else's, not the subject's own)",
+      "note": "Never changes. Contrast «sin», which points back to the subject."
+    },
+    "deres": {
+      "id": "deres-det",
+      "pos": "determiner",
+      "gloss": "their, theirs; your (plural)",
+      "note": "Never changes. «huset deres» = their house."
+    },
+    "føle seg": {
+      "id": "føle-seg-phr",
+      "pos": "phrase",
+      "phrase": true,
+      "gloss": "to feel (a way)",
+      "forms": {
+        "infinitive": "føle seg",
+        "present": "føler seg",
+        "preterite": "følte seg",
+        "perfect": "følt seg"
+      }
+    },
+    "aktivitet": {
+      "id": "aktivitet-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "activity",
+      "forms": {
+        "indefinite_sg": "aktivitet",
+        "definite_sg": "aktiviteten",
+        "indefinite_pl": "aktiviteter",
+        "definite_pl": "aktivitetene"
+      }
+    },
+    "selvstendig": {
+      "id": "selvstendig-adj",
+      "pos": "adjective",
+      "gloss": "independent",
+      "forms": {
+        "positive": "selvstendig",
+        "neuter": "selvstendig",
+        "plural": "selvstendige"
+      }
+    },
+    "tilbud": {
+      "id": "tilbud-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "offer; provision (of a service)",
+      "forms": {
+        "indefinite_sg": "tilbud",
+        "definite_sg": "tilbudet",
+        "indefinite_pl": "tilbud",
+        "definite_pl": "tilbudene"
+      }
+    },
+    "godteri": {
+      "id": "godteri-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "sweets, candy",
+      "forms": {
+        "indefinite_sg": "godteri",
+        "definite_sg": "godteriet",
+        "indefinite_pl": "godterier",
+        "definite_pl": "godteriene"
+      }
+    },
+    "kalle": {
+      "id": "kalle-v",
+      "pos": "verb",
+      "gloss": "to call, to name",
+      "forms": {
+        "infinitive": "kalle",
+        "present": "kaller",
+        "preterite": "kalte",
+        "perfect": "kalt",
+        "passive": "kalles"
+      }
+    },
+    "lørdagsgodt": {
+      "id": "lørdagsgodt-n",
+      "pos": "noun",
+      "gender": "et",
+      "gloss": "Saturday sweets",
+      "note": "A Norwegian habit: children get sweets on Saturdays and not on other days.",
+      "pluralOnly": false,
+      "forms": {
+        "indefinite_sg": "lørdagsgodt",
+        "definite_sg": "lørdagsgodtet",
+        "indefinite_pl": "lørdagsgodt",
+        "definite_pl": "lørdagsgodtene"
+      }
+    },
+    "skje (verb)": {
+      "id": "skje-v",
+      "pos": "verb",
+      "headword": "skje",
+      "gloss": "to happen",
+      "forms": {
+        "infinitive": "skje",
+        "present": "skjer",
+        "preterite": "skjedde",
+        "perfect": "skjedd"
+      }
+    },
+    "én": {
+      "id": "én-num",
+      "pos": "numeral",
+      "gloss": "one (stressed)",
+      "note": "The accent marks emphasis: «én gang i uka» = once a week, not twice."
+    },
+    "regel": {
+      "id": "regel-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "rule",
+      "forms": {
+        "indefinite_sg": "regel",
+        "definite_sg": "regelen",
+        "indefinite_pl": "regler",
+        "definite_pl": "reglene"
+      }
+    },
+    "vane": {
+      "id": "vane-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "habit",
+      "forms": {
+        "indefinite_sg": "vane",
+        "definite_sg": "vanen",
+        "indefinite_pl": "vaner",
+        "definite_pl": "vanene"
+      }
+    },
+    "rest": {
+      "id": "rest-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "rest, remainder",
+      "forms": {
+        "indefinite_sg": "rest",
+        "definite_sg": "resten",
+        "indefinite_pl": "rester",
+        "definite_pl": "restene"
+      }
+    },
+    "mengde": {
+      "id": "mengde-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "quantity, amount",
+      "forms": {
+        "indefinite_sg": "mengde",
+        "definite_sg": "mengden",
+        "indefinite_pl": "mengder",
+        "definite_pl": "mengdene"
+      }
+    },
+    "mulig": {
+      "id": "mulig-adj",
+      "pos": "adjective",
+      "gloss": "possible",
+      "forms": {
+        "positive": "mulig",
+        "neuter": "mulig",
+        "plural": "mulige"
+      }
+    },
+    "opplevelse": {
+      "id": "opplevelse-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "experience (something you lived through)",
+      "forms": {
+        "indefinite_sg": "opplevelse",
+        "definite_sg": "opplevelsen",
+        "indefinite_pl": "opplevelser",
+        "definite_pl": "opplevelsene"
+      }
+    },
+    "nei": {
+      "id": "nei-adv",
+      "pos": "adverb",
+      "gloss": "no"
+    },
+    "reserve": {
+      "id": "reserve-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "reserve, buffer",
+      "forms": {
+        "indefinite_sg": "reserve",
+        "definite_sg": "reserven",
+        "indefinite_pl": "reserver",
+        "definite_pl": "reservene"
+      }
+    },
+    "ting": {
+      "id": "ting-n",
+      "pos": "noun",
+      "gender": "en",
+      "gloss": "thing",
+      "note": "Unchanged in the plural: «en ting», «to ting».",
+      "forms": {
+        "indefinite_sg": "ting",
+        "definite_sg": "tingen",
+        "indefinite_pl": "ting",
+        "definite_pl": "tingene"
+      }
+    },
+    "sparing": {
+      "id": "sparing-n",
+      "pos": "noun",
+      "gender": "en/ei",
+      "gloss": "saving (money)",
+      "forms": {
+        "indefinite_sg": "sparing",
+        "definite_sg": "sparingen",
+        "definite_sg_fem": "sparinga",
+        "indefinite_pl": "sparinger",
+        "definite_pl": "sparingene"
+      }
+    },
+    "selve": {
+      "id": "selve-det",
+      "pos": "determiner",
+      "gloss": "the ... itself",
+      "note": "Emphasises the noun: «selve dagen» = the day itself."
+    },
+    "slik (determinativ)": {
+      "id": "slik-det",
+      "pos": "determiner",
+      "headword": "slik",
+      "gloss": "such, like that",
+      "note": "Agrees like an adjective: «en slik dag», «et slikt hus», «slike dager».",
+      "forms": {
+        "masculine": "slik",
+        "feminine": "slik",
+        "neuter": "slikt",
+        "plural": "slike"
       }
     }
   },

@@ -62,6 +62,9 @@ The same command runs in GitHub Actions on every push and pull request.
   Every rule carries a "For English speakers" note on what the English
   instinct gets wrong, every example is tappable, and rules have scrambled
   sentences to put back in order.
+- **Snakk** — a two-minute timer with key words, plus record-and-compare:
+  record yourself, play it back, then hear the same text in the app's voice.
+  Nothing is uploaded; the clip dies with the page.
 - **Progress** — each text remembers when it was opened, the mode it was left
   in, the best cloze score and whether the speaking timer ran out. The list
   shows "lest" and "✓ ferdig" badges; home shows a count and a "Fortsett" link

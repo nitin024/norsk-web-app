@@ -65,6 +65,22 @@
           "id": "jeg-de"
         },
         {
+          "type": "text",
+          "id": "helg-med-familien"
+        },
+        {
+          "type": "text",
+          "id": "middag-i-to-land"
+        },
+        {
+          "type": "text",
+          "id": "vi-handler-mat"
+        },
+        {
+          "type": "text",
+          "id": "norskkurs-pa-kvelden"
+        },
+        {
           "type": "drill",
           "label": "Tall og klokka — ti riktige"
         },
@@ -174,6 +190,10 @@
           "id": "vokaler"
         },
         {
+          "type": "text",
+          "id": "forste-dugnad"
+        },
+        {
           "type": "drill",
           "label": "Tall og klokka — ti riktige"
         },
@@ -247,6 +267,22 @@
           "id": "sammenlikning"
         },
         {
+          "type": "text",
+          "id": "butikk-eller-nett"
+        },
+        {
+          "type": "text",
+          "id": "matboks-eller-varm-lunsj"
+        },
+        {
+          "type": "text",
+          "id": "tur-eller-sofa"
+        },
+        {
+          "type": "text",
+          "id": "faste-rutiner"
+        },
+        {
           "type": "review",
           "label": "Øving — fem ord lært"
         },
@@ -290,6 +326,34 @@
         {
           "type": "rule",
           "id": "tonelag"
+        },
+        {
+          "type": "text",
+          "id": "boliger-og-parker"
+        },
+        {
+          "type": "text",
+          "id": "darlig-vaer-darlige-klaer"
+        },
+        {
+          "type": "text",
+          "id": "hjemme-i-to-land"
+        },
+        {
+          "type": "text",
+          "id": "legen-pa-skjermen"
+        },
+        {
+          "type": "text",
+          "id": "fullt-program"
+        },
+        {
+          "type": "text",
+          "id": "lordagsgodt"
+        },
+        {
+          "type": "text",
+          "id": "spare-eller-bruke"
         },
         {
           "type": "review",

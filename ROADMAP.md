@@ -12,10 +12,6 @@ works, read the code and its tests. This file is only the open list.
    The loop is
    `npm run generate -- --plan ... --dry-run`, paste into a chat, then
    `import-text`, pin the ambiguous words, `promote`.
-2. **More exercise types.** Join two clauses with a given connector; produce
-   a tense from an infinitive and a time word.
-3. **Speaking feedback.** Record and play back, so the learner hears
-   themselves against the read-aloud voice.
 
 ## Not doing
 

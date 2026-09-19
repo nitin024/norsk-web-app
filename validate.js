@@ -187,7 +187,8 @@ const SCHEMA = {
     formsOptional: true,
   },
   phrase: {
-    allowed: ['infinitive', 'present', 'preterite', 'perfect'],
+    // A verbal phrase can be a command too: «skynd deg», «sett deg ned».
+    allowed: ['infinitive', 'present', 'preterite', 'perfect', 'imperative'],
     required: [],
     formsOptional: true,
   },
@@ -203,8 +204,11 @@ const warn = (check, message) => warnings.push({ check, message });
 // --- load -------------------------------------------------------------
 
 const lexicon = JSON.parse(readFileSync(LEXICON_PATH, 'utf8'));
+// Published texts only. The authoring tools leave `.draft.json` alongside a
+// `.stubs.json` of missing words; neither is a paragraph, and a stub file has
+// no `body` at all.
 const paragraphFiles = readdirSync(PARAGRAPH_DIR)
-  .filter((f) => f.endsWith('.json'))
+  .filter((f) => f.endsWith('.json') && !f.endsWith('.draft.json') && !f.endsWith('.stubs.json'))
   .map((f) => join(PARAGRAPH_DIR, f));
 
 const paragraphs = paragraphFiles.map((path) => ({
@@ -457,6 +461,28 @@ try {
   err('grammar', `${GRAMMAR_PATH}: ${e.message}`);
 }
 
+// --- 3bb. exam bands ----------------------------------------------------
+// Each band draws its Del 2 and Del 3 material from its own levels, so a
+// band with no texts would present an empty exam.
+
+try {
+  const exam = JSON.parse(readFileSync('data/exam.json', 'utf8'));
+  const declared = new Set(index.levels.map((l) => l.level));
+  if (!exam.bands?.length) err('exam', 'data/exam.json declares no bands');
+  for (const band of exam.bands ?? []) {
+    if (!band.id || !band.label) err('exam', `a band needs an id and a label`);
+    for (const level of band.levels ?? []) {
+      if (!declared.has(level)) err('exam', `band "${band.id}" names level "${level}", which index.json does not declare`);
+    }
+    const texts = index.paragraphs.filter((p) => (band.levels ?? []).includes(p.level));
+    if (texts.length === 0) err('exam', `band "${band.id}" has no texts at ${(band.levels ?? []).join('/')}`);
+    else if (texts.length < 4) warn('exam', `band "${band.id}" has only ${texts.length} texts to draw from`);
+  }
+  if (!exam.del1?.length) err('exam', 'no Del 1 questions');
+} catch (e) {
+  err('exam', e.message);
+}
+
 // --- 3c. course path ----------------------------------------------------
 
 try {
@@ -481,8 +507,23 @@ try {
   for (const section of grammar.sections) {
     for (const rule of section.rules) {
       for (const ex of rule.exercises ?? []) {
-        if (!['choice', 'fill'].includes(ex.type)) err('grammar', `${rule.id}: unknown exercise type "${ex.type}"`);
-        if (ex.type === 'choice' && !ex.options?.includes(ex.answer)) err('grammar', `${rule.id}: answer "${ex.answer}" is not among the options`);
+        if (!['choice', 'fill', 'join', 'tense'].includes(ex.type)) {
+          err('grammar', `${rule.id}: unknown exercise type "${ex.type}"`);
+        }
+        if (ex.type === 'choice' && !ex.options?.includes(ex.answer)) {
+          err('grammar', `${rule.id}: answer "${ex.answer}" is not among the options`);
+        }
+        // A join shows two clauses and the word to fuse them with; a tense
+        // shows the infinitive and the time expression that selects the form.
+        if (ex.type === 'join' && !(ex.first && ex.second && ex.connector)) {
+          err('grammar', `${rule.id}: a join needs first, second and connector`);
+        }
+        if (ex.type === 'join' && !ex.answer.toLowerCase().includes(ex.connector.toLowerCase())) {
+          err('grammar', `${rule.id}: the answer does not use the connector "${ex.connector}"`);
+        }
+        if (ex.type === 'tense' && !(ex.verb && ex.when)) {
+          err('grammar', `${rule.id}: a tense exercise needs verb and when`);
+        }
         if (!ex.prompt || !ex.answer) err('grammar', `${rule.id}: exercise needs prompt and answer`);
       }
     }

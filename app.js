@@ -13,6 +13,7 @@ import {
   recordRulePassed, rulesPassed, getProgress, isRead, isFinished, lastTouched, progressSummary,
 } from './progress.js';
 import { toWords, clockWords, priceWords, dateWords, yearWords } from './numbers.js';
+import { canRecord, startRecording, stopRecording, isRecording, releaseMicrophone } from './recorder.js';
 
 // Bump by hand on each deploy — there is no build step to inject it.
 // Shown on the home page and stamped into every feedback mail.
@@ -2532,6 +2533,9 @@ function renderSpeak(reader, doc, sentences) {
     })
   );
 
+  const rec = makeRecorder(doc, sentences);
+  if (rec) reader.append(rec);
+
   const after = document.createElement('p');
   after.className = 'level-desc';
   after.textContent = 'Etterpå: bytt til «Les» og sammenlikn med teksten.';
@@ -2709,6 +2713,29 @@ function exercise(ex, ruleId) {
     status.textContent = `Ikke helt — riktig er «${plainText(answer)}».`;
   };
 
+  // `join` gives two main clauses and a connector to fuse them with. The
+  // word order that follows is the whole point: «fordi» sends «ikke» before
+  // the verb, «derfor» inverts. Nothing else tests that in one move.
+  if (ex.type === 'join') {
+    const parts = document.createElement('p');
+    parts.className = 'exercise-parts';
+    parts.lang = 'nb';
+    parts.textContent = `${plainText(ex.first)}  +  ${plainText(ex.second)}`;
+    const word = document.createElement('p');
+    word.className = 'exercise-hint';
+    word.textContent = `Bindeord: ${ex.connector}`;
+    wrap.append(parts, word);
+  }
+
+  // `tense` gives an infinitive and a time expression and asks for the form
+  // the sentence needs. The time word is the signal a learner has to read.
+  if (ex.type === 'tense') {
+    const hint = document.createElement('p');
+    hint.className = 'exercise-hint';
+    hint.textContent = `${ex.verb} · ${ex.when}`;
+    wrap.append(hint);
+  }
+
   if (ex.type === 'choice') {
     const opts = document.createElement('div');
     opts.className = 'exercise-options';
@@ -2728,6 +2755,7 @@ function exercise(ex, ruleId) {
     }
     wrap.append(opts);
   } else {
+    // Everything else is typed: fill, join and tense share one input.
     const row = document.createElement('div');
     row.className = 'scratch-actions';
     const input = document.createElement('input');
@@ -2936,6 +2964,17 @@ function makeTimer(total, onDone) {
 // Three parts in a row, timed like the real thing: personal questions,
 // a two-minute presentation on a random topic, and a discussion prompt.
 
+// Which band the exam is sat at. Remembered, since a learner sits the same
+// one until they pass it.
+const EXAM_BAND_KEY = 'norsk:examBand';
+let examBand = (() => {
+  try {
+    return localStorage.getItem(EXAM_BAND_KEY) ?? 'A2-B1';
+  } catch {
+    return 'A2-B1';
+  }
+})();
+
 let examPromise = null;
 function ensureExam() {
   examPromise ??= fetch(EXAM_URL).then((res) => {
@@ -2958,7 +2997,9 @@ async function showExam() {
   document.body.dataset.view = 'exam';
   resetChrome();
   document.getElementById('back').hidden = false;
-  setHeader('Prøve', 'muntlig · tre deler');
+  // examBand is known before the fetch, so the header is right immediately
+  // rather than flashing a placeholder on every band change.
+  setHeader('Prøve', `muntlig · ${examBand.replace('-', '–')} · tre deler`);
 
   const main = document.getElementById('reader');
   main.replaceChildren();
@@ -2977,14 +3018,46 @@ async function showExam() {
   }
   if (document.body.dataset.view !== 'exam') return;
 
-  const questions = shuffled(exam.del1).slice(0, 6);
-  const topicsWithTexts = (index.topics ?? []).filter((t) => index.paragraphs.some((p) => p.topic === t.id));
+  // Norskprøven muntlig is sat at a band, not a level, and the whole exam
+  // changes with it: which texts the topic talk and the discussion come
+  // from, which Del 1 questions suit, and how long each part runs.
+  const bands = exam.bands ?? [];
+  const band = bands.find((b) => b.id === examBand) ?? bands[0];
+  const levels = new Set(band?.levels ?? ['B1', 'B2']);
+  const inBand = index.paragraphs.filter((p) => levels.has(p.level));
+
+  const questions = shuffled([...exam.del1, ...(band?.extraDel1 ?? [])]).slice(0, 6);
+  // Only topics that actually have a text at this band; otherwise Del 2
+  // offers key words drawn from nothing.
+  const topicsWithTexts = (index.topics ?? []).filter((t) => inBand.some((p) => p.topic === t.id));
   const topic = shuffled(topicsWithTexts)[0];
-  const discussion = shuffled(index.paragraphs.filter((p) => p.level === 'B1' || p.level === 'B2'))[0];
+  const discussion = shuffled(inBand)[0];
+  const seconds = (key, fallback) => band?.[key] ?? exam[key] ?? fallback;
+  setHeader('Prøve', `muntlig · ${band?.label ?? ''} · tre deler`);
+
+  // The band picker sits above the exam and restarts it on a change. Held in
+  // a variable because each part re-renders the view under it.
+  const picker = chipRow(
+    bands.map((b) => [b.id, b.label]),
+    band?.id,
+    (id) => {
+      examBand = id;
+      try {
+        localStorage.setItem(EXAM_BAND_KEY, id);
+      } catch {
+        /* ignore */
+      }
+      showExam();
+    },
+    'Velg nivå'
+  );
 
   let part = 0;
   const render = async () => {
     main.replaceChildren();
+    // The picker survives each part: the band is a property of the whole
+    // sitting, not of one question.
+    if (picker) main.append(picker);
     const steps = ['Del 1', 'Del 2', 'Del 3'];
     const nav = document.createElement('p');
     nav.className = 'exam-steps';
@@ -3004,8 +3077,8 @@ async function showExam() {
     nextBtn.textContent = part < 2 ? 'Neste del' : 'Avslutt';
 
     if (part === 0) {
-      h.textContent = 'Del 1 — om deg selv';
-      intro.textContent = 'Svar høyt på hvert spørsmål i hele setninger. Tre minutter til sammen.';
+      h.textContent = `Del 1 — om deg selv (${band?.label ?? ''})`;
+      intro.textContent = `${band?.description ?? ''} Svar høyt på hvert spørsmål i hele setninger.`;
       const ul = document.createElement('ol');
       ul.className = 'exam-questions';
       for (const q of questions) {
@@ -3016,11 +3089,11 @@ async function showExam() {
         if (sp) li.append(' ', sp);
         ul.append(li);
       }
-      main.append(ul, makeTimer(exam.del1Seconds ?? 180));
+      main.append(ul, makeTimer(seconds('del1Seconds', 180)));
     } else if (part === 1) {
       h.textContent = `Del 2 — presentasjon: ${topic.label}`;
       intro.textContent = `${topic.description} Snakk i to minutter. Nøkkelordene under er fra tekstene om temaet.`;
-      const ids = new Set(index.paragraphs.filter((p) => p.topic === topic.id).map((p) => p.id));
+      const ids = new Set(inBand.filter((p) => p.topic === topic.id).map((p) => p.id));
       const ranked = [];
       for (const [entryId, uses] of occurrences ?? []) {
         const here = uses.filter((u) => ids.has(u.paraId));
@@ -3030,7 +3103,7 @@ async function showExam() {
         ranked.push({ entryId, lemma: hit.lemma, entry: hit.entry, n: here.length });
       }
       ranked.sort((a, b) => b.n - a.n);
-      main.append(wordChips(ranked.slice(0, 12)), makeTimer(exam.del2Seconds ?? 120));
+      main.append(wordChips(ranked.slice(0, 12)), makeTimer(seconds('del2Seconds', 120)));
     } else if (part === 2) {
       h.textContent = 'Del 3 — samtale';
       intro.textContent = 'Sensor tar opp et samfunnstema. Argumenter, innrøm et motargument, og konkluder. Tre minutter.';
@@ -3049,7 +3122,7 @@ async function showExam() {
       } catch {
         /* the title alone is a usable prompt */
       }
-      main.append(box, makeTimer(exam.del3Seconds ?? 180));
+      main.append(box, makeTimer(seconds('del3Seconds', 180)));
     } else {
       h.textContent = 'Ferdig';
       intro.textContent = 'Godt jobbet. Les teksten fra del 3 og sammenlikn med det du sa, eller ta prøven igjen med nye spørsmål.';
@@ -3272,6 +3345,112 @@ async function showCourse() {
   // The sections are in place now; the sticky offsets depend on a topbar
   // height measured against the finished layout.
   measureChromeSoon();
+}
+
+/**
+ * Record yourself, then hear it back against the app's voice.
+ *
+ * The app cannot judge pronunciation, and pretending otherwise would be
+ * worse than useless. What it can do is put the two recordings a tap apart,
+ * which is how you notice your own «kj» is wrong.
+ *
+ * Nothing is uploaded and nothing is kept: the clip is a blob URL that dies
+ * with the page.
+ */
+function makeRecorder(doc, sentences) {
+  if (!canRecord()) return null;
+
+  const box = document.createElement('section');
+  box.className = 'recorder';
+
+  const title = document.createElement('h3');
+  title.className = 'rule-practice-title';
+  title.textContent = 'Ta opp og sammenlikn';
+  box.append(title);
+
+  const hint = document.createElement('p');
+  hint.className = 'level-desc';
+  hint.textContent =
+    'Si noen setninger, spill av, og hør etter forskjellen mot stemmen i appen. Opptaket blir liggende i nettleseren og sendes ingen steder.';
+  box.append(hint);
+
+  const actions = document.createElement('div');
+  actions.className = 'scratch-actions';
+  const record = document.createElement('button');
+  record.type = 'button';
+  record.className = 'btn-primary';
+  record.textContent = '● Ta opp';
+  const play = document.createElement('button');
+  play.type = 'button';
+  play.className = 'btn-quiet';
+  play.textContent = 'Spill av';
+  play.disabled = true;
+  const model = document.createElement('button');
+  model.type = 'button';
+  model.className = 'btn-quiet';
+  model.textContent = 'Hør appen';
+  model.disabled = !canSpeak();
+  actions.append(record, play, model);
+  box.append(actions);
+
+  const status = document.createElement('p');
+  status.className = 'scratch-stats';
+  status.setAttribute('role', 'status');
+  box.append(status);
+
+  let url = null;
+  let audio = null;
+
+  record.addEventListener('click', async () => {
+    if (isRecording()) {
+      url = await stopRecording();
+      record.textContent = '● Ta opp';
+      record.classList.remove('is-recording');
+      play.disabled = !url;
+      status.textContent = url ? 'Opptaket er klart.' : 'Ingenting ble tatt opp.';
+      return;
+    }
+    try {
+      await startRecording();
+      record.textContent = '■ Stopp';
+      record.classList.add('is-recording');
+      status.textContent = 'Tar opp …';
+    } catch (err) {
+      // The three failures a learner can act on, named plainly.
+      status.textContent =
+        err.message === 'denied'
+          ? 'Appen fikk ikke tilgang til mikrofonen. Gi tilgang i nettleseren og prøv igjen.'
+          : err.message === 'unsupported'
+            ? 'Denne nettleseren kan ikke ta opp lyd.'
+            : 'Opptaket startet ikke. Prøv igjen.';
+    }
+  });
+
+  play.addEventListener('click', () => {
+    if (!url) return;
+    stopSpeaking();
+    audio ??= new Audio();
+    audio.src = url;
+    audio.play?.();
+  });
+
+  model.addEventListener('click', () => {
+    audio?.pause?.();
+    speak(sentences.map(sentenceText).join(' '));
+  });
+
+  // The browser shows a recording indicator while a track is open, so the
+  // microphone is handed back the moment the view changes.
+  window.addEventListener(
+    'hashchange',
+    () => {
+      audio?.pause?.();
+      releaseMicrophone();
+    },
+    { once: true }
+  );
+
+  return box;
 }
 
 // --- review ------------------------------------------------------------

@@ -1,5 +1,5 @@
 {
-  "$comment": "Prompts for the exam simulation. Del 1 questions are drawn at random; Del 2 uses a random topic and its key words; Del 3 uses the examNote of a random B1/B2 text.",
+  "$comment": "Prompts for the exam simulation. `bands` are the pairs Norskprøven muntlig is actually sat at; each names the levels its texts come from, the Del 1 questions that suit it, and how long each part runs. `del1` is the shared pool.",
   "del1": [
     "Hva heter du, og hvor kommer du fra?",
     "Hvor lenge har du bodd i Norge?",
@@ -22,5 +22,62 @@
   ],
   "del1Seconds": 180,
   "del2Seconds": 120,
-  "del3Seconds": 180
+  "del3Seconds": 180,
+  "bands": [
+    {
+      "id": "A1-A2",
+      "label": "A1–A2",
+      "description": "Presentere seg og fortelle om hverdagen.",
+      "levels": [
+        "A1",
+        "A2"
+      ],
+      "extraDel1": [
+        "Hvor mange er dere i familien?",
+        "Hva heter barna dine?",
+        "Når står du opp om morgenen?",
+        "Hvilken dag liker du best?",
+        "Hva spiser du til middag?"
+      ],
+      "del1Seconds": 180,
+      "del2Seconds": 90,
+      "del3Seconds": 120
+    },
+    {
+      "id": "A2-B1",
+      "label": "A2–B1",
+      "description": "Fortelle sammenhengende og begrunne meningene dine.",
+      "levels": [
+        "A2",
+        "B1"
+      ],
+      "extraDel1": [
+        "Kan du fortelle om en vanlig uke?",
+        "Hva er bra med stedet du bor?",
+        "Hva var vanskeligst da du kom til Norge?",
+        "Hva vil du gjøre om fem år?"
+      ],
+      "del1Seconds": 180,
+      "del2Seconds": 120,
+      "del3Seconds": 180
+    },
+    {
+      "id": "B1-B2",
+      "label": "B1–B2",
+      "description": "Drøfte samfunnstema og veie argumenter mot hverandre.",
+      "levels": [
+        "B1",
+        "B2"
+      ],
+      "extraDel1": [
+        "Hva synes du om arbeidslivet i Norge?",
+        "Hvordan kan innvandrere bli bedre integrert?",
+        "Hva bør gjøres for miljøet?",
+        "Hva er den største forskjellen mellom Norge og hjemlandet ditt?"
+      ],
+      "del1Seconds": 180,
+      "del2Seconds": 120,
+      "del3Seconds": 240
+    }
+  ]
 }
