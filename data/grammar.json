@@ -1,0 +1,1144 @@
+{
+  "$comment": "Grammar rule book. Every `examples` and `practice` sentence is written in the same annotated Norwegian as the paragraphs and is validated against the lexicon, so every word in a rule is tappable. `practice` sentences are shown scrambled for the learner to reorder. Explanations are in English on purpose: this is the one place the learner is told something rather than reading Norwegian.",
+  "sections": [
+    {
+      "id": "ordstilling",
+      "title": "Ordstilling — word order",
+      "summary": "Norwegian word order is strict, and the oral examiner hears every slip. Three rules cover nearly everything.",
+      "rules": [
+        {
+          "id": "v2",
+          "title": "The verb is always second",
+          "explanation": "In a main clause the verb sits in second position, whatever comes first. If the sentence starts with the subject, nothing changes. If it starts with anything else — a time, a place, an object, «derfor» — the subject moves to right after the verb. This is called inversion, and it is the single most common word-order mistake.",
+          "examples": [
+            "Jeg spiser frokost {klokka:klokka} sju.",
+            "{Klokka:klokka} sju spiser jeg frokost.",
+            "I dag går vi til skolen.",
+            "Derfor blir jeg hjemme."
+          ],
+          "practice": [
+            "I morgen skal jeg jobbe.",
+            "Om kvelden leser jeg en bok.",
+            "Nå bor vi i <Drammen>."
+          ],
+          "english": "English keeps subject before verb after a fronted phrase («Today I go to school»). Norwegian never does: «I dag går jeg på skolen». If a sentence does not start with the subject, swap subject and verb. This is the single most common mistake English speakers make, and it is the first thing an examiner notices.",
+          "exercises": [
+            {
+              "type": "choice",
+              "prompt": "I morgen ___ til <Oslo>.",
+              "options": [
+                "vi reiser",
+                "reiser vi"
+              ],
+              "answer": "reiser vi"
+            },
+            {
+              "type": "choice",
+              "prompt": "___ jobber jeg hjemme.",
+              "options": [
+                "Derfor",
+                "Jeg",
+                "Fordi"
+              ],
+              "answer": "Derfor"
+            }
+          ]
+        },
+        {
+          "id": "sporsmal",
+          "title": "Questions: verb first, or right after the question word",
+          "explanation": "A yes/no question starts with the verb. A question with a question word (hva, hvor, når, hvorfor, hvordan, hvem) puts the verb second, straight after that word. The subject always follows the verb.",
+          "examples": [
+            "Snakker du norsk?",
+            "Hvor bor du?",
+            "Når begynner du på jobben?",
+            "Hvorfor {lærer:lære} du norsk?"
+          ],
+          "practice": [
+            "Har du barn?",
+            "Hva heter mannen din?",
+            "Hvordan kommer du til jobben?"
+          ],
+          "english": "Same as English question forms, minus «do»: «Do you speak Norwegian?» is just «Snakker du norsk?». Never insert «gjør» to make a question.",
+          "exercises": [
+            {
+              "type": "choice",
+              "prompt": "___ du kaffe?",
+              "options": [
+                "Drikker",
+                "Du drikker",
+                "Gjør du drikker"
+              ],
+              "answer": "Drikker"
+            }
+          ]
+        },
+        {
+          "id": "ikke-hovedsetning",
+          "title": "«ikke» comes after the verb in a main clause",
+          "explanation": "In a main clause «ikke» (and other sentence adverbs like «alltid», «aldri», «ofte») follows the first verb. With a modal verb it goes between the modal and the infinitive.",
+          "examples": [
+            "Jeg spiser ikke kjøtt.",
+            "Jeg kan ikke komme i dag.",
+            "Han er aldri hjemme om kvelden."
+          ],
+          "practice": [
+            "Jeg drikker ikke kaffe.",
+            "Vi kan ikke komme på lørdag."
+          ],
+          "english": "English «I don't eat meat» puts the negation before the verb, so learners write «Jeg ikke spiser kjøtt». In a main clause «ikke» comes after the verb: «Jeg spiser ikke kjøtt».",
+          "exercises": [
+            {
+              "type": "choice",
+              "prompt": "Jeg ___ kjøtt.",
+              "options": [
+                "spiser ikke",
+                "ikke spiser"
+              ],
+              "answer": "spiser ikke"
+            }
+          ]
+        },
+        {
+          "id": "leddsetning",
+          "title": "In a subordinate clause, «ikke» moves before the verb",
+          "explanation": "After words like «fordi», «at», «når», «hvis», «som», «selv om» you are in a subordinate clause. There the order is fixed: subject, then «ikke», then the verb. No inversion ever happens inside a subordinate clause. If the whole subordinate clause comes first, it counts as the first element of the main clause, so the main verb follows immediately.",
+          "examples": [
+            "Jeg blir hjemme fordi jeg ikke er frisk.",
+            "Hun sier at hun ikke liker kaffe.",
+            "Hvis det regner, tar jeg paraply.",
+            "Selv om det er kaldt, går vi tur."
+          ],
+          "practice": [
+            "Jeg kommer ikke fordi jeg er syk.",
+            "Når jeg er ferdig, går jeg hjem."
+          ],
+          "english": "This is where the English habit finally matches: «because I am not well» = «fordi jeg ikke er frisk», with «ikke» before the verb. The trap is the other way round: after «fordi», «at», «når», «hvis» there is no inversion, even if the clause comes first in the sentence.",
+          "exercises": [
+            {
+              "type": "choice",
+              "prompt": "Jeg blir hjemme fordi jeg ___ frisk.",
+              "options": [
+                "ikke er",
+                "er ikke"
+              ],
+              "answer": "ikke er"
+            },
+            {
+              "type": "fill",
+              "prompt": "Sett sammen med «fordi»: «Jeg er trøtt.» + «Jeg sov dårlig.»",
+              "answer": "Jeg er trøtt fordi jeg sov dårlig",
+              "hint": "skriv hele setningen"
+            },
+            {
+              "type": "join",
+              "prompt": "Sett sammen til én setning.",
+              "first": "Jeg blir hjemme.",
+              "second": "Jeg er ikke frisk.",
+              "connector": "fordi",
+              "answer": "Jeg blir hjemme fordi jeg ikke er frisk"
+            },
+            {
+              "type": "join",
+              "prompt": "Sett sammen til én setning.",
+              "first": "Vi tar bussen.",
+              "second": "Det regner.",
+              "connector": "når",
+              "answer": "Vi tar bussen når det regner"
+            }
+          ]
+        },
+        {
+          "id": "infinitiv",
+          "title": "«å» before an infinitive, but not after a modal verb",
+          "explanation": "Two verbs in a row: the second is an infinitive. After «liker», «prøver», «begynner», «pleier» and most verbs it takes «å». After the modal verbs «kan», «vil», «skal», «må», «bør» there is no «å».",
+          "examples": [
+            "Jeg liker å lese.",
+            "Jeg prøver å snakke norsk hver dag.",
+            "Jeg vil lese.",
+            "Vi må gå nå."
+          ],
+          "practice": [
+            "Jeg pleier å [stå opp] {klokka:klokka} sju.",
+            "Barna vil leke ute."
+          ],
+          "english": "«å» is «to». The modal verbs work like English «can», «will», «shall», «must»: no «to» after them in English, no «å» in Norwegian. Careful with «vil»: it means «want to», not future «will». Future is usually «skal» or plain present.",
+          "exercises": [
+            {
+              "type": "choice",
+              "prompt": "Jeg kan ___ norsk.",
+              "options": [
+                "snakke",
+                "å snakke"
+              ],
+              "answer": "snakke"
+            },
+            {
+              "type": "choice",
+              "prompt": "Jeg liker ___ norsk.",
+              "options": [
+                "å snakke",
+                "snakke"
+              ],
+              "answer": "å snakke"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verbtid",
+      "title": "Verb — tenses, modals and more",
+      "summary": "Norwegian has one present, one past and one perfect. Picking the right one is mostly about time words.",
+      "rules": [
+        {
+          "id": "presens",
+          "title": "Present: now, usually, and the near future",
+          "explanation": "The present tense (-r) covers what is happening now, what happens regularly, and often the future when a time word makes it clear. There is no continuous form: «jeg leser» is both «I read» and «I am reading».",
+          "examples": [
+            "Jeg {jobber:jobbe} i en barnehage.",
+            "Vi spiser middag {klokka:klokka} fem hver dag.",
+            "I morgen reiser vi til <Spania>."
+          ],
+          "english": "English has two present tenses, «I read» and «I am reading». Norwegian has one: «jeg leser» covers both. There is no -ing form to reach for.",
+          "exercises": [
+            {
+              "type": "fill",
+              "prompt": "Hver dag ___ jeg frokost klokka sju. (spise)",
+              "answer": "spiser"
+            },
+            {
+              "type": "tense",
+              "prompt": "Skriv verbet i riktig form.",
+              "verb": "å spise",
+              "when": "hver dag",
+              "answer": "spiser"
+            },
+            {
+              "type": "tense",
+              "prompt": "Skriv verbet i riktig form.",
+              "verb": "å jobbe",
+              "when": "nå",
+              "answer": "jobber"
+            }
+          ]
+        },
+        {
+          "id": "preteritum",
+          "title": "Preterite: a finished time in the past",
+          "explanation": "Use the preterite when the time is finished and usually named: «i går», «i fjor», «for to år siden», «da jeg var barn». Regular verbs add -et/-te/-de; the irregular ones you look up in the word card.",
+          "examples": [
+            "I går {var:være} jeg hos legen.",
+            "Jeg kom til <Norge> for fem år {siden:siden}.",
+            "Da jeg var liten, bodde jeg i <Spania>."
+          ],
+          "english": "Works like the English simple past: a finished time, usually named. «I was at the doctor yesterday» = «I går var jeg hos legen».",
+          "exercises": [
+            {
+              "type": "fill",
+              "prompt": "I går ___ jeg hos legen. (være)",
+              "answer": "var"
+            },
+            {
+              "type": "fill",
+              "prompt": "For to år siden ___ vi til <Norge>. (flytte)",
+              "answer": "flyttet"
+            },
+            {
+              "type": "tense",
+              "prompt": "Skriv verbet i riktig form.",
+              "verb": "å være",
+              "when": "i går",
+              "answer": "var"
+            },
+            {
+              "type": "tense",
+              "prompt": "Skriv verbet i riktig form.",
+              "verb": "å komme",
+              "when": "for to år siden",
+              "answer": "kom"
+            },
+            {
+              "type": "tense",
+              "prompt": "Skriv verbet i riktig form.",
+              "verb": "å flytte",
+              "when": "i fjor",
+              "answer": "flyttet"
+            }
+          ]
+        },
+        {
+          "id": "perfektum",
+          "title": "Perfect: «har» + participle, when the result matters now",
+          "explanation": "The perfect (har + perfect form) is for experience and results that reach into the present, often with «alltid», «aldri», «allerede», or a period that is still going: «i fem år», «i dag». If you name a finished point in time, switch to the preterite.",
+          "examples": [
+            "Jeg har bodd her i fem år.",
+            "Har du {spist:spise} frokost?",
+            "Vi har aldri {vært:være} i <Bergen>."
+          ],
+          "english": "Very close to the English present perfect: «I have lived here for five years» = «Jeg har bodd her i fem år». Norwegian uses it a little more freely than English for recent news («Jeg har kjøpt bil»), but the English instinct is a safe guide.",
+          "exercises": [
+            {
+              "type": "fill",
+              "prompt": "Jeg har ___ her i fem år. (bo)",
+              "answer": "bodd"
+            },
+            {
+              "type": "fill",
+              "prompt": "Har du ___ frokost? (spise)",
+              "answer": "spist"
+            },
+            {
+              "type": "tense",
+              "prompt": "Skriv verbet i riktig form (med «har»).",
+              "verb": "å bo",
+              "when": "i fem år",
+              "answer": "har bodd"
+            },
+            {
+              "type": "tense",
+              "prompt": "Skriv verbet i riktig form (med «har»).",
+              "verb": "å spise",
+              "when": "allerede",
+              "answer": "har spist"
+            }
+          ]
+        },
+        {
+          "id": "modale",
+          "title": "Modal verbs: kan, vil, skal, må, bør",
+          "explanation": "The five modals take a bare infinitive with no «å». «kan» = can/may, «vil» = want to, «skal» = shall/is going to (a plan or promise), «må» = must/have to, «bør» = should/ought to. In the past: «kunne», «ville», «skulle», «måtte», «burde».",
+          "english": "«vil» is the trap: it looks like «will» but means «want to». «Jeg vil reise» is «I want to travel». For future plans use «skal». And «må ikke» means «must not» only in a few fixed contexts; the everyday «don't have to» is «trenger ikke» or «må ikke» with context — when in doubt, say «trenger ikke».",
+          "examples": [
+            "Jeg kan snakke litt norsk.",
+            "Jeg vil gjerne ha en kopp kaffe.",
+            "Vi skal reise til <Spania> i juli.",
+            "Du må ta medisinen hver dag.",
+            "Du bør gå til legen."
+          ],
+          "practice": [
+            "Vi må kjøpe melk i dag.",
+            "Barna vil leke ute."
+          ],
+          "exercises": [
+            {
+              "type": "choice",
+              "prompt": "«I want to travel» = Jeg ___ reise.",
+              "options": [
+                "vil",
+                "skal",
+                "kan"
+              ],
+              "answer": "vil"
+            }
+          ]
+        },
+        {
+          "id": "imperativ",
+          "title": "Imperative: the verb stem",
+          "explanation": "Commands use the infinitive without its final -e: «komme» → «Kom!», «spise» → «Spis!», «vente» → «Vent!». Verbs that already end in a stressed vowel keep their form: «gå» → «Gå!», «se» → «Se!». Add «vær så snill» to soften it.",
+          "english": "Same word order as English commands, and no subject. The only work is dropping the -e. Signs and recipes use it everywhere: «Trykk her», «Stek i ovnen».",
+          "examples": [
+            "Kom hit!",
+            "Vent litt, [vær så snill].",
+            "Skriv navnet ditt her.",
+            "Ta bussen til sentrum."
+          ],
+          "exercises": [
+            {
+              "type": "fill",
+              "prompt": "«Wait!» = ___!",
+              "answer": "Vent"
+            }
+          ]
+        },
+        {
+          "id": "framtid",
+          "title": "Future: skal, kommer til å, or plain present",
+          "explanation": "Norwegian has no future tense. Three tools: the present with a time word for anything scheduled («Jeg reiser i morgen»), «skal» for plans and intentions («Jeg skal begynne på kurs»), and «kommer til å» for predictions you do not control («Det kommer til å regne»).",
+          "english": "Resist translating «will» as «vil». «It will rain» is «Det kommer til å regne»; «I will call you» is «Jeg skal ringe deg» or simply «Jeg ringer deg i morgen».",
+          "examples": [
+            "Jeg reiser til <Spania> i juli.",
+            "Vi skal flytte til et større hus.",
+            "Det [kommer til å](komme til å) bli kaldt i vinter."
+          ],
+          "practice": [
+            "Vi skal spise middag {klokka:klokka} fem."
+          ],
+          "exercises": [
+            {
+              "type": "choice",
+              "prompt": "«It will rain.» = Det ___ regne.",
+              "options": [
+                "kommer til å",
+                "vil",
+                "skal"
+              ],
+              "answer": "kommer til å"
+            },
+            {
+              "type": "tense",
+              "prompt": "Skriv verbet i riktig form.",
+              "verb": "å reise",
+              "when": "i morgen",
+              "answer": "reiser"
+            }
+          ]
+        },
+        {
+          "id": "passiv",
+          "title": "Passive: «blir» + participle, or -s (B1–B2)",
+          "explanation": "Two passives. «bli» + perfect form for a single event: «Huset ble bygd i fjor». The -s form on the infinitive or present for general statements, rules and instructions: «Døren låses klokka ti», «Skatten må betales». The -s passive is common in formal and written Norwegian and is worth recognising even before you use it.",
+          "english": "The «bli» passive matches English «was built». The -s passive has no English parallel; read «må betales» as «must be paid». At B2 the examiner rewards a well-placed -s passive in a discussion.",
+          "examples": [
+            "Huset ble bygd [i fjor].",
+            "Skatten må {betales:betale}.",
+            "Maten {lages:lage} hjemme."
+          ],
+          "exercises": [
+            {
+              "type": "fill",
+              "prompt": "Huset ___ bygd i fjor. (bli)",
+              "answer": "ble"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "substantiv",
+      "title": "Substantiv og adjektiv — nouns and adjectives",
+      "summary": "English gives no help here: Norwegian nouns have a gender, «the» is a suffix, and adjectives change with the noun.",
+      "rules": [
+        {
+          "id": "kjonn",
+          "title": "Every noun has a gender: en, ei or et",
+          "explanation": "The indefinite article tells you the gender: «en bil» (masculine), «ei bok» (feminine), «et hus» (neuter). Feminine nouns can always take «en» instead, so «en bok» is also correct, and many speakers use only en/et. Neuter is the one that matters most: it changes the definite form and the adjective. Learn every noun with its article; the word card shows it.",
+          "english": "English nouns have no gender, so there is nothing to transfer. Treat the article as part of the word: not «hus» but «et hus». Roughly three quarters of nouns are «en», so when in doubt, guess «en» — but people, days and most words for things in the house are worth checking.",
+          "examples": [
+            "Jeg har en bil, ei bok og et hus.",
+            "Vi har en hund og en katt.",
+            "Barnet leser et eple."
+          ],
+          "exercises": [
+            {
+              "type": "choice",
+              "prompt": "___ hus",
+              "options": [
+                "et",
+                "en",
+                "ei"
+              ],
+              "answer": "et"
+            },
+            {
+              "type": "choice",
+              "prompt": "___ bil",
+              "options": [
+                "en",
+                "et"
+              ],
+              "answer": "en"
+            }
+          ]
+        },
+        {
+          "id": "bestemt",
+          "title": "«The» is a suffix: bilen, boka, huset",
+          "explanation": "The definite form adds an ending instead of a separate word: «bil» → «bilen», «bok» → «boka» (or «boken»), «hus» → «huset». Use it when both speakers know which one is meant, the same situations as English «the».",
+          "english": "The mistake is writing «den bil» for «the car». There is no separate word for «the» in front of a bare noun. «den» and «det» do exist, but only when an adjective is present: «den store bilen» — and then the noun still carries its ending. Double marking is correct Norwegian.",
+          "examples": [
+            "Bilen er ny.",
+            "Boka ligger på bordet.",
+            "Huset er gammelt, men fint.",
+            "Den store bilen er {dyr:dyr}."
+          ],
+          "practice": [
+            "Katten sover på stolen."
+          ],
+          "exercises": [
+            {
+              "type": "fill",
+              "prompt": "«the house» = ___",
+              "answer": "huset"
+            },
+            {
+              "type": "fill",
+              "prompt": "«the car» = ___",
+              "answer": "bilen"
+            }
+          ]
+        },
+        {
+          "id": "flertall",
+          "title": "Plural: -er, then -ene",
+          "explanation": "Most nouns take «-er» in the indefinite plural and «-ene» in the definite plural: «biler», «bilene». Short neuter nouns often have no ending in the indefinite plural: «et hus – to hus – husene». A few are irregular and must be learnt: «mann – menn», «barn – barna», «bok – bøker».",
+          "english": "Norwegian has a definite plural, which English does not: «the cars» is one form, «bilene». Expect two plurals for every noun and read both off the word card.",
+          "examples": [
+            "Vi har to biler og {tre:tre} bøker.",
+            "Bilene er gamle.",
+            "Barna leker i hagen.",
+            "Klærne ligger på bordet."
+          ],
+          "exercises": [
+            {
+              "type": "fill",
+              "prompt": "«the children» = ___",
+              "answer": "barna"
+            },
+            {
+              "type": "fill",
+              "prompt": "«two houses» = to ___",
+              "answer": "hus"
+            }
+          ]
+        },
+        {
+          "id": "adjektiv",
+          "title": "Adjectives agree with the noun: stor, stort, store",
+          "explanation": "Before or after a noun, an adjective takes the noun's gender and number: «en stor bil», «et stort hus», «store biler». The neuter adds «-t», the plural adds «-e». After «den/det/de» and after possessives the adjective also takes «-e», whatever the gender: «den store bilen», «det store huset», «mitt store hus».",
+          "english": "English adjectives never change, so this needs deliberate practice. Two checks per adjective: is the noun neuter (add -t)? Is it plural or definite (add -e)? «liten» is the irregular one: «liten – lita – lite – små».",
+          "examples": [
+            "Jeg har en stor bil og et stort hus.",
+            "Husene er store.",
+            "Det er et lite rom med et gammelt bord.",
+            "De nye lampene er fine."
+          ],
+          "practice": [
+            "Vi har et lite hus.",
+            "De gamle bøkene er dyre."
+          ],
+          "exercises": [
+            {
+              "type": "fill",
+              "prompt": "et ___ hus (stor)",
+              "answer": "stort"
+            },
+            {
+              "type": "fill",
+              "prompt": "de ___ bilene (gammel)",
+              "answer": "gamle"
+            }
+          ]
+        },
+        {
+          "id": "eiendom",
+          "title": "Possessives: «boka mi» or «min bok»",
+          "explanation": "Possessives agree with the thing owned: «min bil», «mi bok», «mitt hus», «mine barn». They usually follow the noun, which then takes its definite form: «bilen min». «sin» points back to the subject of the clause. The section «Eiendom og refleksiv» works all of this through in full.",
+          "english": "Both orders are correct, which surprises English speakers; use the after-the-noun form by default. «sin» has no English equivalent: «Han vasker bilen sin» is his own car, «Han vasker bilen hans» is someone else's. Getting this right is a mark of a strong B1 speaker.",
+          "examples": [
+            "Bilen min er gammel.",
+            "Mi bok ligger på bordet.",
+            "Barna mine går på skolen.",
+            "Han liker jobben sin."
+          ],
+          "practice": [
+            "Huset vårt er lite."
+          ],
+          "exercises": [
+            {
+              "type": "choice",
+              "prompt": "Han vasker bilen ___. (his own)",
+              "options": [
+                "sin",
+                "hans"
+              ],
+              "answer": "sin"
+            },
+            {
+              "type": "fill",
+              "prompt": "«my book» = boka ___",
+              "answer": "mi"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "eiendom-refleksiv",
+      "title": "Eiendom og refleksiv — possessives and «seg»",
+      "summary": "Who owns what, and when a sentence points back at its own subject. «sin» and «seg» have no English equivalent, and they are what separates a B1 speaker from an A2 one.",
+      "rules": [
+        {
+          "id": "eiendomsord",
+          "title": "The possessive table: min, di, sitt, våre",
+          "explanation": "A possessive agrees with the thing owned, not with the owner. «min» for en-words, «mi» for ei-words, «mitt» for et-words, «mine» for plurals — and the same four endings on «din», «sin» and «vår». The ones that never change are «hans», «hennes» and «deres».\n\nEn: min, din, sin, vår, deres. Ei: mi, di, si, vår, deres. Et: mitt, ditt, sitt, vårt, deres. Flertall: mine, dine, sine, våre, deres.",
+          "english": "English picks the form from the owner — «his book», «her book». Norwegian picks it from the noun: «boka hans», «boka hennes», both «boka». Ask what is owned, not who owns it. The good news is that «hans», «hennes» and «deres» never change at all.",
+          "examples": [
+            "Bilen {min:min} er gammel.",
+            "Boka {mi:min} ligger på bordet.",
+            "Huset {mitt:min} er lite.",
+            "Barna {mine:min} går på skolen.",
+            "Jeg liker jobben {din:din}."
+          ],
+          "exercises": [
+            {
+              "type": "fill",
+              "prompt": "«my house» = huset ___",
+              "answer": "mitt"
+            },
+            {
+              "type": "fill",
+              "prompt": "«my children» = barna ___",
+              "answer": "mine"
+            },
+            {
+              "type": "choice",
+              "prompt": "boka ___",
+              "options": [
+                "mi",
+                "mitt",
+                "mine"
+              ],
+              "answer": "mi"
+            },
+            {
+              "type": "choice",
+              "prompt": "huset ___",
+              "options": [
+                "vårt",
+                "vår",
+                "våre"
+              ],
+              "answer": "vårt"
+            }
+          ]
+        },
+        {
+          "id": "eiendom-plass",
+          "title": "«bilen min» or «min bil»: both, but not the same",
+          "explanation": "After the noun is the everyday order, and the noun takes its definite form: «bilen min», «boka mi», «huset mitt». Before the noun is possible too, and then the noun stays indefinite: «min bil». That order adds emphasis or contrast — «MIN bil, ikke din» — and is more common in writing.",
+          "english": "English has only one order, so the after-the-noun form feels backwards at first. Use it by default: it is what people say. The trap is mixing the two, «min bilen», which is wrong in both directions.",
+          "examples": [
+            "Jeg tar bilen {min:min} til jobben.",
+            "Det er {min:min} bil, ikke {din:din}.",
+            "Søsteren {mi:min} bor i <Spania>.",
+            "Vennene {mine:min} kommer i kveld."
+          ],
+          "exercises": [
+            {
+              "type": "choice",
+              "prompt": "Det vanligste: ___",
+              "options": [
+                "bilen min",
+                "min bilen",
+                "min bil"
+              ],
+              "answer": "bilen min"
+            },
+            {
+              "type": "fill",
+              "prompt": "Skriv om til vanlig ordstilling: «mitt hus» → ___ mitt",
+              "answer": "huset"
+            }
+          ]
+        },
+        {
+          "id": "sin-hans",
+          "title": "«sin» or «hans»: whose is it, really?",
+          "explanation": "«sin/si/sitt/sine» points back to the subject of its own clause. «hans», «hennes» and «deres» point at somebody else.\n\n«Han vasker bilen sin» — he washes his own car.\n«Han vasker bilen hans» — he washes another man's car.\n\nThe rule is mechanical: if the owner is the subject of the same clause, use «sin». «sin» can never be the subject itself, so a sentence never starts with it.",
+          "english": "English cannot make this distinction at all — «he washes his car» is both readings, and context does the work. Norwegian forces you to choose, so translating word for word will be wrong half the time. Ask one question: is the owner the subject of this clause? Yes, «sin». No, «hans» or «hennes».",
+          "examples": [
+            "Han liker jobben {sin:sin}.",
+            "Hun tar sykkelen {sin:sin} til byen.",
+            "<Alex> vasker bilen {sin:sin}.",
+            "Barna liker læreren {sin:sin}.",
+            "Jeg møtte <Alex> og kona {hans:hans}."
+          ],
+          "exercises": [
+            {
+              "type": "choice",
+              "prompt": "Han vasker bilen ___ (his own).",
+              "options": [
+                "sin",
+                "hans"
+              ],
+              "answer": "sin"
+            },
+            {
+              "type": "choice",
+              "prompt": "Jeg kjenner <Alex> og kona ___.",
+              "options": [
+                "hans",
+                "sin"
+              ],
+              "answer": "hans"
+            },
+            {
+              "type": "choice",
+              "prompt": "Hun glemte nøkkelen ___ hjemme (her own).",
+              "options": [
+                "sin",
+                "hennes"
+              ],
+              "answer": "sin"
+            },
+            {
+              "type": "fill",
+              "prompt": "«She likes her own job» = Hun liker jobben ___",
+              "answer": "sin"
+            }
+          ]
+        },
+        {
+          "id": "refleksiv",
+          "title": "Reflexive pronouns: meg, deg, seg, oss",
+          "explanation": "When the object is the same person as the subject, Norwegian uses a reflexive pronoun: «meg, deg, seg, oss, dere, seg». Only the third person has its own word — «seg» covers han, hun, den, det and de.\n\nJeg vasker meg. Du vasker deg. Han vasker seg. Vi vasker oss. De vasker seg.\n\nCompare «Han vasker ham», which means he washes somebody else.",
+          "english": "English adds «-self»: myself, yourself, himself. Norwegian just reuses the object pronoun, except in the third person where «seg» replaces «ham/henne/dem». The mistake to avoid is «han vasker ham» when you mean he washes himself.",
+          "examples": [
+            "Jeg vasker meg om morgenen.",
+            "Han {satte:sette} seg {ned:ned} på stolen.",
+            "Vi [gleder oss](glede seg) til helgen.",
+            "Barna [kjeder seg](kjede seg) når det regner.",
+            "[Skynd deg](skynde seg) — bussen kommer!"
+          ],
+          "exercises": [
+            {
+              "type": "fill",
+              "prompt": "Vi vasker ___ (ourselves).",
+              "answer": "oss"
+            },
+            {
+              "type": "choice",
+              "prompt": "Han setter ___ ned.",
+              "options": [
+                "seg",
+                "ham",
+                "han"
+              ],
+              "answer": "seg"
+            },
+            {
+              "type": "fill",
+              "prompt": "Jeg gleder ___ til sommeren.",
+              "answer": "meg"
+            },
+            {
+              "type": "choice",
+              "prompt": "De kjeder ___.",
+              "options": [
+                "seg",
+                "dem",
+                "de"
+              ],
+              "answer": "seg"
+            }
+          ]
+        },
+        {
+          "id": "refleksive-verb",
+          "title": "Verbs that always take «seg»",
+          "explanation": "Some verbs carry a reflexive pronoun as part of their meaning, and dropping it makes the sentence wrong rather than merely different: «glede seg til» (look forward to), «kjede seg» (be bored), «skynde seg» (hurry), «legge seg» (go to bed), «sette seg» (sit down), «føle seg» (feel), «tilpasse seg» (adapt), «lære seg» (learn).\n\nThe pronoun changes with the subject, so the dictionary form «glede seg» becomes «jeg gleder meg», «vi gleder oss».",
+          "english": "English has a few of these — «enjoy yourself», «help yourself» — but far fewer, so the instinct is to drop the pronoun. «Jeg gleder til helgen» is not a sentence. Learn each of these verbs with its «seg» attached, the way the word card shows it.",
+          "examples": [
+            "Jeg [gleder meg](glede seg) til helgen.",
+            "Barna [legger seg](legge seg) {klokka:klokka} åtte.",
+            "Hun [føler seg](føle seg) {bedre:god} i dag.",
+            "Man må [tilpasse seg] et nytt land."
+          ],
+          "exercises": [
+            {
+              "type": "fill",
+              "prompt": "Jeg ___ meg til helgen. (glede seg, presens)",
+              "answer": "gleder"
+            },
+            {
+              "type": "fill",
+              "prompt": "Barna legger ___ klokka åtte.",
+              "answer": "seg"
+            },
+            {
+              "type": "tense",
+              "prompt": "Skriv verbet i riktig form.",
+              "verb": "å føle seg",
+              "when": "i dag",
+              "answer": "føler seg"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bindeord",
+      "title": "Bindeord — connecting words",
+      "summary": "Connectors do two jobs: they show how ideas relate, and they decide the word order that follows. Learn each word with its word-order type.",
+      "rules": [
+        {
+          "id": "sideordnende",
+          "title": "og, men, eller, for, så — nothing changes",
+          "explanation": "These join two main clauses and leave the word order alone: subject then verb on both sides. «og» = and, «men» = but, «eller» = or, «for» = because (formal, gives a reason), «så» = so (a consequence).",
+          "examples": [
+            "Jeg {jobber:jobbe} om dagen, og jeg leser om kvelden.",
+            "Leiligheten er liten, men den er lys.",
+            "Vi kan ta bussen, eller vi kan gå.",
+            "Det {regnet:regne}, {så:så} vi ble hjemme."
+          ],
+          "practice": [
+            "Jeg er trøtt, men jeg må jobbe."
+          ],
+          "english": "Exactly like «and», «but», «or», «for», «so». The only surprise is «så», which is «so» here but «then» after «først».",
+          "exercises": [
+            {
+              "type": "choice",
+              "prompt": "Leiligheten er liten, ___ den er lys.",
+              "options": [
+                "men",
+                "fordi",
+                "derfor"
+              ],
+              "answer": "men"
+            },
+            {
+              "type": "join",
+              "prompt": "Sett sammen med «men».",
+              "first": "Leiligheten er liten.",
+              "second": "Den er lys.",
+              "connector": "men",
+              "answer": "Leiligheten er liten men den er lys"
+            }
+          ]
+        },
+        {
+          "id": "underordnende",
+          "title": "fordi, at, når, hvis, som, selv om, mens — subordinate order",
+          "explanation": "These open a subordinate clause, so «ikke» and other adverbs go before the verb and there is never inversion. «fordi» = because (a reason the listener does not know yet), «at» = that, «når» = when (present or repeated), «da» = when (once, in the past), «hvis» = if, «som» = who/which, «selv om» = even though, «mens» = while, «før» = before, «etter at» = after.",
+          "examples": [
+            "Jeg {lærer:lære} norsk fordi jeg vil jobbe her.",
+            "Jeg tror at det blir {bedre:god}.",
+            "Når jeg er ferdig på jobben, henter jeg barna.",
+            "Vi {flyttet:flytte} hit [etter at] mannen min fikk jobb.",
+            "Hun har en kollega som snakker spansk."
+          ],
+          "practice": [
+            "Jeg går tur selv om det regner.",
+            "Vi venter til bussen kommer."
+          ],
+          "english": "English has one «when»; Norwegian has two. «når» is for the present, future and repeated events; «da» is for a single event in the past: «Da jeg kom til Norge» but «Når jeg er ferdig». «hvis» is «if» for conditions only; «if» meaning «whether» is «om».",
+          "exercises": [
+            {
+              "type": "choice",
+              "prompt": "___ jeg var liten, bodde jeg i <Spania>.",
+              "options": [
+                "Da",
+                "Når",
+                "Hvis"
+              ],
+              "answer": "Da"
+            },
+            {
+              "type": "choice",
+              "prompt": "Jeg vet ikke ___ bussen kommer.",
+              "options": [
+                "om",
+                "hvis",
+                "at"
+              ],
+              "answer": "om"
+            },
+            {
+              "type": "choice",
+              "prompt": "Vi blir hjemme ___ det regner.",
+              "options": [
+                "hvis",
+                "derfor",
+                "men"
+              ],
+              "answer": "hvis"
+            },
+            {
+              "type": "join",
+              "prompt": "Sett sammen til én setning.",
+              "first": "Jeg lærer norsk.",
+              "second": "Jeg vil jobbe her.",
+              "connector": "fordi",
+              "answer": "Jeg lærer norsk fordi jeg vil jobbe her"
+            }
+          ]
+        },
+        {
+          "id": "adverbielle",
+          "title": "derfor, likevel, dessuten, først, så, etterpå — the verb comes next",
+          "explanation": "These are adverbs, not conjunctions. They usually open a sentence, and because they take first position the verb comes immediately after and the subject third. «derfor» = therefore, «likevel» = nevertheless, «dessuten» = besides, «først … så … etterpå … til slutt» = first … then … afterwards … finally. «for det første, for det andre» and «på den ene siden, på den andre siden» work the same way and are gold in a B1–B2 discussion.",
+          "examples": [
+            "Jeg er syk. Derfor blir jeg hjemme.",
+            "Det er dyrt. Likevel vil jeg kjøpe det.",
+            "Først spiser vi, {så:så} går vi ut.",
+            "[For det første] er det billig, og [for det andre] er det sunt.",
+            "[Til slutt] vil jeg {si:si} at jeg trives i <Norge>."
+          ],
+          "practice": [
+            "Derfor tar jeg bussen.",
+            "Etterpå drikker vi kaffe."
+          ],
+          "english": "In English these words sit before the subject with nothing else changing: «Therefore I stay home». In Norwegian they take first position, so the verb must come second: «Derfor blir jeg hjemme». Every one of these words triggers inversion.",
+          "exercises": [
+            {
+              "type": "choice",
+              "prompt": "Det er dyrt. ___ vil jeg kjøpe det.",
+              "options": [
+                "Likevel",
+                "Selv om",
+                "Men"
+              ],
+              "answer": "Likevel"
+            },
+            {
+              "type": "choice",
+              "prompt": "Jeg er syk. Derfor ___ hjemme.",
+              "options": [
+                "blir jeg",
+                "jeg blir"
+              ],
+              "answer": "blir jeg"
+            },
+            {
+              "type": "join",
+              "prompt": "Sett sammen. Husk inversjon etter «derfor».",
+              "first": "Jeg er syk.",
+              "second": "Jeg blir hjemme.",
+              "connector": "derfor",
+              "answer": "Jeg er syk. Derfor blir jeg hjemme"
+            },
+            {
+              "type": "join",
+              "prompt": "Sett sammen med «likevel».",
+              "first": "Det er dyrt.",
+              "second": "Jeg kjøper det.",
+              "connector": "likevel",
+              "answer": "Det er dyrt. Likevel kjøper jeg det"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "preposisjoner",
+      "title": "Preposisjoner og småord — prepositions and small words",
+      "summary": "The small words carry no stress and get no attention, and they are where English speakers sound foreign longest.",
+      "rules": [
+        {
+          "id": "tid",
+          "title": "Time: i, på, om, for … siden",
+          "explanation": "«i» for periods and durations: «i fem år», «i januar», «i dag». «på» for days and holidays and for how long something took: «på mandag», «på tre timer». «om» for clock time ahead and for parts of the day in general: «om to timer», «om kvelden». «for … siden» is «ago»: «for to år siden». «i fjor» = last year, «i går» = yesterday, «i morgen» = tomorrow.",
+          "english": "English uses «for» for durations and «in» for the future; Norwegian uses «i» for both duration («i fem år») and calendar months, but «om» for «in two hours». Learn «for … siden» as one shape: the «for» is not «for».",
+          "examples": [
+            "Jeg har bodd her i fem år.",
+            "Vi reiser på mandag.",
+            "Bussen kommer om ti minutter.",
+            "Jeg kom til <Norge> for {tre:tre} år {siden:siden}.",
+            "Om kvelden leser jeg."
+          ],
+          "practice": [
+            "Vi spiser middag om en time."
+          ],
+          "exercises": [
+            {
+              "type": "choice",
+              "prompt": "Jeg har bodd her ___ fem år.",
+              "options": [
+                "i",
+                "på",
+                "om"
+              ],
+              "answer": "i"
+            },
+            {
+              "type": "choice",
+              "prompt": "Bussen kommer ___ ti minutter.",
+              "options": [
+                "om",
+                "i",
+                "på"
+              ],
+              "answer": "om"
+            },
+            {
+              "type": "choice",
+              "prompt": "Vi reiser ___ mandag.",
+              "options": [
+                "på",
+                "i",
+                "om"
+              ],
+              "answer": "på"
+            }
+          ]
+        },
+        {
+          "id": "sted",
+          "title": "Place: i or på",
+          "explanation": "«i» for enclosed spaces and most towns and countries: «i huset», «i Oslo», «i Norge». «på» for surfaces, institutions and activities: «på bordet», «på jobb», «på skolen», «på sykehus», «på kino». Some places are fixed by habit: «på landet» (in the countryside), «på fjellet», «på hytta».",
+          "english": "Both mostly map to «in» or «at», but English gives no way to predict which. Learn the institution list as «på»: «på jobb», «på skolen», «på legekontoret», «på biblioteket». A bare «på» before a place of activity is almost always right.",
+          "examples": [
+            "Jeg bor i <Drammen>.",
+            "Boka ligger på bordet.",
+            "Barna er på skolen, og jeg er på jobb.",
+            "Vi går på kino på lørdag."
+          ],
+          "practice": [
+            "Vi spiser lunsj på kjøkkenet."
+          ],
+          "exercises": [
+            {
+              "type": "choice",
+              "prompt": "Barna er ___ skolen.",
+              "options": [
+                "på",
+                "i"
+              ],
+              "answer": "på"
+            },
+            {
+              "type": "choice",
+              "prompt": "Jeg bor ___ <Drammen>.",
+              "options": [
+                "i",
+                "på"
+              ],
+              "answer": "i"
+            }
+          ]
+        },
+        {
+          "id": "det-er",
+          "title": "«det er» and «det finnes»: there is, there are",
+          "explanation": "«det er» covers «it is» and «there is/are» alike: «Det er kaldt», «Det er mange butikker her». «det finnes» stresses existence in general: «Det finnes mange kurs». «det» is also the placeholder subject for weather and time: «Det regner», «Det er klokka fem».",
+          "english": "English needs «there» for existence and «it» for weather; Norwegian uses «det» for both. Never drop it: «Regner» alone is not a sentence.",
+          "examples": [
+            "Det er kaldt i dag.",
+            "Det er mange butikker i sentrum.",
+            "Det finnes mange kurs for voksne.",
+            "Det regner ofte om høsten."
+          ],
+          "exercises": [
+            {
+              "type": "choice",
+              "prompt": "___ regner i dag.",
+              "options": [
+                "Det",
+                "Den",
+                "Regner"
+              ],
+              "answer": "Det"
+            }
+          ]
+        },
+        {
+          "id": "den-det",
+          "title": "«den», «det», «de» for things",
+          "explanation": "When you refer back to a noun, the pronoun follows its gender: «bilen → den», «huset → det», «bilene → de». «han» and «hun» are only for people. «den» and «det» also mean «that» in front of a noun with an adjective: «den nye bilen», «det gamle huset».",
+          "english": "English «it» splits in two: «den» for en- and ei-words, «det» for et-words. If you do not know the gender, listen for the definite ending: -en or -a → «den», -et → «det».",
+          "examples": [
+            "Bilen er ny. Den er {dyr:dyr}.",
+            "Huset er gammelt. Det er fint.",
+            "Bøkene ligger der. De er mine.",
+            "Den nye bilen er rød."
+          ],
+          "exercises": [
+            {
+              "type": "choice",
+              "prompt": "Huset er gammelt. ___ er fint.",
+              "options": [
+                "Det",
+                "Den",
+                "Han"
+              ],
+              "answer": "Det"
+            }
+          ]
+        },
+        {
+          "id": "sammenlikning",
+          "title": "Comparison: -ere, -est, enn, like … som",
+          "explanation": "Most adjectives compare with «-ere» and «-est»: «billig – billigere – billigst». Long ones use «mer» and «mest»: «mer interessant», «mest spennende». «enn» = than, «like … som» = as … as. The common irregulars: «god – bedre – best», «stor – større – størst», «liten – mindre – minst», «gammel – eldre – eldst», «mange – flere – flest».",
+          "english": "Same system as «cheaper/cheapest», and Norwegian uses it even for longer words where English switches to «more»: «vanskeligere» is fine. The trap is «bedre»: it is spelled with a d, and «bra» has no comparative of its own, so «better» is always «bedre».",
+          "examples": [
+            "Melk er dyrere i <Norge> enn i <Spania>.",
+            "Bussen er billigere enn bilen.",
+            "Sønnen min er like høy som datteren min.",
+            "Det er den beste kafeen i byen."
+          ],
+          "practice": [
+            "Toget er raskere enn bussen."
+          ],
+          "exercises": [
+            {
+              "type": "fill",
+              "prompt": "«better» = ___",
+              "answer": "bedre"
+            },
+            {
+              "type": "fill",
+              "prompt": "Melk er ___ i Norge enn i Spania. (dyr)",
+              "answer": "dyrere"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "uttale",
+      "title": "Uttale — pronunciation",
+      "summary": "Norwegian spelling is more regular than English, but a handful of letters do not say what an English reader expects. Word cards show a hint on the tricky words.",
+      "rules": [
+        {
+          "id": "kj-skj",
+          "title": "kj, ki, ky = a soft «hy»; skj, sj, sky = «sh»",
+          "explanation": "«kj» (and «k» before i, y, ei, øy) is a soft sound like the h in «huge», made at the front of the mouth: «kjøpe», «kino», «kylling». «skj», «sj», «sk» before i/y and «rs» are all «sh»: «skjorte», «sjef», «ski», «norsk». Many younger speakers merge the two into «sh», but the exam rewards keeping them apart.",
+          "english": "Neither sound is «k» or «sk». «kjøpe» does not start like «keep», and «ski» is «shee». Practise the pairs «kjede» / «skjede» if you can hear the difference.",
+          "examples": [
+            "Jeg kjøper melk og kylling.",
+            "Vi går på kino på lørdag.",
+            "Sjefen min har en ny skjorte.",
+            "Jeg {lærer:lære} norsk."
+          ]
+        },
+        {
+          "id": "stum",
+          "title": "Silent letters: hv-, -d, -g, -t",
+          "explanation": "«hv» is just «v»: «hva», «hvor», «hvit». A final «d» after a vowel is usually silent: «god», «glad», «med», «rød». The «g» in «-ig» and in «og», «morgen» is silent. The «t» in «det» and in the definite neuter «-et» is silent: «huset» ends in «-e».",
+          "english": "English readers pronounce every consonant they see. «god» sounds like «goo», «huset» like «hoose-eh», «det» like «deh». Drop them and you instantly sound more Norwegian.",
+          "examples": [
+            "Hva heter du, og hvor bor du?",
+            "Det er en god dag.",
+            "Huset er rødt.",
+            "Jeg er glad i morgen."
+          ]
+        },
+        {
+          "id": "vokaler",
+          "title": "o says «oo», u says «ew», y is between i and u",
+          "explanation": "«o» is usually the vowel in English «book» or «boot»: «bok», «god», «hvor». «u» is a tight, lips-forward sound close to French «u»: «hus», «du». «y» is like «i» said with rounded lips: «syk», «by». «æ» is the vowel in «bad»; «ø» is like the vowel in «bird» without the r; «å» is the vowel in «law».",
+          "english": "The usual mistake is reading «o» as in «hot» and «u» as in «hut». «bok» rhymes with «book», not «rock». «hus» is not «huss».",
+          "examples": [
+            "Boka ligger i huset.",
+            "Er du syk?",
+            "Jeg bor i en {by:by}.",
+            "Været er kaldt, og det blåser."
+          ]
+        },
+        {
+          "id": "jeg-de",
+          "title": "jeg, meg, deg, seg, de, og",
+          "explanation": "A few tiny words are pronounced far from their spelling. «jeg» is «yai», «meg/deg/seg» are «mai/dai/sai», «de» (they) and «De» are «dee», «og» is «oh», «også» is «osso».",
+          "english": "These are the most frequent words in the language, so the payoff is huge. «jeg» is one syllable, «yai», never «yeg».",
+          "examples": [
+            "Jeg liker meg her.",
+            "De kommer også.",
+            "Vi leser og skriver."
+          ]
+        },
+        {
+          "id": "tonelag",
+          "title": "Tone: bønder or bønner",
+          "explanation": "Norwegian has two word tones. Most learners never need to produce them consciously, but they explain why «bønder» (farmers) and «bønner» (beans) sound different to a Norwegian. Listen for the melody of two-syllable words and copy it; the rhythm matters more than any single vowel.",
+          "english": "There is nothing like this in English, and the examiner does not test it directly. Copy the melody of the read-aloud voice rather than analysing it.",
+          "examples": [
+            "Vi spiser bønner til middag.",
+            "Læreren snakker sakte og tydelig."
+          ]
+        }
+      ]
+    }
+  ]
+}

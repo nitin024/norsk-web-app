@@ -1,0 +1,18 @@
+{
+  "id": "jeg-er-syk-i-dag",
+  "title": "Jeg er syk i dag",
+  "level": "A1",
+  "topic": "helse",
+  "gloss": "I am sick today",
+  "examNote": "Del 1: si korte setninger om hvordan du har det og hvordan du bestiller time. Øv på «jeg har vondt i» og «jeg vil bestille time».",
+  "body": [
+    "Jeg er syk i dag, og jeg har feber.",
+    "Jeg har også vondt i halsen og {hoster:hoste-v} mye.",
+    "Jeg ringer til legekontoret {klokka:klokka} åtte om morgenen.",
+    "Jeg vil bestille time hos fastlegen min i dag.",
+    "Jeg får time {klokka:klokka} to, og jeg tar bussen.",
+    "Mannen min henter barna fra skolen og barnehagen i dag.",
+    "Legen sier at jeg må hvile meg og drikke vann.",
+    "Jeg er sykepleier, {så:så} jeg forstår mange ord hos legen."
+  ]
+}

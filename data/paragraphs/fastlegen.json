@@ -1,0 +1,18 @@
+{
+  "id": "fastlegen",
+  "title": "Fastlegen og helsetjenesten",
+  "level": "B1",
+  "topic": "helse",
+  "gloss": "The GP and the health service",
+  "examNote": "Mange får spørsmål om helsevesenet i Norge sammenliknet med hjemlandet. Øv på «i hjemlandet mitt ... mens i Norge ...».",
+  "body": [
+    "{Alle:alle} som bor i <Norge>, har rett til en fastlege.",
+    "Fastlegen er den første man kontakter når man er syk.",
+    "Man bestiller time på nettet eller ringer legekontoret.",
+    "Ofte må man vente noen dager, og det synes mange er lenge.",
+    "I <Spania> kunne jeg gå direkte til en spesialist, mens i <Norge> må fastlegen henvise meg.",
+    "Fordelen er at fastlegen kjenner historien min og kan [følge meg opp](følge opp).",
+    "Legebesøk koster litt, men barn og gravide betaler ingenting.",
+    "Jeg mener systemet er trygt, selv om ventetiden noen ganger er lang."
+  ]
+}

@@ -11,8 +11,8 @@
 # Logs
 *.log
 
-# Local dev server state
-.serve.pid
+# Local dev server state (one pair per port)
+.serve.*.pid
 
 # Temp files written by test/render.mjs (deleted on success)
 .probe-*.html
@@ -20,3 +20,10 @@
 # Local scratch — drafts not yet added to data/index.json
 scratch/
 *.draft.json
+*.stubs.json
+
+# Authoring tool dependency (tools/generate.mjs)
+node_modules/
+
+# API key for tools/generate.mjs — never committed
+.env

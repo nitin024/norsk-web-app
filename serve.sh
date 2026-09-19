@@ -2,21 +2,25 @@
 #
 # Local dev server for the reading app.
 #
-#   ./serve.sh            start, then open a browser tab
+#   ./serve.sh            (re)start on $PORT and open a browser tab —
+#                         anything already holding the port is killed first
 #   ./serve.sh stop       stop the server this script started
 #   ./serve.sh kill       free the port, whoever is holding it
-#   ./serve.sh restart    stop, start, open
+#   ./serve.sh restart    same as a bare `./serve.sh`, kept for habit
 #   ./serve.sh status     is it running, and on what
 #
 # Port defaults to 8000; override with PORT=1234 ./serve.sh
+# NO_OPEN=1 starts without opening a browser tab.
 # The site needs a real origin — ES modules and fetch do not work over file://.
 
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PORT="${PORT:-8000}"
-PIDFILE="$ROOT/.serve.pid"
-LOGFILE="$ROOT/.serve.log"
+# Per-port, so `PORT=8081 ./serve.sh` cannot mistake the server on 8000 for
+# its own and "restart" the wrong one.
+PIDFILE="$ROOT/.serve.$PORT.pid"
+LOGFILE="$ROOT/.serve.$PORT.log"
 URL="http://localhost:$PORT/"
 
 # Is the process named by the PID file actually alive?
@@ -33,6 +37,8 @@ port_pid() {
 }
 
 open_tab() {
+  # Set NO_OPEN=1 to start a server without stealing focus.
+  [[ -n "${NO_OPEN:-}" ]] && return 0
   if command -v open >/dev/null 2>&1; then
     open "$URL"
   elif command -v xdg-open >/dev/null 2>&1; then
@@ -43,21 +49,17 @@ open_tab() {
 }
 
 start() {
+  # A bare `./serve.sh` always gives you a fresh server on $PORT. Whatever
+  # was there — an older instance of ours or a stray python3 started by
+  # hand — is terminated first. Reaching for a second command to reclaim
+  # your own port is friction with no upside during development.
   if running; then
-    echo "Already running on $URL (pid $(cat "$PIDFILE"))."
-    open_tab
-    return 0
-  fi
-
-  # Port taken by something that is not us — say whose it is rather than
-  # failing with a bare "address already in use".
-  local other
-  other="$(port_pid || true)"
-  if [[ -n "$other" ]]; then
-    echo "Port $PORT is already in use by pid $other ($(ps -p "$other" -o comm= 2>/dev/null || echo unknown))." >&2
-    echo "Free it with:          $0 kill" >&2
-    echo "Or use another port:   PORT=8081 $0" >&2
-    return 1
+    echo "Restarting the server that was running on $URL (pid $(cat "$PIDFILE"))."
+    stop >/dev/null
+  elif [[ -n "$(port_pid || true)" ]]; then
+    # Says what it is about to kill before killing it; the trailing
+    # "port is free" line is noise here, since we are about to use it.
+    force_kill | grep -v '^Port .* is free\.$' || true
   fi
 
   cd "$ROOT"

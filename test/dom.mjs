@@ -126,6 +126,9 @@ class Element {
   get children() {
     return this.childNodes.filter((n) => n instanceof Element);
   }
+  get firstElementChild() {
+    return this.children[0] ?? null;
+  }
   append(...nodes) {
     for (const node of nodes) {
       const n = typeof node === 'string' ? new TextNode(node, this.ownerDocument) : node;
@@ -146,6 +149,15 @@ class Element {
   }
   remove() {
     this.parentNode?.removeChild(this);
+  }
+  replaceWith(node) {
+    const parent = this.parentNode;
+    if (!parent) return;
+    const i = parent.childNodes.indexOf(this);
+    node.parentNode?.removeChild?.(node);
+    node.parentNode = parent;
+    parent.childNodes.splice(i, 1, node);
+    this.parentNode = null;
   }
   replaceChildren(...nodes) {
     this.childNodes.forEach((n) => (n.parentNode = null));
@@ -186,11 +198,26 @@ class Element {
   querySelector(selector) {
     return this.querySelectorAll(selector)[0] ?? null;
   }
+  /** Nearest self-or-ancestor matching the selector, as the DOM does. */
+  closest(selector) {
+    let node = this;
+    while (node && node instanceof Element) {
+      if (matches(node, selector)) return node;
+      node = node.parentNode;
+    }
+    return null;
+  }
+  setPointerCapture() {}
+  releasePointerCapture() {}
 
   // --- events / layout stubs ---
-  addEventListener(type, fn) {
+  addEventListener(type, fn, options) {
     if (!this.listeners.has(type)) this.listeners.set(type, []);
-    this.listeners.get(type).push(fn);
+    // Capture listeners run before bubbling ones on the same element, which
+    // is how a handler cancels the event for the handlers after it.
+    const capture = options === true || (options && options.capture);
+    if (capture) this.listeners.get(type).unshift(fn);
+    else this.listeners.get(type).push(fn);
   }
   removeEventListener(type, fn) {
     const list = this.listeners.get(type) ?? [];
@@ -198,12 +225,27 @@ class Element {
     if (i !== -1) list.splice(i, 1);
   }
   dispatch(type, event = {}) {
-    for (const fn of this.listeners.get(type) ?? []) fn({ type, target: this, ...event });
+    // Real events carry these; handlers call them.
+    const base = {
+      type,
+      target: this,
+      preventDefault() {},
+      stopPropagation() {},
+      stopImmediatePropagation() {},
+    };
+    let stopped = false;
+    base.stopImmediatePropagation = () => {
+      stopped = true;
+    };
+    for (const fn of [...(this.listeners.get(type) ?? [])]) {
+      if (stopped) break;
+      fn({ ...base, ...event });
+    }
     const on = this[`on${type}`];
-    if (typeof on === 'function') on({ type, target: this, ...event });
+    if (!stopped && typeof on === 'function') on({ ...base, ...event });
   }
   click() {
-    this.dispatch('click', { preventDefault() {} });
+    this.dispatch('click');
   }
   focus() {
     this.ownerDocument.activeElement = this;
@@ -279,6 +321,10 @@ class Document extends Element {
   createElement(tag) {
     return new Element(tag, this);
   }
+  /** SVG elements behave like any other here; the namespace is ignored. */
+  createElementNS(_ns, tag) {
+    return new Element(tag, this);
+  }
   createTextNode(text) {
     return new TextNode(text, this);
   }
@@ -352,6 +398,115 @@ export function installGlobals(doc, root) {
     setItem: (k, v) => store.set(k, String(v)),
     removeItem: (k) => store.delete(k),
     clear: () => store.clear(),
+  };
+
+  // The ring schedules its fill on the next frame.
+  define('requestAnimationFrame', (fn) => setTimeout(() => fn(Date.now()), 0));
+
+  // Speech: a recorder rather than a stub, so tests can assert what the app
+  // asked to have spoken. `spoken` is the transcript.
+  const spoken = [];
+  // Utterances carry listeners, because word-by-word highlighting is driven
+  // by their `boundary` events.
+  define('SpeechSynthesisUtterance', class {
+    constructor(text) {
+      this.text = text;
+      this._on = new Map();
+    }
+    addEventListener(type, fn) {
+      if (!this._on.has(type)) this._on.set(type, []);
+      this._on.get(type).push(fn);
+    }
+    dispatch(type, event = {}) {
+      for (const fn of this._on.get(type) ?? []) fn({ type, ...event });
+    }
+  });
+  // Voices are a list a test can swap, so the missing-voice path is testable.
+  let voices = [{ lang: 'nb-NO', name: 'Test' }];
+  const voiceListeners = [];
+  globalThis.__setVoices = (list) => {
+    voices = list;
+    for (const fn of voiceListeners) fn({ type: 'voiceschanged' });
+  };
+  define('speechSynthesis', {
+    getVoices: () => voices,
+    addEventListener(type, fn) {
+      if (type === 'voiceschanged') voiceListeners.push(fn);
+    },
+    speak(u) {
+      spoken.push(u.text);
+      // The last utterance, so a test can step it word by word.
+      globalThis.__utterance = u;
+    },
+    cancel() {},
+  });
+  globalThis.__spoken = spoken;
+
+  // Recording: off by default, because most of the app must work without a
+  // microphone. `__enableRecording` turns on a fake one a test can drive.
+  globalThis.__enableRecording = (behaviour = 'ok') => {
+    define('MediaRecorder', class {
+      constructor() {
+        this.state = 'inactive';
+        this._on = new Map();
+      }
+      addEventListener(type, fn) {
+        if (!this._on.has(type)) this._on.set(type, []);
+        this._on.get(type).push(fn);
+      }
+      start() {
+        this.state = 'recording';
+        globalThis.__recorder = this;
+      }
+      stop() {
+        this.state = 'inactive';
+        for (const fn of this._on.get('dataavailable') ?? []) fn({ data: { size: 12, type: 'audio/webm' } });
+        for (const fn of this._on.get('stop') ?? []) fn({});
+      }
+    });
+    define('Blob', class {
+      constructor(parts, opts) {
+        this.parts = parts;
+        this.type = opts?.type;
+      }
+    });
+    define('URL', { createObjectURL: () => 'blob:fake', revokeObjectURL() {} });
+    define('Audio', class {
+      play() {
+        globalThis.__played = (globalThis.__played ?? 0) + 1;
+      }
+      pause() {}
+    });
+    define('navigator', {
+      ...globalThis.navigator,
+      mediaDevices: {
+        getUserMedia: async () => {
+          if (behaviour === 'denied') {
+            const e = new Error('no'); e.name = 'NotAllowedError'; throw e;
+          }
+          return { getTracks: () => [{ stop() {} }] };
+        },
+      },
+    });
+  };
+
+  /**
+   * Replay an utterance the way a speech engine would: one `boundary` per
+   * word, then `end`. Returns what was highlighted after each word.
+   */
+  globalThis.__speakWords = (limit = Infinity) => {
+    const u = globalThis.__utterance;
+    if (!u) return [];
+    const seen = [];
+    let n = 0;
+    for (const m of u.text.matchAll(/\S+/g)) {
+      if (n++ >= limit) return seen;
+      u.dispatch('boundary', { name: 'word', charIndex: m.index, charLength: m[0].length });
+      const lit = doc.getElementById('reader').querySelectorAll('.w').filter((w) => w.classList.contains('is-speaking'));
+      seen.push(lit.length === 1 ? lit[0].textContent : `${lit.length} lit`);
+    }
+    u.dispatch('end');
+    return seen;
   };
 
   globalThis.window = {

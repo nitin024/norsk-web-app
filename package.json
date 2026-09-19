@@ -1,0 +1,23 @@
+{
+  "name": "norsk-web-app",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Static Norwegian (bokmål) reading app: tap a word for its dictionary form, inflection table and gloss.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "validate": "node validate.js",
+    "test": "npm run validate && node test/run.mjs && node test/css.mjs && node test/render.mjs",
+    "test:unit": "node test/run.mjs",
+    "test:css": "node test/css.mjs",
+    "test:render": "node test/render.mjs",
+    "serve": "./serve.sh",
+    "generate": "node --env-file-if-exists=.env tools/generate.mjs"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@anthropic-ai/sdk": "^0.127.0"
+  }
+}

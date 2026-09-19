@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#faf8f5" />
     <title>Norsk — lesing</title>
+    <!-- Inline SVG favicon: same mark as the brand, no asset path to break
+         under a GitHub Pages sub-directory. -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='10' fill='%23faf8f5'/%3E%3Cpath d='M17 7 V41 M5 22.5 H43' stroke='%231f1d1a' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E" />
+    <link rel="apple-touch-icon" href="icon.svg" />
+    <link rel="manifest" href="manifest.json" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -39,22 +44,41 @@
         </div>
       </header>
 
+      <!-- One row, not two: the search collapses to an icon and expands over
+           the filters when you reach for it. -->
       <div id="dict-controls" class="dict-controls" hidden>
-        <input
-          id="dict-search"
-          class="dict-search"
-          type="search"
-          lang="nb"
-          autocomplete="off"
-          autocapitalize="off"
-          spellcheck="false"
-          placeholder="Søk etter ord…"
-          aria-label="Søk i ordboka"
-        />
         <div class="dict-row-controls">
+          <button id="dict-search-open" class="icon-btn" type="button"
+                  aria-label="Søk i ordboka" aria-expanded="false" aria-controls="dict-search">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8" />
+              <path d="M16 16l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+          </button>
           <div id="dict-filters" class="dict-filters" role="group" aria-label="Filtrer på ordklasse"></div>
           <button id="dict-gloss-toggle" class="gloss-toggle" type="button" aria-pressed="false">
             Vis engelsk
+          </button>
+          <button id="dict-view-toggle" class="gloss-toggle" type="button" aria-pressed="false">
+            Kort
+          </button>
+        </div>
+        <div id="dict-search-row" class="dict-search-row" hidden>
+          <input
+            id="dict-search"
+            class="dict-search"
+            type="search"
+            lang="nb"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            placeholder="Søk etter ord…"
+            aria-label="Søk i ordboka"
+          />
+          <button id="dict-search-close" class="icon-btn" type="button" aria-label="Lukk søk">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
           </button>
         </div>
       </div>
@@ -75,8 +99,63 @@
         <p id="scratch-stats" class="scratch-stats" role="status" aria-live="polite"></p>
       </div>
 
+      <!-- Shown only when the device has no Norwegian voice installed: the
+           read-aloud features then fall back to an English one, which is
+           worse than useless for pronunciation. -->
+      <aside id="voice-banner" class="banner" role="status" hidden></aside>
+
       <main id="reader" class="reader" tabindex="-1"></main>
     </div>
+
+    <!-- Jump rail for the dictionary: 1080 entries is too many to scroll. -->
+    <nav id="letter-rail" class="letter-rail" aria-label="Hopp til bokstav" hidden></nav>
+
+    <!-- The reading modes. A bar of its own above the tab bar, so a text
+         begins at the top of the screen instead of below its controls. -->
+    <div id="mode-bar" class="mode-bar" hidden></div>
+
+    <!-- Phone navigation. The four places the time actually goes; the rest
+         hang off Kurs and home. Hidden on wide screens, where the topbar and
+         the home page are enough. -->
+    <nav id="tabbar" class="tabbar" aria-label="Hovednavigasjon">
+      <a class="tab" href="#/kurs" data-tab="course">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M4 5.5h6a2 2 0 0 1 2 2v11a2 2 0 0 0-2-2H4zM20 5.5h-6a2 2 0 0 0-2 2v11a2 2 0 0 1 2-2h6z"
+                fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+        </svg>
+        <span>Kurs</span>
+      </a>
+      <a class="tab" href="#/tekster" data-tab="texts">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M5 4.5h14M5 9.5h14M5 14.5h10M5 19.5h7"
+                fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+        </svg>
+        <span>Tekster</span>
+      </a>
+      <a class="tab" href="#/ordbok" data-tab="dict">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.7" />
+          <path d="M16 16l4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+        </svg>
+        <span>Ordbok</span>
+      </a>
+      <a class="tab" href="#/ov" data-tab="review">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <rect x="4" y="6" width="13" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7" />
+          <path d="M8 3.5h9a3 3 0 0 1 3 3v9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+        </svg>
+        <span>Øving</span>
+        <span id="tab-review-badge" class="tab-badge" hidden></span>
+      </a>
+      <a class="tab" href="#/mer" data-tab="more">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="5.5" cy="12" r="1.6" fill="currentColor" />
+          <circle cx="12" cy="12" r="1.6" fill="currentColor" />
+          <circle cx="18.5" cy="12" r="1.6" fill="currentColor" />
+        </svg>
+        <span>Mer</span>
+      </a>
+    </nav>
 
     <!-- Announces view changes without re-reading the whole paragraph, which
          is what aria-live on the text body itself would do. -->

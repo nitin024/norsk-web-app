@@ -9,26 +9,40 @@
 // There is no build step, so nothing else stands between a bad annotation and
 // the page. This is that step.
 
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseParagraph, buildFormIndex } from './parser.js';
+
+// A colliding surface form is only safe where it is explicitly annotated.
+// Strip every annotation from the line first, then look for the form standing
+// bare — an annotated occurrence must not count as a safe hit. Phrase spans
+// go too: their words resolve through the phrase entry ("siden" in
+// [ved siden av] is not the adverb), and any non-phrase word left inside a
+// discontinuous span is still checked by the parser diagnostics above.
+const stripAnnotations = (line) =>
+  line
+    .replace(/\[[^\[\]]*\](?:\([^()]*\))?/g, ' ')
+    .replace(/\{[^{}]*\}/g, ' ')
+    .replace(/<[^<>]*>/g, ' ');
 
 // --- draft mode --------------------------------------------------------
 // `node validate.js --draft data/paragraphs/ny.json` reports what a
 // work-in-progress paragraph still needs: missing lexicon entries (with
 // paste-ready stubs) and bare words that are ambiguous.
 
+import { lexiconStub, guessLemma } from './stub.js';
+
+// The word-level stub generators. `lexiconStub` is shared with the scratch
+// card in the app so the two never drift: every stub carries the `id` that
+// the lexicon-id check below insists on.
 const STUBS = {
-  noun: (l) =>
-    `"${l}": { "pos": "noun", "gender": "en", "gloss": "", "forms": { "indefinite_sg": "${l}", "definite_sg": "${l}en", "indefinite_pl": "${l}er", "definite_pl": "${l}ene" } }`,
-  determiner: (l) => `"${l}": { "pos": "determiner", "gloss": "" }`,
-  pronoun: (l) => `"${l}": { "pos": "pronoun", "gloss": "" }`,
-  verb: (l) =>
-    `"${l}": { "pos": "verb", "gloss": "", "forms": { "infinitive": "${l}", "present": "${l}r", "preterite": "${l}te", "perfect": "${l}t" } }`,
-  adjective: (l) =>
-    `"${l}": { "pos": "adjective", "gloss": "", "forms": { "positive": "${l}", "neuter": "${l}t", "plural": "${l}e" } }`,
-  phrase: (l) => `"${l}": { "pos": "phrase", "phrase": true, "gloss": "" }`,
-  other: (l) => `"${l}": { "pos": "adverb", "gloss": "" }`,
+  noun: (l) => lexiconStub(l, 'noun'),
+  determiner: (l) => lexiconStub(l, 'determiner'),
+  pronoun: (l) => lexiconStub(l, 'pronoun'),
+  verb: (l) => lexiconStub(l, 'verb'),
+  adjective: (l) => lexiconStub(l, 'adjective'),
+  phrase: (l) => lexiconStub(l, 'phrase'),
+  other: (l) => lexiconStub(l, 'adverb'),
 };
 
 function runDraft(target) {
@@ -41,17 +55,21 @@ function runDraft(target) {
   // right than a bare adverb. Wrong guesses are cheap — you edit the stub.
   const guessPos = (word) => {
     if (word.includes(' ')) return 'phrase';
-    if (/(ere|ere|ne|re)$/.test(word) && /(er|re)$/.test(word)) return 'verb';
+    // Derivational noun and adjective suffixes are the most reliable signal,
+    // so they go before the verb guess: "utdanning" ends in -ing, not -er.
     if (/(else|ing|het|sjon|dom|skap)$/.test(word)) return 'noun';
     if (/(lig|som|full|løs|bar|isk)$/.test(word)) return 'adjective';
-    if (/(er|ere|te|de)$/.test(word)) return 'verb';
+    // -er / -te / -de are the present and preterite endings; what the draft
+    // saw was probably an inflected verb.
+    if (/(er|te|de)$/.test(word)) return 'verb';
     return 'noun';
   };
 
   const missing = new Map();
   for (const d of diagnostics) {
     if (d.kind === 'unresolved') {
-      const w = d.surface.toLowerCase();
+      // Propose the base form, not the inflected one that was seen.
+      const w = guessLemma(d.surface.toLowerCase()).lemma;
       missing.set(w, guessPos(w));
     } else if (d.kind === 'missing-lemma' || d.kind === 'unknown-phrase') {
       const w = d.lemma ?? d.surface;
@@ -62,23 +80,30 @@ function runDraft(target) {
   // Bare words in the source that resolve, but ambiguously.
   const ambiguous = new Map();
   for (const line of doc.body) {
-    const bare = line.replace(/\{[^{}]*\}/g, ' ').replace(/<[^<>]*>/g, ' ');
+    const bare = stripAnnotations(line);
     for (const m of bare.matchAll(/[\p{L}][\p{L}\d'’-]*/gu)) {
       const hits = index.get(m[0].toLowerCase());
-      if (hits && hits.length > 1) {
-        ambiguous.set(m[0].toLowerCase(), [...new Set(hits.map((h) => h.lemma))]);
-      }
+      const lemmas = hits ? [...new Set(hits.map((h) => h.lemma))] : [];
+      if (lemmas.length > 1) ambiguous.set(m[0].toLowerCase(), lemmas);
     }
   }
 
   console.log(`\n${target}\n`);
 
   if (missing.size > 0) {
-    console.log(`Missing from the lexicon (${missing.size}) — paste into data/lexicon.json:\n`);
+    console.log(`Missing from the lexicon (${missing.size}):\n`);
+    const stubs = {};
     for (const [word, kind] of missing) {
-      console.log('    ' + (STUBS[kind] ?? STUBS.other)(word) + ',');
+      const line = (STUBS[kind] ?? STUBS.other)(word);
+      console.log('    ' + line + ',');
+      Object.assign(stubs, JSON.parse(`{${line}}`));
     }
-    console.log('\n  Adjust pos, gender, gloss and the irregular forms by hand.');
+    // Also as a file, so the fix is: edit glosses, then
+    // `node tools/add-entries.mjs <file>` — no copy-pasting into the lexicon.
+    const stubPath = target.replace(/(\.draft)?\.json$/, '') + '.stubs.json';
+    writeFileSync(stubPath, JSON.stringify(stubs, null, 2) + '\n');
+    console.log(`\n  Written to ${stubPath} — fill in gloss, fix pos/gender/forms, then:`);
+    console.log(`  node tools/add-entries.mjs ${stubPath}`);
   }
 
   if (ambiguous.size > 0) {
@@ -141,7 +166,8 @@ const SCHEMA = {
     requires: ['gender'],
   },
   verb: {
-    allowed: ['infinitive', 'present', 'preterite', 'perfect'],
+    // imperative and the -s passive are optional: listed where a text uses them.
+    allowed: ['infinitive', 'present', 'preterite', 'perfect', 'imperative', 'passive'],
     required: ['infinitive', 'present', 'preterite', 'perfect'],
   },
   adjective: {
@@ -161,7 +187,8 @@ const SCHEMA = {
     formsOptional: true,
   },
   phrase: {
-    allowed: ['infinitive', 'present', 'preterite', 'perfect'],
+    // A verbal phrase can be a command too: «skynd deg», «sett deg ned».
+    allowed: ['infinitive', 'present', 'preterite', 'perfect', 'imperative'],
     required: [],
     formsOptional: true,
   },
@@ -177,8 +204,11 @@ const warn = (check, message) => warnings.push({ check, message });
 // --- load -------------------------------------------------------------
 
 const lexicon = JSON.parse(readFileSync(LEXICON_PATH, 'utf8'));
+// Published texts only. The authoring tools leave `.draft.json` alongside a
+// `.stubs.json` of missing words; neither is a paragraph, and a stub file has
+// no `body` at all.
 const paragraphFiles = readdirSync(PARAGRAPH_DIR)
-  .filter((f) => f.endsWith('.json'))
+  .filter((f) => f.endsWith('.json') && !f.endsWith('.draft.json') && !f.endsWith('.stubs.json'))
   .map((f) => join(PARAGRAPH_DIR, f));
 
 const paragraphs = paragraphFiles.map((path) => ({
@@ -193,6 +223,7 @@ const paragraphs = paragraphFiles.map((path) => ({
 const index = JSON.parse(readFileSync(INDEX_PATH, 'utf8'));
 const onDisk = new Set(paragraphFiles.map((p) => p.split('/').pop()));
 const declaredLevels = new Set(index.levels.map((l) => l.level));
+const declaredTopics = new Set((index.topics ?? []).map((t) => t.id));
 const seenIds = new Set();
 
 for (const item of index.paragraphs) {
@@ -203,6 +234,13 @@ for (const item of index.paragraphs) {
   seenIds.add(item.id);
   if (!declaredLevels.has(item.level)) {
     err('index', `"${item.id}" has level "${item.level}", which index.json does not declare`);
+  }
+  // Topic pages are built from this field; an undeclared topic is a text
+  // that no topic page can reach.
+  if (!item.topic) {
+    err('index', `"${item.id}" has no topic`);
+  } else if (!declaredTopics.has(item.topic)) {
+    err('index', `"${item.id}" has topic "${item.topic}", which index.json does not declare`);
   }
 }
 
@@ -220,6 +258,9 @@ for (const { path, doc } of paragraphs) {
   }
   if (entry && entry.level !== doc.level) {
     err('index', `${path}: doc level "${doc.level}" does not match index level "${entry.level}"`);
+  }
+  if (entry && doc.topic !== entry.topic) {
+    err('index', `${path}: doc topic "${doc.topic}" does not match index topic "${entry.topic}"`);
   }
 }
 
@@ -364,10 +405,7 @@ for (const { path, doc } of paragraphs) {
   }
 }
 
-// A colliding surface form is only safe where it is explicitly annotated.
-// Strip every {...} annotation from the line first, then look for the form
-// standing bare — an annotated occurrence must not count as a safe hit.
-const stripAnnotations = (line) => line.replace(/\{[^{}]*\}/g, ' ');
+
 const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 for (const [surface, lemmas] of collisions) {
@@ -392,12 +430,123 @@ for (const [surface, lemmas] of collisions) {
   }
 }
 
-// --- 4. unused entries -------------------------------------------------
+// --- 3b. grammar rule book --------------------------------------------
+// Rule examples are rendered through the same parser as the texts, so an
+// unresolved word there is a dead tap in the rule book.
 
-for (const lemma of Object.keys(lexicon.entries)) {
-  if (!usedLemmas.has(lemma)) {
+const GRAMMAR_PATH = 'data/grammar.json';
+try {
+  const grammar = JSON.parse(readFileSync(GRAMMAR_PATH, 'utf8'));
+  const seenRuleIds = new Set();
+  for (const section of grammar.sections ?? []) {
+    for (const rule of section.rules ?? []) {
+      const where = `${GRAMMAR_PATH} [${section.id}/${rule.id}]`;
+      if (!rule.id || !rule.title || !rule.explanation) err('grammar', `${where}: needs id, title and explanation`);
+      if (!rule.english) warn('grammar', `${where}: no "english" note — the audience is English speakers`);
+      if (seenRuleIds.has(rule.id)) err('grammar', `${where}: duplicate rule id`);
+      seenRuleIds.add(rule.id);
+      const body = [...(rule.examples ?? []), ...(rule.practice ?? [])];
+      const { sentences, diagnostics } = parseParagraph({ id: rule.id, body }, lexicon);
+      for (const d of diagnostics) {
+        if (d.kind === 'ambiguous' || d.kind === 'unresolved' || d.kind === 'missing-lemma' || d.kind === 'unknown-phrase' || d.kind === 'unbalanced-bracket') {
+          err('grammar', `${where}: ${d.message}`);
+        }
+      }
+      for (const node of sentences.flat()) {
+        if (node.kind === 'word' && node.lemma) usedLemmas.add(node.lemma);
+      }
+    }
+  }
+} catch (e) {
+  err('grammar', `${GRAMMAR_PATH}: ${e.message}`);
+}
+
+// --- 3bb. exam bands ----------------------------------------------------
+// Each band draws its Del 2 and Del 3 material from its own levels, so a
+// band with no texts would present an empty exam.
+
+try {
+  const exam = JSON.parse(readFileSync('data/exam.json', 'utf8'));
+  const declared = new Set(index.levels.map((l) => l.level));
+  if (!exam.bands?.length) err('exam', 'data/exam.json declares no bands');
+  for (const band of exam.bands ?? []) {
+    if (!band.id || !band.label) err('exam', `a band needs an id and a label`);
+    for (const level of band.levels ?? []) {
+      if (!declared.has(level)) err('exam', `band "${band.id}" names level "${level}", which index.json does not declare`);
+    }
+    const texts = index.paragraphs.filter((p) => (band.levels ?? []).includes(p.level));
+    if (texts.length === 0) err('exam', `band "${band.id}" has no texts at ${(band.levels ?? []).join('/')}`);
+    else if (texts.length < 4) warn('exam', `band "${band.id}" has only ${texts.length} texts to draw from`);
+  }
+  if (!exam.del1?.length) err('exam', 'no Del 1 questions');
+} catch (e) {
+  err('exam', e.message);
+}
+
+// --- 3c. course path ----------------------------------------------------
+
+try {
+  const course = JSON.parse(readFileSync('data/course.json', 'utf8'));
+  const grammar = JSON.parse(readFileSync(GRAMMAR_PATH, 'utf8'));
+  const ruleIds = new Set(grammar.sections.flatMap((s) => s.rules.map((r) => r.id)));
+  const textIds = new Set(index.paragraphs.map((p) => p.id));
+  const seen = new Set();
+  for (const level of course.levels ?? []) {
+    for (const step of level.steps ?? []) {
+      const key = `${step.type}:${step.id ?? step.label}`;
+      if (seen.has(key)) warn('course', `${level.level}: step ${key} appears twice`);
+      seen.add(key);
+      if (step.type === 'text' && !textIds.has(step.id)) err('course', `${level.level}: no text "${step.id}"`);
+      if (step.type === 'rule' && !ruleIds.has(step.id)) err('course', `${level.level}: no rule "${step.id}"`);
+      if (!['text', 'rule', 'drill', 'review', 'exam'].includes(step.type)) err('course', `${level.level}: unknown step type "${step.type}"`);
+    }
+  }
+  for (const id of textIds) {
+    if (!seen.has(`text:${id}`)) warn('course', `text "${id}" is not in the course path`);
+  }
+  for (const section of grammar.sections) {
+    for (const rule of section.rules) {
+      for (const ex of rule.exercises ?? []) {
+        if (!['choice', 'fill', 'join', 'tense'].includes(ex.type)) {
+          err('grammar', `${rule.id}: unknown exercise type "${ex.type}"`);
+        }
+        if (ex.type === 'choice' && !ex.options?.includes(ex.answer)) {
+          err('grammar', `${rule.id}: answer "${ex.answer}" is not among the options`);
+        }
+        // A join shows two clauses and the word to fuse them with; a tense
+        // shows the infinitive and the time expression that selects the form.
+        if (ex.type === 'join' && !(ex.first && ex.second && ex.connector)) {
+          err('grammar', `${rule.id}: a join needs first, second and connector`);
+        }
+        if (ex.type === 'join' && !ex.answer.toLowerCase().includes(ex.connector.toLowerCase())) {
+          err('grammar', `${rule.id}: the answer does not use the connector "${ex.connector}"`);
+        }
+        if (ex.type === 'tense' && !(ex.verb && ex.when)) {
+          err('grammar', `${rule.id}: a tense exercise needs verb and when`);
+        }
+        if (!ex.prompt || !ex.answer) err('grammar', `${rule.id}: exercise needs prompt and answer`);
+      }
+    }
+  }
+} catch (e) {
+  err('course', e.message);
+}
+
+// --- 4. unused entries -------------------------------------------------
+// Hundreds of entries are unused by design — the dictionary is meant to run
+// ahead of the texts — so listing each one buries the warnings that matter.
+// Report a count by default; `--unused` prints the list.
+
+const unused = Object.keys(lexicon.entries).filter((lemma) => !usedLemmas.has(lemma));
+if (process.argv.includes('--unused')) {
+  for (const lemma of unused) {
     warn('unused-entry', `"${lemma}" is in the lexicon but no paragraph uses it`);
   }
+} else if (unused.length > 0) {
+  warn(
+    'unused-entry',
+    `${unused.length} lexicon entries are used by no paragraph (run with --unused to list them)`
+  );
 }
 
 // --- report ------------------------------------------------------------
