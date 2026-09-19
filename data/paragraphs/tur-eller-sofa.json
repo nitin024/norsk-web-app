@@ -1,0 +1,20 @@
+{
+  "id": "tur-eller-sofa",
+  "title": "Tur eller sofa?",
+  "level": "B1",
+  "topic": "fritid",
+  "gloss": "Hike or sofa?",
+  "examNote": "Del 2: si hva du mener, og begrunn det med «for det første» og «for det andre». Vei deretter en fordel mot en ulempe med «likevel», og avslutt med «derfor» eller «til slutt».",
+  "body": [
+    "[Etter min mening] er det best å bruke helgen på en tur i fjellet.",
+    "[For det første] er det bra for helsen å være ute i naturen.",
+    "[For det andre] kan vi snakke sammen, og barna slipper å sitte foran skjermen.",
+    "[På den ene siden] er en lang tur en stor fordel for hele familien.",
+    "[På den andre siden] kan det være vanskelig å komme seg ut når man er sliten.",
+    "Dessuten kan været bli dårlig, og da vil ikke barna gå.",
+    "Likevel synes jeg at fordelene er større enn ulempene.",
+    "Vi kan velge en kort tur, hvis vi er trøtte.",
+    "Derfor prøver vi å gå tur nesten hver helg.",
+    "[Til slutt] vil jeg {si:si} at naturen gjør hele familien glad."
+  ]
+}

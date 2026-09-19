@@ -94,6 +94,12 @@
     { "id": "jul-og-syttende-mai", "title": "Jul og syttende mai", "level": "A2", "file": "jul-og-syttende-mai.json", "topic": "mat" },
     { "id": "planer-for-varen", "title": "Planer for våren", "level": "A1", "file": "planer-for-varen.json", "topic": "utdanning" },
     { "id": "regn-og-skog", "title": "Regn og skog", "level": "A2", "file": "regn-og-skog.json", "topic": "fritid" },
-    { "id": "to-sprak-hjemme", "title": "To språk hjemme", "level": "B1", "file": "to-sprak-hjemme.json", "topic": "presentasjon" }
+    { "id": "to-sprak-hjemme", "title": "To språk hjemme", "level": "B1", "file": "to-sprak-hjemme.json", "topic": "presentasjon" },
+    { "id": "butikk-eller-nett", "title": "Butikk eller nett", "level": "B1", "file": "butikk-eller-nett.json", "topic": "penger" },
+    { "id": "helg-med-familien", "title": "Helg med familien", "level": "A1", "file": "helg-med-familien.json", "topic": "fritid" },
+    { "id": "matboks-eller-varm-lunsj", "title": "Matboks eller varm lunsj", "level": "B1", "file": "matboks-eller-varm-lunsj.json", "topic": "mat" },
+    { "id": "middag-i-to-land", "title": "Middag i to land", "level": "A1", "file": "middag-i-to-land.json", "topic": "mat" },
+    { "id": "tur-eller-sofa", "title": "Tur eller sofa?", "level": "B1", "file": "tur-eller-sofa.json", "topic": "fritid" },
+    { "id": "vi-handler-mat", "title": "Vi handler mat", "level": "A1", "file": "vi-handler-mat.json", "topic": "penger" }
   ]
 }

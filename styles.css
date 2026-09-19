@@ -13,9 +13,18 @@
   --surface: #ffffff;
   --ink: #1c1a17;
   --ink-soft: #5d574e;
-  --ink-faint: #8d8579;
+  /* Every ink tone clears 4.5:1 on --bg, --surface, --accent-soft and
+     --done-soft. --ink-faint is quiet, not decorative: it carries the part
+     of speech, the hints, the counts. */
+  --ink-faint: #6b645a;
   --rule: #e8e2d8;
   --rule-soft: #f0ebe3;
+  /* --rule separates rows and is decorative, so it may stay faint.
+     --edge outlines a control — a button, an input, a chip — which WCAG
+     1.4.11 holds to 3:1 against whatever sits behind it. --danger marks a
+     wrong answer and needs the same. */
+  --edge: #948a77;
+  --danger: #b5473a;
   --accent: #1f5f4f;
   --accent-soft: #e3efea;
 
@@ -60,9 +69,11 @@
     --surface: #1d1b17;
     --ink: #f3efe8;
     --ink-soft: #b6aea1;
-    --ink-faint: #857d72;
+    --ink-faint: #9e9488;
     --rule: #2e2a24;
     --rule-soft: #24211c;
+    --edge: #736b5f;
+    --danger: #cf6152;
     --accent: #7fc9b2;
     --accent-soft: #1f2f2a;
     --done: #b7d16a;
@@ -75,9 +86,11 @@
   --surface: #1d1b17;
   --ink: #f3efe8;
   --ink-soft: #b6aea1;
-  --ink-faint: #857d72;
+  --ink-faint: #9e9488;
   --rule: #2e2a24;
   --rule-soft: #24211c;
+  --edge: #736b5f;
+  --danger: #cf6152;
   --accent: #7fc9b2;
   --accent-soft: #1f2f2a;
   --done: #b7d16a;
@@ -331,7 +344,7 @@ body[data-view='home'] .reader {
    the main reason the page felt heavy. */
 .home-link {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: var(--s-3);
   min-height: 56px;
   padding: var(--s-4) var(--s-1);
@@ -349,10 +362,25 @@ body[data-view='home'] .reader {
   background: var(--rule-soft);
 }
 
+.home-link-labels {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .home-link-name {
+  display: block;
   font-size: var(--t-lg);
   font-weight: 500;
   letter-spacing: -0.01em;
+}
+
+.home-link-english {
+  display: block;
+  font-size: var(--t-xs);
+  color: var(--ink-faint);
 }
 
 .home-link-count {
@@ -362,14 +390,23 @@ body[data-view='home'] .reader {
   font-variant-numeric: tabular-nums;
 }
 
+/* Always at the trailing edge. The count, where there is one, takes the
+   auto margin instead and the chevron follows it. */
 .home-link::after {
   content: '';
+  flex: 0 0 auto;
   width: 7px;
   height: 7px;
+  margin-left: auto;
   border-right: 1.5px solid var(--ink-faint);
   border-bottom: 1.5px solid var(--ink-faint);
   transform: rotate(-45deg);
   align-self: center;
+}
+
+.home-link-count + ::after,
+.home-link-count ~ ::after {
+  margin-left: var(--s-3);
 }
 
 .home-footer {
@@ -480,6 +517,21 @@ body[data-view='home'] .reader {
   touch-action: manipulation;
 }
 
+/* Lit while the read-aloud voice is on this word. Background rather than
+   colour, so it stays legible and does not compete with the tap underline. */
+.w.is-speaking {
+  background: var(--accent-soft);
+  border-radius: 3px;
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+/* Held down: the same highlight as an open card, so the word acknowledges
+   the touch while the timer runs. */
+.w.is-holding {
+  background: var(--accent-soft);
+  border-radius: 3px;
+}
+
 .w:active,
 .w.is-active {
   background: var(--accent-soft);
@@ -522,7 +574,7 @@ body[data-view='home'] .reader {
 .scratch-input {
   width: 100%;
   padding: var(--s-3);
-  border: 1px solid var(--rule);
+  border: 1px solid var(--edge);
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--ink);
@@ -557,7 +609,7 @@ body[data-view='home'] .reader {
 }
 
 .btn-quiet {
-  border: 1px solid var(--rule);
+  border: 1px solid var(--edge);
   background: none;
   color: var(--ink-soft);
 }
@@ -598,6 +650,52 @@ body[data-view='home'] .reader {
   word-break: break-word;
 }
 
+/* --- the voice banner ---------------------------------------------------- */
+
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  max-width: var(--measure);
+  margin: var(--s-3) auto 0;
+  padding: var(--s-3) var(--s-4);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--accent-soft);
+}
+
+.banner-text {
+  flex: 1 1 auto;
+  font-size: var(--t-sm);
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.banner-text strong {
+  color: var(--ink);
+}
+
+.banner-close {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  font-size: var(--t-lg);
+  line-height: 1;
+}
+
+/* An empty view that says what it is for, rather than a blank box. */
+.intro {
+  max-width: var(--measure);
+  padding: var(--s-4) 0;
+}
+
+.intro-text {
+  margin: 0 0 var(--s-4);
+  font-size: var(--t-md);
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
 /* --- dictionary ------------------------------------------------------- */
 
 .dict-controls {
@@ -618,11 +716,44 @@ body[data-view='home'] .reader {
   margin-right: auto;
 }
 
+.dict-search-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
+}
+
+/* A square, quiet button for an icon that needs no label beside it. */
+.icon-btn {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--edge);
+  border-radius: 999px;
+  background: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.icon-btn:active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
 .dict-search {
   width: 100%;
   min-height: 40px;
   padding: var(--s-2) var(--s-3);
-  border: 1px solid var(--rule);
+  border: 1px solid var(--edge);
   border-radius: var(--s-2);
   background: var(--surface);
   color: var(--ink);
@@ -636,10 +767,30 @@ body[data-view='home'] .reader {
 
 .dict-filters {
   display: flex;
+  /* Takes the leftover width and scrolls inside it. Without min-width flex
+     would shrink it under the buttons beside it and clip the last chip. */
+  flex: 1 1 auto;
+  min-width: 0;
   gap: var(--s-1);
   margin-top: var(--s-2);
   overflow-x: auto;
   scrollbar-width: none;
+}
+
+.dict-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.dict-filters .chip {
+  flex: 0 0 auto;
+}
+
+/* Six chips never fit a phone, so the row scrolls. Fade the trailing edge so
+   a half-visible chip reads as "there is more here" rather than as clipping.
+   The mask only covers the last 20px, which is where a cut chip lands. */
+.dict-filters {
+  mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent);
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent);
 }
 
 .dict-filters::-webkit-scrollbar {
@@ -819,6 +970,11 @@ body[data-view='dict'] .reader {
   margin-top: var(--s-2);
 }
 
+.dict-row-controls > .icon-btn,
+.dict-row-controls > .gloss-toggle {
+  flex: 0 0 auto;
+}
+
 .dict-row-controls .dict-filters {
   margin-top: 0;
   min-width: 0;
@@ -828,7 +984,7 @@ body[data-view='dict'] .reader {
   flex: 0 0 auto;
   min-height: 30px;
   padding: var(--s-1) var(--s-3);
-  border: 1px solid var(--rule);
+  border: 1px solid var(--edge);
   border-radius: 999px;
   background: none;
   color: var(--ink-faint);
@@ -1153,7 +1309,7 @@ body[data-view='dict'] .reader {
 }
 
 .scramble.is-wrong .scramble-answer {
-  border-bottom-color: #b5473a;
+  border-bottom-color: var(--danger);
 }
 
 .scramble-pool {
@@ -1167,7 +1323,7 @@ body[data-view='dict'] .reader {
 .scramble-chip {
   min-height: 36px;
   padding: var(--s-1) var(--s-3);
-  border: 1px solid var(--rule);
+  border: 1px solid var(--edge);
   border-radius: var(--s-2);
   background: var(--bg);
   color: var(--ink);
@@ -1240,7 +1396,7 @@ body[data-view='dict'] .reader {
   flex: 1 1 14rem;
   min-width: 0;
   padding: var(--s-2) var(--s-3);
-  border: 1px solid var(--rule);
+  border: 1px solid var(--edge);
   border-radius: var(--s-2);
   background: var(--surface);
   color: var(--ink);
@@ -1254,7 +1410,7 @@ body[data-view='dict'] .reader {
 }
 
 .dictation-input.is-wrong {
-  border-color: #b5473a;
+  border-color: var(--danger);
 }
 
 .dictation-key {
@@ -1305,7 +1461,7 @@ body[data-view='dict'] .reader {
 }
 
 .exercise.is-wrong {
-  border-color: #b5473a;
+  border-color: var(--danger);
 }
 
 .exercise-prompt {
@@ -1359,6 +1515,38 @@ body[data-view='dict'] .reader {
   gap: var(--s-3);
   margin: 0 0 var(--s-3);
 }
+
+/* --- sticky section headings ---------------------------------------------
+   A long grouped list loses its heading the moment you scroll into the
+   group, which is exactly when you need it. The heading rides along until
+   the next one pushes it out, the way the dictionary's letters already do.
+
+   Only for repeating groups you can be *inside*: levels on the course and
+   the text list, sections in the grammar. A one-off heading over a short
+   block has nothing to clarify and would just add noise. */
+.level-title.is-sticky,
+.level-head.is-sticky {
+  position: sticky;
+  top: var(--topbar-h);
+  z-index: 4;
+  /* Opaque, or the rows scroll visibly through it. */
+  background: var(--bg);
+}
+
+
+.level-title.is-sticky {
+  padding: var(--s-2) 0;
+  margin-bottom: var(--s-1);
+}
+
+.level-head.is-sticky {
+  padding: var(--s-2) 0;
+  margin-bottom: var(--s-2);
+}
+
+/* A row part-way through scrolling shows below the pinned heading. That is
+   the point of the pattern, not a seam to paper over: the heading names the
+   group you are inside while its rows pass underneath. */
 
 .level-head .level-title {
   margin: 0;
@@ -1525,7 +1713,7 @@ body[data-view='dict'] .reader {
 .word-chip {
   min-height: 36px;
   padding: var(--s-1) var(--s-3);
-  border: 1px solid var(--rule);
+  border: 1px solid var(--edge);
   border-radius: 999px;
   background: var(--surface);
   color: var(--ink);
@@ -1620,8 +1808,13 @@ body[data-view='dict'] .reader {
 .speak-all {
   min-height: 40px;
   padding: var(--s-2) var(--s-3);
-  border: 1px solid var(--rule);
+  border: 1px solid var(--edge);
   color: var(--ink-soft);
+}
+
+.speak-all.is-on {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .lookups {
@@ -1652,7 +1845,7 @@ body[data-view='dict'] .reader {
 .cloze-input {
   padding: 2px var(--s-1);
   border: 0;
-  border-bottom: 2px solid var(--rule);
+  border-bottom: 2px solid var(--edge);
   border-radius: 0;
   background: var(--surface);
   color: var(--ink);
@@ -1673,7 +1866,7 @@ body[data-view='dict'] .reader {
 }
 
 .cloze-input.is-wrong {
-  border-bottom-color: #b5473a;
+  border-bottom-color: var(--danger);
 }
 
 .cloze-hint-toggle {
@@ -1727,6 +1920,46 @@ body[data-view='dict'] .reader {
 }
 
 /* --- review ---------------------------------------------------------------- */
+
+/* --- the review stack ----------------------------------------------------
+   Two dummy cards peeking out behind the live one. Purely decorative: they
+   carry no content and are hidden from assistive tech, because "how many are
+   left" is already in the progress line for anyone not looking at the
+   shapes. */
+
+.stack {
+  position: relative;
+  /* Room for the two dummies fanning out below the live card. */
+  margin-bottom: 24px;
+}
+
+.stack-peek {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 100%;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface);
+  pointer-events: none;
+}
+
+/* Offset far enough to read as separate cards. The live card is centred, so
+   the dummies fan out below and to both sides rather than hiding behind it. */
+.stack-peek-1 {
+  transform: translateY(10px) scaleX(0.94);
+  border-color: var(--rule);
+}
+
+.stack-peek-2 {
+  transform: translateY(20px) scaleX(0.88);
+  border-color: var(--rule-soft);
+}
+
+.stack .flip {
+  position: relative;
+}
 
 .flip {
   padding: var(--s-5) var(--s-4);

@@ -48,7 +48,8 @@ The same command runs in GitHub Actions on every push and pull request.
   inflections with the base form as hint, or hide the text and talk for two
   minutes with the key words and a timer.
 - **Les høyt** — sentence and word playback through the browser's Norwegian
-  voice, where one is installed.
+  voice, where one is installed. Hold a word to hear it without opening its
+  card, for reading along.
 - **Øving** — every word you looked up while reading becomes a flip card on a
   spaced schedule: "Kunne det" moves it up a box and pushes the next review out
   by 1, 3, 7, 14 then 30 days; "Øv mer" drops it back to today. Box 4 and up

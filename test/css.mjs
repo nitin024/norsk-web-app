@@ -191,6 +191,80 @@ check('tap targets meet the 44px minimum', () => {
   }
 });
 
+// --- contrast ----------------------------------------------------------
+
+/** Relative luminance, per WCAG 2.x. */
+function luminance(hex) {
+  const v = hex.replace('#', '');
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(v.slice(i, i + 2), 16) / 255);
+  const f = (c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+}
+
+function contrast(a, b) {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+/** The custom properties declared in one `:root`-ish block. */
+function palette(block) {
+  const out = {};
+  for (const m of block.matchAll(/--([a-z-]+):\s*(#[0-9a-f]{6})/gi)) out[m[1]] = m[2];
+  return out;
+}
+
+check('every ink tone is readable on every surface it lands on', () => {
+  // Light is the first :root block; dark is the prefers-color-scheme one.
+  const light = palette(css.slice(css.indexOf(':root {'), css.indexOf('color-scheme: light dark')));
+  const darkStart = css.indexOf('@media (prefers-color-scheme: dark)');
+  const dark = palette(css.slice(darkStart, css.indexOf('}', css.indexOf('}', darkStart) + 1)));
+
+  for (const [name, p] of [['light', light], ['dark', dark]]) {
+    for (const fg of ['ink', 'ink-soft', 'ink-faint', 'accent', 'done']) {
+      for (const bg of ['bg', 'surface', 'accent-soft', 'done-soft']) {
+        if (!p[fg] || !p[bg]) fail(`${name}: missing --${fg} or --${bg}`);
+        const r = contrast(p[fg], p[bg]);
+        // 4.5:1 is the WCAG AA floor for body text.
+        if (r < 4.5) fail(`${name}: --${fg} on --${bg} is ${r.toFixed(2)}:1, below 4.5`);
+      }
+    }
+    // A control's outline and a wrong-answer marker are non-text UI: 3:1.
+    for (const fg of ['edge', 'danger']) {
+      for (const bg of ['bg', 'surface']) {
+        const r = contrast(p[fg], p[bg]);
+        if (r < 3) fail(`${name}: --${fg} on --${bg} is ${r.toFixed(2)}:1, below 3`);
+      }
+    }
+  }
+});
+
+check('controls are outlined with --edge, not the decorative --rule', () => {
+  // --rule separates rows and may stay faint; a border that defines where a
+  // control begins may not.
+  for (const sel of ['.btn-quiet', '.dict-search', '.scratch-input', '.dictation-input', '.word-chip', '.scramble-chip']) {
+    const blocks = [...css.matchAll(new RegExp(`\\n${sel.replace('.', '\\.')}\\s*\\{([^}]*)\\}`, 'g'))];
+    if (blocks.length === 0) fail(`${sel} has no rule`);
+    const bordered = blocks.find((b) => /border(-bottom)?:[^;]*solid/.test(b[1]));
+    if (!bordered) fail(`${sel} has no solid border to check`);
+    if (/border(-bottom)?:[^;]*var\(--rule\)/.test(bordered[1])) {
+      fail(`${sel} outlines itself with --rule; use --edge`);
+    }
+  }
+});
+
+check('grouped lists keep their heading while you scroll the group', () => {
+  // A long grouped list loses its heading the moment you scroll into the
+  // group. These three views group by something you can be inside: levels
+  // on the course and the text list, sections in the grammar.
+  const r = rule(css, '.level-title.is-sticky,\n.level-head.is-sticky');
+  if (!r) fail('no sticky rule for section headings');
+  if (!/position:\s*sticky/.test(r)) fail('section headings should be sticky');
+  if (!/top:\s*var\(--topbar-h\)/.test(r)) fail('they should pin below the topbar');
+  // Transparent headings let the rows scroll visibly through them.
+  if (!/background:\s*var\(--bg\)/.test(r)) fail('a sticky heading must be opaque');
+  if (!/z-index/.test(r)) fail('a sticky heading needs a stacking order');
+});
+
 check('completion and interaction use different colours', () => {
   // Green means two things in this app: "you can act on this" (--accent) and
   // "you finished this" (--done). If a completion state borrows --accent,

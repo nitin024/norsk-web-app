@@ -44,25 +44,41 @@
         </div>
       </header>
 
+      <!-- One row, not two: the search collapses to an icon and expands over
+           the filters when you reach for it. -->
       <div id="dict-controls" class="dict-controls" hidden>
-        <input
-          id="dict-search"
-          class="dict-search"
-          type="search"
-          lang="nb"
-          autocomplete="off"
-          autocapitalize="off"
-          spellcheck="false"
-          placeholder="Søk etter ord…"
-          aria-label="Søk i ordboka"
-        />
         <div class="dict-row-controls">
+          <button id="dict-search-open" class="icon-btn" type="button"
+                  aria-label="Søk i ordboka" aria-expanded="false" aria-controls="dict-search">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8" />
+              <path d="M16 16l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+          </button>
           <div id="dict-filters" class="dict-filters" role="group" aria-label="Filtrer på ordklasse"></div>
           <button id="dict-gloss-toggle" class="gloss-toggle" type="button" aria-pressed="false">
             Vis engelsk
           </button>
           <button id="dict-view-toggle" class="gloss-toggle" type="button" aria-pressed="false">
             Kort
+          </button>
+        </div>
+        <div id="dict-search-row" class="dict-search-row" hidden>
+          <input
+            id="dict-search"
+            class="dict-search"
+            type="search"
+            lang="nb"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            placeholder="Søk etter ord…"
+            aria-label="Søk i ordboka"
+          />
+          <button id="dict-search-close" class="icon-btn" type="button" aria-label="Lukk søk">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
           </button>
         </div>
       </div>
@@ -82,6 +98,11 @@
         </div>
         <p id="scratch-stats" class="scratch-stats" role="status" aria-live="polite"></p>
       </div>
+
+      <!-- Shown only when the device has no Norwegian voice installed: the
+           read-aloud features then fall back to an English one, which is
+           worse than useless for pronunciation. -->
+      <aside id="voice-banner" class="banner" role="status" hidden></aside>
 
       <main id="reader" class="reader" tabindex="-1"></main>
     </div>

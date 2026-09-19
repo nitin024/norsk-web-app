@@ -1,0 +1,18 @@
+{
+  "id": "middag-i-to-land",
+  "title": "Middag i to land",
+  "level": "A1",
+  "topic": "mat",
+  "gloss": "Dinner in two countries",
+  "examNote": "Del 1: fortell kort om måltider, og sammenlikn Norge med hjemlandet ditt. Øv på setninger som «i Norge spiser vi ...» og «i Spania spiser vi ...».",
+  "body": [
+    "I <Spania> spiser vi middag sent, {klokka:klokka} ni.",
+    "I <Norge> spiser vi middag tidlig, {klokka:klokka} fem.",
+    "Jeg lager ofte pasta eller fisk til barna.",
+    "<Alex> liker norsk mat, for eksempel laks og poteter.",
+    "Datteren min spiser brød med ost til frokost.",
+    "Sønnen min drikker melk og spiser litt yoghurt om morgenen.",
+    "Jeg savner den spanske maten fra moren min.",
+    "Noen ganger lager jeg spansk mat på lørdag."
+  ]
+}

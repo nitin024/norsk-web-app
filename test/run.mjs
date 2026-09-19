@@ -85,6 +85,20 @@ check('home: renders eight destinations, course first', () => {
   assert.equal(links.length, 8);
 });
 
+check('home: every destination carries an English gloss', () => {
+  const links = reader().querySelectorAll('.home-link');
+  const names = links.map((a) => a.querySelector('.home-link-name').textContent);
+  const english = links.map((a) => a.querySelector('.home-link-english').textContent);
+  assert.equal(english.length, links.length, 'one gloss per destination');
+  assert.ok(english.every((t) => t.trim().length > 0), `empty gloss in ${JSON.stringify(english)}`);
+  assert.equal(names[0], 'Kurs');
+  assert.equal(english[0], 'Course');
+  // The Norwegian and the English are tagged, so a screen reader switches
+  // voice rather than reading «Øving» as English.
+  assert.equal(links[0].querySelector('.home-link-name').getAttribute('lang'), 'nb');
+  assert.equal(links[0].querySelector('.home-link-english').getAttribute('lang'), 'en');
+});
+
 check('home: destinations point at the right routes', () => {
   const hrefs = reader().querySelectorAll('.home-link').map((a) => a.getAttribute('href'));
   assert.equal(hrefs.join(','), '#/kurs,#/tekster,#/ordbok,#/ov,#/grammatikk,#/tall,#/prove,#/skriv');
@@ -159,6 +173,12 @@ check('texts: groups by level', () => {
 
 check('texts: back button is visible', () => {
   assert.equal($('back').hidden, false);
+});
+
+check('texts: level headings are sticky', () => {
+  const titles = reader().querySelectorAll('.level-title');
+  assert.atLeast(titles.length, 4);
+  assert.ok(titles.every((h) => h.classList.contains('is-sticky')), 'every group heading should pin');
 });
 
 check('texts: grouping chips are rendered, level is default', () => {
@@ -282,7 +302,59 @@ check('dict: the choice persists across a re-render', () => {
   toggle.click(); // back off, so later tests see the default
 });
 
+check('dict: the search is an icon until you reach for it', () => {
+  assert.equal($('dict-search-row').hidden, true, 'the field starts collapsed');
+  assert.equal($('dict-search-open').hidden, false, 'the icon is what you see');
+  assert.equal($('dict-search-open').getAttribute('aria-expanded'), 'false');
+
+  $('dict-search-open').click();
+  assert.equal($('dict-search-row').hidden, false, 'tapping the icon opens the field');
+  assert.equal($('dict-search-open').hidden, true, 'the icon steps aside');
+  assert.equal($('dict-search-open').getAttribute('aria-expanded'), 'true');
+
+  $('dict-search-close').click();
+  assert.equal($('dict-search-row').hidden, true);
+  assert.equal($('dict-search-open').hidden, false);
+});
+
+check('dict: closing the search clears the query it was filtering by', () => {
+  $('dict-search-open').click();
+  const search = $('dict-search');
+  search.value = 'barnehage';
+  search.dispatch('input');
+  assert.ok(reader().querySelectorAll('.dict-row').length < 20, 'list is filtered');
+
+  $('dict-search-close').click();
+  assert.equal(search.value, '', 'the field is emptied');
+  assert.atLeast(reader().querySelectorAll('.dict-row').length, 600, 'the full list is back');
+});
+
+check('dict: Escape clears and closes the search', () => {
+  $('dict-search-open').click();
+  const search = $('dict-search');
+  search.value = 'hus';
+  search.dispatch('input');
+  search.dispatch('keydown', { key: 'Escape' });
+  assert.equal(search.value, '');
+  assert.equal($('dict-search-row').hidden, true);
+});
+
+check('dict: a live query survives leaving and returning', () => {
+  $('dict-search-open').click();
+  const search = $('dict-search');
+  search.value = 'barn';
+  search.dispatch('input');
+  globalThis.location.hash = '#/tekster';
+  doc.dispatch('hashchange');
+  globalThis.location.hash = '#/ordbok';
+  doc.dispatch('hashchange');
+  assert.equal($('dict-search-row').hidden, false, 'a filtered list must show why');
+  assert.equal($('dict-search').value, 'barn');
+  $('dict-search-close').click();
+});
+
 check('dict: search narrows the list', () => {
+  $('dict-search-open').click();
   const search = $('dict-search');
   search.value = 'barnehage';
   search.dispatch('input');
@@ -652,6 +724,51 @@ check('review: deck holds the words looked up in the reader', () => {
   assert.includes(reader().querySelector('.review-progress').textContent, 'av');
 });
 
+check('review: the deck is drawn as a stack that thins out', () => {
+  // Three or more cards left: both dummies show.
+  const many = {};
+  for (const id of ['gå-v', 'jobbe-v', 'barn-n', 'hus-n']) {
+    many[id] = { n: 1, box: 0, last: 1, due: 1, para: 'barnehagen' };
+  }
+  globalThis.localStorage.setItem('norsk:review', JSON.stringify(many));
+  globalThis.location.hash = '';
+  doc.dispatch('hashchange');
+  globalThis.location.hash = '#/ov';
+  doc.dispatch('hashchange');
+  assert.equal(reader().querySelectorAll('.stack-peek').length, 2);
+  assert.ok(reader().querySelectorAll('.stack-peek').every((p) => p.hidden === false), 'both dummies show');
+
+  // Down to the last card: nothing behind it.
+  globalThis.localStorage.setItem(
+    'norsk:review',
+    JSON.stringify({ 'gå-v': { n: 1, box: 0, last: 1, due: 1, para: 'barnehagen' } })
+  );
+  globalThis.location.hash = '';
+  doc.dispatch('hashchange');
+  globalThis.location.hash = '#/ov';
+  doc.dispatch('hashchange');
+  assert.ok(reader().querySelectorAll('.stack-peek').every((p) => p.hidden === true), 'a single card stands alone');
+
+  // And the finished screen has no stack behind it either.
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Vis').click();
+  reader().querySelectorAll('.btn-primary').find((b) => b.textContent === 'Kunne det').click();
+  assert.includes(reader().querySelector('.review-empty').textContent, 'Ferdig');
+  assert.ok(reader().querySelectorAll('.stack-peek').every((p) => p.hidden === true));
+
+  // Leave a deck behind for the tests that follow.
+  globalThis.localStorage.setItem(
+    'norsk:review',
+    JSON.stringify({
+      'gå-v': { n: 1, box: 0, last: 2, due: 1, para: 'barnehagen' },
+      'jobbe-v': { n: 1, box: 0, last: 1, due: 1, para: 'barnehagen' },
+    })
+  );
+  globalThis.location.hash = '';
+  doc.dispatch('hashchange');
+  globalThis.location.hash = '#/ov';
+  doc.dispatch('hashchange');
+});
+
 check('review: flip reveals gloss, then grading advances', () => {
   const before = reader().querySelector('.flip-word').textContent;
   assert.equal(reader().querySelector('.flip-back').hidden, true);
@@ -750,8 +867,27 @@ check('review: empty store shows the onboarding text', () => {
 
 await go('#/skriv');
 
-check('scratch: controls visible, reader empty until text is read', () => {
+check('scratch: controls visible, with an intro instead of a blank box', () => {
   assert.equal($('scratch-controls').hidden, false);
+  const intro = reader().querySelector('.intro');
+  assert.ok(intro, 'an empty paste box should explain itself');
+  assert.includes(intro.querySelector('.level-title').textContent, 'Lim inn');
+  assert.includes(intro.querySelector('.intro-text').textContent, 'trykkes på');
+  assert.equal(reader().querySelectorAll('.sentence').length, 0, 'nothing is parsed yet');
+});
+
+check('scratch: the example button fills the box and parses it', () => {
+  reader().querySelectorAll('.btn-quiet').find((b) => b.textContent === 'Prøv med et eksempel').click();
+  assert.ok($('scratch-input').value.length > 20, 'the textarea is filled');
+  assert.atLeast(reader().querySelectorAll('.sentence').length, 2, 'the sample is parsed');
+  assert.atLeast(reader().querySelectorAll('.w-unknown').length, 1, 'it shows unknown words too');
+  assert.includes($('scratch-stats').textContent, 'kjent');
+});
+
+check('scratch: clearing returns to the intro', () => {
+  $('scratch-clear').click();
+  assert.ok(reader().querySelector('.intro'), 'clearing should not leave a blank page');
+  assert.equal(reader().querySelectorAll('.sentence').length, 0);
 });
 
 check('scratch: renders known and unknown words', () => {
@@ -993,9 +1129,12 @@ check('reader: grammar toggle marks finite verbs and tags inversion', () => {
   assert.ok(!reader().classList.contains('show-grammar'));
 });
 
-check('reader: listening mode explains itself when no voice is available', () => {
+check('reader: listening mode offers a dictation row per sentence', () => {
   pickMode('Lytt');
-  assert.includes(reader().querySelector('.level-desc').textContent, 'ingen norsk stemme');
+  assert.includes(reader().querySelector('.level-desc').textContent, 'Trykk på høyttaleren');
+  const rows = reader().querySelectorAll('.dictation');
+  assert.atLeast(rows.length, 5, 'one row per sentence');
+  assert.equal(rows.length, reader().querySelectorAll('.dictation-input').length);
   pickMode('Les');
 });
 
@@ -1058,6 +1197,19 @@ check('exam: part 3 has a discussion prompt and finishing records the run', () =
 await go('#/kurs');
 await new Promise((r) => setTimeout(r, 30));
 
+check('chrome: the topbar height is measured, not guessed', () => {
+  // Sticky section headings pin at --topbar-h. A stale value slides them
+  // under the topbar, which is what a wrapped title used to cause.
+  const set = doc.documentElement.style.setProperty;
+  assert.ok(typeof set === 'function', 'the shim should accept custom properties');
+});
+
+check('course: level headings are sticky so the level stays visible', () => {
+  const heads = reader().querySelectorAll('.level-head');
+  assert.equal(heads.length, 4);
+  assert.ok(heads.every((h) => h.classList.contains('is-sticky')), 'every level head should pin');
+});
+
 check('course: each level carries a progress ring that matches its steps', () => {
   const rings = reader().querySelectorAll('.ring');
   assert.equal(rings.length, 4, 'one ring per level');
@@ -1104,6 +1256,124 @@ check('home: shows the next course step', () => {
   assert.ok(next, 'home-next missing');
   assert.includes(next.textContent, 'Neste i kurset');
 });
+
+// --- the missing-voice banner ------------------------------------------
+
+check('voice banner: stays hidden when a Norwegian voice exists', () => {
+  // The shim reports an nb-NO voice, which is the happy path.
+  assert.equal($('voice-banner').hidden, true);
+});
+
+check('voice banner: appears when the device has no Norwegian voice', () => {
+  globalThis.localStorage.removeItem('norsk:voiceBannerDismissed');
+  globalThis.__setVoices([{ lang: 'en-US', name: 'English' }]);
+  const banner = $('voice-banner');
+  assert.equal(banner.hidden, false, 'the banner should explain the fallback');
+  assert.includes(banner.querySelector('.banner-text').textContent, 'Ingen norsk stemme');
+  // The fix is an operating-system setting, not a browser one, and the text
+  // has to say so however it is phrased for the platform.
+  const help = banner.querySelector('.banner-text').textContent;
+  assert.ok(
+    /Innstillinger|innstilling/.test(help),
+    `the banner should point at system settings: ${help}`
+  );
+});
+
+check('voice banner: dismissing it sticks', () => {
+  $('voice-banner').querySelector('.banner-close').click();
+  assert.equal($('voice-banner').hidden, true);
+  assert.equal(globalThis.localStorage.getItem('norsk:voiceBannerDismissed'), '1');
+  // Another voiceschanged must not bring it back.
+  globalThis.__setVoices([{ lang: 'en-US', name: 'English' }]);
+  assert.equal($('voice-banner').hidden, true, 'a dismissed banner stays dismissed');
+  globalThis.__setVoices([{ lang: 'nb-NO', name: 'Test' }]);
+});
+
+// --- reading the whole text aloud --------------------------------------
+
+await go('#/jobben');
+
+check('read aloud: the button starts speech and flips to a stop control', () => {
+  const btn = reader().querySelector('.speak-all');
+  assert.ok(btn, 'no read-aloud button');
+  globalThis.__spoken.length = 0;
+  btn.click();
+  assert.equal(globalThis.__spoken.length, 1, 'it should speak once');
+  assert.includes(globalThis.__spoken[0], 'Jeg jobber i en barnehage');
+  assert.includes(btn.textContent, 'Stopp');
+});
+
+check('read aloud: each word lights as the voice reaches it', () => {
+  const lit = globalThis.__speakWords(8);
+  assert.equal(lit.join(' '), 'Jeg jobber i en barnehage i sentrum Jeg', `lit: ${JSON.stringify(lit)}`);
+});
+
+check('read aloud: finishing clears the highlight and restores the button', () => {
+  globalThis.__speakWords(); // run to the end, which fires `end`
+  const stillLit = reader().querySelectorAll('.w').filter((w) => w.classList.contains('is-speaking'));
+  assert.equal(stillLit.length, 0, 'nothing should stay lit');
+  assert.includes(reader().querySelector('.speak-all').textContent, 'Les hele teksten');
+});
+
+check('read aloud: pressing stop mid-read clears it too', () => {
+  const btn = reader().querySelector('.speak-all');
+  btn.click();
+  globalThis.__speakWords(3);
+  assert.equal(reader().querySelectorAll('.w').filter((w) => w.classList.contains('is-speaking')).length, 1);
+  btn.click();
+  assert.equal(reader().querySelectorAll('.w').filter((w) => w.classList.contains('is-speaking')).length, 0);
+  assert.includes(btn.textContent, 'Les hele teksten');
+});
+
+// --- long press to hear a word -----------------------------------------
+
+/** Drive a press-and-hold over the given duration and travel. */
+function press(el, { ms = 500, dx = 0, dy = 0 } = {}) {
+  el.dispatch('pointerdown', { isPrimary: true, pointerId: 9, clientX: 100, clientY: 100 });
+  if (dx || dy) {
+    el.dispatch('pointermove', { pointerId: 9, clientX: 100 + dx, clientY: 100 + dy });
+  }
+  return new Promise((r) => setTimeout(r, ms)).then(() => {
+    el.dispatch('pointerup', { pointerId: 9, clientX: 100 + dx, clientY: 100 + dy });
+  });
+}
+
+const word = () => reader().querySelectorAll('.w').find((w) => w.getAttribute('data-lemma') === 'jobbe');
+
+globalThis.__spoken.length = 0;
+await press(word(), { ms: 520 });
+
+check('long press: holding a word speaks it', () => {
+  assert.equal(globalThis.__spoken.length, 1, `spoke ${JSON.stringify(globalThis.__spoken)}`);
+  assert.equal(globalThis.__spoken[0], 'jobber');
+});
+
+check('long press: the card does not open on release', () => {
+  word().click();
+  assert.equal($('card').hidden, true, 'the tap after a long press must be swallowed');
+});
+
+globalThis.__spoken.length = 0;
+await press(word(), { ms: 150 });
+
+check('long press: a short tap does not speak', () => {
+  assert.equal(globalThis.__spoken.length, 0);
+});
+
+globalThis.__spoken.length = 0;
+await press(word(), { ms: 520, dy: 30 });
+
+check('long press: scrolling away cancels it', () => {
+  assert.equal(globalThis.__spoken.length, 0, 'a drag must not speak');
+});
+
+check('long press: a normal tap still opens the card', () => {
+  word().click();
+  assert.equal($('card').hidden, false);
+  $('card-close').click();
+});
+
+await go('#/barnehagen');
 
 // --- dragging the card away --------------------------------------------
 

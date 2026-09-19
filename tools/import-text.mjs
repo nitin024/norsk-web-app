@@ -34,9 +34,20 @@ export function importTexts(parsed, defaults = {}) {
   const levels = new Set(index.levels.map((l) => l.level));
   let status = 0;
 
+  // A chat often echoes the whole prompt line back — "fritid — Fritid og
+  // natur: ..." instead of "fritid" — so take the leading token and accept
+  // it if it names something real.
+  const firstToken = (v) => String(v ?? '').split(/[\s—:]/)[0].trim();
+  const coerce = (value, allowed, fallback) => {
+    if (allowed.has(value)) return value;
+    const head = firstToken(value);
+    if (allowed.has(head)) return head;
+    return fallback;
+  };
+
   for (const draft of list) {
-    const level = draft.level ?? defaults.level;
-    const topic = draft.topic ?? defaults.topic;
+    const level = coerce(draft.level, levels, defaults.level);
+    const topic = coerce(draft.topic, topics, defaults.topic);
     if (!draft.title || !Array.isArray(draft.body) || draft.body.length === 0) {
       console.error(`Skipping an entry without title/body: ${JSON.stringify(draft).slice(0, 80)}`);
       status = 1;

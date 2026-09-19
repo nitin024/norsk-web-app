@@ -1,6 +1,9 @@
 import { parseParagraph, reportDiagnostics, lookupEntry } from './parser.js';
 import { lexiconStub, guessLemma } from './stub.js';
-import { canSpeak, speak, stopSpeaking } from './speech.js';
+import {
+  canSpeak, speak, stopSpeaking, noteBoundary, supportsBoundary,
+  hasNorwegianVoice, voiceHelp,
+} from './speech.js';
 import {
   recordLookup, addIfMissing, allLookups, dueLookups, markKnown, markAgain, reviewCounts,
   describeWait, INTERVALS_DAYS, MAX_BOX,
@@ -177,6 +180,34 @@ function measureChrome() {
   set('--dict-controls-h', document.getElementById('dict-controls'));
 }
 
+/**
+ * Re-measure once the browser has laid the new view out.
+ *
+ * Views that fetch call this before their content exists, and a long title
+ * that wraps to a second line makes the topbar taller than it measured.
+ * Sticky offsets read --topbar-h, so a stale value pins section headings too
+ * high and they slide under the topbar instead of below it.
+ */
+function measureChromeSoon() {
+  measureChrome();
+  if (typeof requestAnimationFrame === 'function') {
+    requestAnimationFrame(() => requestAnimationFrame(measureChrome));
+  }
+}
+
+/**
+ * Keep --topbar-h true no matter what changes it: a wrapped title, a font
+ * that loads late, a rotated phone. Cheaper and more reliable than trying to
+ * re-measure at every point a view might resize its own chrome.
+ */
+function watchChrome() {
+  if (typeof ResizeObserver !== 'function') return;
+  const observer = new ResizeObserver(() => measureChrome());
+  for (const el of [document.querySelector('.topbar'), document.getElementById('dict-controls')]) {
+    if (el) observer.observe(el);
+  }
+}
+
 /** Hide every view-specific control. Each view then re-enables its own. */
 function resetChrome() {
   document.getElementById('dict-controls').hidden = true;
@@ -186,6 +217,8 @@ function resetChrome() {
   if (rail) rail.hidden = true;
   currentParaId = null;
   stopSpeaking();
+  speakingText = false;
+  clearSpeakingWord();
 }
 
 /**
@@ -218,32 +251,42 @@ function showHome() {
   // The four everyday destinations live in the tab bar on phones, so home
   // lists what the bar does not carry. On a wide screen there is no bar, so
   // home stays the full menu.
+  // Norwegian first, English under it: the menu is itself something to read,
+  // and a learner should not have to guess what «Øving» leads to.
   const due = reviewCounts().due;
   const primary = [
-    ['#/kurs', 'Kurs', ''],
-    ['#/tekster', 'Lesetekster', String(index.paragraphs.length)],
-    ['#/ordbok', 'Ordbok', String(Object.keys(lexicon.entries).length)],
-    ['#/ov', 'Øving', due ? String(due) : ''],
+    ['#/kurs', 'Kurs', 'Course', ''],
+    ['#/tekster', 'Lesetekster', 'Reading texts', String(index.paragraphs.length)],
+    ['#/ordbok', 'Ordbok', 'Dictionary', String(Object.keys(lexicon.entries).length)],
+    ['#/ov', 'Øving', 'Practice', due ? String(due) : ''],
   ];
   const secondary = [
-    ['#/grammatikk', 'Grammatikk', ''],
-    ['#/tall', 'Tall og klokka', ''],
-    ['#/prove', 'Prøve', ''],
-    ['#/skriv', 'Egen tekst', ''],
+    ['#/grammatikk', 'Grammatikk', 'Grammar', ''],
+    ['#/tall', 'Tall og klokka', 'Numbers and the clock', ''],
+    ['#/prove', 'Prøve', 'Mock exam', ''],
+    ['#/skriv', 'Egen tekst', 'Your own text', ''],
   ];
   const destinations = [...primary, ...secondary];
 
-  for (const [href, label, count] of destinations) {
+  for (const [href, label, english, count] of destinations) {
     const a = document.createElement('a');
     // Duplicates of the tab bar are hidden by CSS at phone width rather than
     // omitted, so the same markup serves both layouts.
     a.className = 'home-link' + (primary.some(([h]) => h === href) ? ' is-primary' : '');
     a.href = href;
 
+    const labels = document.createElement('span');
+    labels.className = 'home-link-labels';
     const name = document.createElement('span');
     name.className = 'home-link-name';
+    name.lang = 'nb';
     name.textContent = label;
-    a.append(name);
+    const gloss = document.createElement('span');
+    gloss.className = 'home-link-english';
+    gloss.lang = 'en';
+    gloss.textContent = english;
+    labels.append(name, gloss);
+    a.append(labels);
 
     if (count) {
       const n = document.createElement('span');
@@ -315,7 +358,7 @@ function showHome() {
   footer.append(version);
 
   main.append(footer);
-  measureChrome();
+  measureChromeSoon();
   announce('Norsk');
 }
 
@@ -371,7 +414,7 @@ function showTexts() {
 
   const main = document.getElementById('reader');
   main.replaceChildren();
-  measureChrome();
+  measureChromeSoon();
   announce('Lesetekster');
 
   const grouping = readTextsGroup();
@@ -435,7 +478,7 @@ function textSection(title, description, items, { href, showLevel }) {
   section.className = 'level';
 
   const h = document.createElement('h2');
-  h.className = 'level-title';
+  h.className = 'level-title is-sticky';
   if (href) {
     const a = document.createElement('a');
     a.className = 'level-title-link';
@@ -537,7 +580,7 @@ async function showTopic(topic) {
   promptSection.className = 'level';
   main.append(promptSection);
 
-  measureChrome();
+  measureChromeSoon();
   window.scrollTo(0, 0);
   announce(topic.label);
 
@@ -670,17 +713,60 @@ function showScratch() {
   document.getElementById('scratch-clear').onclick = () => {
     input.value = '';
     writeScratch('');
-    document.getElementById('reader').replaceChildren();
+    showScratchIntro();
     document.getElementById('scratch-stats').textContent = '';
     input.focus();
   };
 
   if (input.value.trim()) renderScratch(input.value);
-  else document.getElementById('reader').replaceChildren();
+  else showScratchIntro();
 
-  measureChrome();
+  measureChromeSoon();
   window.scrollTo(0, 0);
   announce('Egen tekst');
+}
+
+// A line of real Norwegian, short enough to read at a glance and chosen to
+// contain both a known word and an unknown one, so the demo shows what the
+// feature is for.
+const SCRATCH_SAMPLE =
+  'Regjeringen foreslår nye tiltak for miljøet. Mange mener at forslaget kommer for sent.';
+
+/**
+ * What the reader sees before they have pasted anything: what this does, and
+ * a button that fills the box so they can find out without typing.
+ */
+function showScratchIntro() {
+  const reader = document.getElementById('reader');
+  reader.replaceChildren();
+
+  const box = document.createElement('section');
+  box.className = 'intro';
+
+  const h = document.createElement('h2');
+  h.className = 'level-title';
+  h.textContent = 'Lim inn hvilken som helst norsk tekst';
+  box.append(h);
+
+  const p = document.createElement('p');
+  p.className = 'intro-text';
+  p.textContent =
+    'En artikkel, en e-post, et skjema fra NAV — hva som helst. Hvert ord du kan, blir understreket og kan trykkes på. Ordene du ikke kan, blir markert, og kortet gir deg en ferdig ordbok-oppføring å lime inn.';
+  box.append(p);
+
+  const try_ = document.createElement('button');
+  try_.type = 'button';
+  try_.className = 'btn-quiet';
+  try_.textContent = 'Prøv med et eksempel';
+  try_.addEventListener('click', () => {
+    const input = document.getElementById('scratch-input');
+    input.value = SCRATCH_SAMPLE;
+    writeScratch(SCRATCH_SAMPLE);
+    renderScratch(SCRATCH_SAMPLE);
+  });
+  box.append(try_);
+
+  reader.append(box);
 }
 
 /**
@@ -1044,6 +1130,7 @@ function showDictionary() {
     dictQuery = search.value.trim();
     renderDictList();
   };
+  wireDictSearch(search);
 
   const toggle = document.getElementById('dict-gloss-toggle');
   syncGlossToggle(toggle);
@@ -1073,9 +1160,50 @@ function showDictionary() {
 
   renderFilters();
   renderDictList();
-  measureChrome();
+  measureChromeSoon();
   window.scrollTo(0, 0);
   announce('Ordbok');
+}
+
+/**
+ * The search is an icon until you want it, then it takes the row.
+ *
+ * It stays open while a query is live — closing it silently would leave the
+ * list filtered with nothing on screen explaining why — and Escape both
+ * clears and closes.
+ */
+function wireDictSearch(search) {
+  const open = document.getElementById('dict-search-open');
+  const close = document.getElementById('dict-search-close');
+  const row = document.getElementById('dict-search-row');
+  if (!open || !close || !row) return;
+
+  const setOpen = (on) => {
+    row.hidden = !on;
+    open.setAttribute('aria-expanded', String(on));
+    open.hidden = on;
+    measureChromeSoon();
+    if (on) search.focus();
+  };
+
+  open.onclick = () => setOpen(true);
+  close.onclick = () => {
+    if (search.value) {
+      search.value = '';
+      dictQuery = '';
+      renderDictList();
+    }
+    setOpen(false);
+    open.focus();
+  };
+  search.onkeydown = (e) => {
+    if (e.key !== 'Escape') return;
+    close.onclick();
+  };
+
+  // A query survives leaving and returning to the dictionary, so the field
+  // has to come back open with it.
+  setOpen(Boolean(dictQuery));
 }
 
 function syncViewToggle(btn) {
@@ -1466,7 +1594,7 @@ async function showParagraph(meta) {
   // Reopen in the mode it was left in, so "Fortsett" means continue.
   readerMode = getProgress(meta.id)?.mode ?? 'read';
   renderReader();
-  measureChrome();
+  measureChromeSoon();
   window.scrollTo(0, 0);
   // Move focus to the heading so keyboard and screen-reader users land in the
   // new view instead of staying on the link they activated.
@@ -1639,13 +1767,85 @@ let grammarOn = (() => {
 const SUBJECT_PRONOUNS = new Set(['jeg', 'du', 'han', 'hun', 'den', 'det', 'vi', 'dere', 'de', 'man', 'dette']);
 const SUBORDINATORS = new Set(['fordi', 'at', 'når', 'da', 'hvis', 'om', 'som', 'mens', 'før', 'siden', 'dersom', 'selv om', 'etter at']);
 
+/**
+ * Read the whole text aloud, lighting each word as it is spoken.
+ *
+ * The engine reports a character offset into the string it was given, so the
+ * words are laid out once with their offsets recorded and the offset is
+ * looked up as each boundary arrives. Engines that never fire `boundary`
+ * (Safari has historically not) simply read without the highlight; nothing
+ * depends on it.
+ */
+function readAloud(sentences, button) {
+  // One string, and the element that owns each character range in it.
+  let text = '';
+  const spans = [];
+  for (const nodes of sentences) {
+    for (const node of nodes) {
+      if (node.kind !== 'word') continue;
+      if (text && !text.endsWith(' ')) text += ' ';
+      const el = node.el ?? null;
+      spans.push({ start: text.length, end: text.length + node.surface.length, el });
+      text += node.surface;
+    }
+    text += '. ';
+  }
+
+  const finish = () => {
+    clearSpeakingWord();
+    speakingText = false;
+    button.classList.remove('is-on');
+    button.textContent = '🔊 Les hele teksten';
+  };
+
+  speakingText = true;
+  button.classList.add('is-on');
+  button.textContent = '⏹ Stopp';
+  speak(text, {
+    onWord: (charIndex) => {
+      noteBoundary();
+      const hit = spans.find((sp) => charIndex >= sp.start && charIndex < sp.end);
+      if (!hit || hit.el === speakingWord) return;
+      clearSpeakingWord();
+      if (hit.el) {
+        hit.el.classList.add('is-speaking');
+        speakingWord = hit.el;
+      }
+    },
+    onEnd: finish,
+  });
+}
+
+let speakingText = false;
+// The word currently lit by read-aloud. Held here rather than found by a
+// selector, so stopping clears exactly the element that was lit.
+let speakingWord = null;
+
+function clearSpeakingWord() {
+  speakingWord?.classList.remove('is-speaking');
+  speakingWord = null;
+}
+
 function render(reader, sentences) {
   const bar = document.createElement('div');
   bar.className = 'read-tools';
-  const whole = speakButton(sentences.map(sentenceText).join(' '), 'Les hele teksten høyt');
-  if (whole) {
-    whole.classList.add('speak-all');
+  if (canSpeak()) {
+    const whole = document.createElement('button');
+    whole.type = 'button';
+    whole.className = 'speak speak-all';
     whole.textContent = '🔊 Les hele teksten';
+    whole.setAttribute('aria-label', 'Les hele teksten høyt');
+    whole.addEventListener('click', () => {
+      if (speakingText) {
+        stopSpeaking();
+        speakingText = false;
+        whole.classList.remove('is-on');
+        whole.textContent = '🔊 Les hele teksten';
+        clearSpeakingWord();
+        return;
+      }
+      readAloud(sentences, whole);
+    });
     bar.append(whole);
   }
   const gram = document.createElement('button');
@@ -1747,10 +1947,89 @@ function buildSentence(nodes, { grammar = false } = {}) {
     if (node.formName) btn.dataset.formName = node.formName;
     if (node.groupId) btn.dataset.groupId = node.groupId;
     btn.addEventListener('click', () => openCard(node, btn));
+    // Hold to hear it without opening the card, for reading along.
+    onLongPress(btn, () => speakWord(node));
+    // Read-aloud lights words by walking the parsed nodes, so each one needs
+    // to know which button drew it.
+    node.el = btn;
     p.append(btn);
   });
   if (grammar) annotateGrammar(p, nodes);
   return p;
+}
+
+/**
+ * Speak one word, or the whole phrase when the word belongs to one: hearing
+ * «henger opp» is more use than hearing «henger» alone.
+ */
+function speakWord(node) {
+  const hit = lookupEntry(lexicon, node.entryId ?? node.lemma);
+  const text = node.groupId && hit ? displayLemma(hit.lemma, hit.entry) : node.surface;
+  speak(text);
+}
+
+/**
+ * Press and hold. Fires once after 450ms and suppresses the click that would
+ * otherwise follow, so holding a word speaks it instead of opening its card.
+ *
+ * Moving more than a few pixels cancels: on a phone the same gesture starts
+ * a scroll, and a word that talks every time you scroll past it is worse
+ * than no feature at all.
+ */
+const LONG_PRESS_MS = 450;
+const LONG_PRESS_SLOP = 8;
+
+function onLongPress(el, fn) {
+  let timer = null;
+  let fired = false;
+  let startX = 0;
+  let startY = 0;
+
+  const cancel = () => {
+    clearTimeout(timer);
+    timer = null;
+    el.classList.remove('is-holding');
+  };
+
+  el.addEventListener('pointerdown', (e) => {
+    if (!e.isPrimary) return;
+    fired = false;
+    startX = e.clientX;
+    startY = e.clientY;
+    el.classList.add('is-holding');
+    timer = setTimeout(() => {
+      fired = true;
+      cancel();
+      fn();
+    }, LONG_PRESS_MS);
+  });
+
+  el.addEventListener('pointermove', (e) => {
+    if (!timer) return;
+    if (Math.abs(e.clientX - startX) > LONG_PRESS_SLOP || Math.abs(e.clientY - startY) > LONG_PRESS_SLOP) {
+      cancel();
+    }
+  });
+
+  el.addEventListener('pointerup', cancel);
+  el.addEventListener('pointercancel', cancel);
+  el.addEventListener('pointerleave', cancel);
+
+  // The click fires after pointerup, so this is where the tap is swallowed.
+  el.addEventListener(
+    'click',
+    (e) => {
+      if (!fired) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      fired = false;
+    },
+    true
+  );
+
+  // A long press on a phone raises the text-selection menu; the gesture is
+  // ours here.
+  el.addEventListener('contextmenu', (e) => e.preventDefault());
 }
 
 // --- listening ---------------------------------------------------------
@@ -1897,7 +2176,7 @@ function showDrill() {
 
   const main = document.getElementById('reader');
   main.replaceChildren();
-  measureChrome();
+  measureChromeSoon();
   window.scrollTo(0, 0);
   announce('Tall og klokka');
 
@@ -2282,7 +2561,7 @@ async function showGrammar() {
 
   const main = document.getElementById('reader');
   main.replaceChildren();
-  measureChrome();
+  measureChromeSoon();
   window.scrollTo(0, 0);
   announce('Grammatikk');
 
@@ -2319,7 +2598,7 @@ async function showGrammar() {
     sec.id = `gram-${section.id}`;
 
     const h = document.createElement('h2');
-    h.className = 'level-title';
+    h.className = 'level-title is-sticky';
     h.textContent = section.title;
     sec.append(h);
 
@@ -2333,6 +2612,7 @@ async function showGrammar() {
     for (const rule of section.rules) sec.append(ruleCard(rule));
     main.append(sec);
   }
+  measureChromeSoon();
 }
 
 function ruleCard(rule) {
@@ -2682,7 +2962,7 @@ async function showExam() {
 
   const main = document.getElementById('reader');
   main.replaceChildren();
-  measureChrome();
+  measureChromeSoon();
   window.scrollTo(0, 0);
   announce('Prøve');
 
@@ -2903,7 +3183,7 @@ async function showCourse() {
 
   const main = document.getElementById('reader');
   main.replaceChildren();
-  measureChrome();
+  measureChromeSoon();
   window.scrollTo(0, 0);
   announce('Kurs');
 
@@ -2935,7 +3215,7 @@ async function showCourse() {
     // The heading is a ring and a label rather than a sentence: how far
     // through the level you are should be readable without counting.
     const head = document.createElement('div');
-    head.className = 'level-head';
+    head.className = 'level-head is-sticky';
     head.append(progressRing(done, infos.length, level.level));
 
     const h = document.createElement('h2');
@@ -2989,6 +3269,9 @@ async function showCourse() {
     section.append(ol);
     main.append(section);
   }
+  // The sections are in place now; the sticky offsets depend on a topbar
+  // height measured against the finished layout.
+  measureChromeSoon();
 }
 
 // --- review ------------------------------------------------------------
@@ -3006,7 +3289,7 @@ function showReview() {
 
   const main = document.getElementById('reader');
   main.replaceChildren();
-  measureChrome();
+  measureChromeSoon();
   window.scrollTo(0, 0);
   announce('Øving');
 
@@ -3035,17 +3318,40 @@ function showReview() {
   }
 
   let i = 0;
+
+  // The deck is a stack: the live card sits on two dummies offset behind it,
+  // so the depth of what is left is visible without reading a counter. The
+  // dummies drop away as the deck empties, and the last card stands alone.
+  const stack = document.createElement('div');
+  stack.className = 'stack';
+  const peek2 = document.createElement('div');
+  peek2.className = 'stack-peek stack-peek-2';
+  peek2.setAttribute('aria-hidden', 'true');
+  const peek1 = document.createElement('div');
+  peek1.className = 'stack-peek stack-peek-1';
+  peek1.setAttribute('aria-hidden', 'true');
   const card = document.createElement('section');
   card.className = 'flip';
-  main.append(card);
+  stack.append(peek2, peek1, card);
+  main.append(stack);
 
   const progress = document.createElement('p');
   progress.className = 'review-progress';
   main.append(progress);
 
+  /** How many cards remain behind this one, capped at the two we draw. */
+  const syncStack = () => {
+    const behind = Math.max(0, deck.length - i - 1);
+    peek1.hidden = behind < 1;
+    peek2.hidden = behind < 2;
+  };
+
   const show = () => {
     card.replaceChildren();
+    syncStack();
     if (i >= deck.length) {
+      peek1.hidden = true;
+      peek2.hidden = true;
       const done = document.createElement('p');
       done.className = 'review-empty';
       done.textContent = 'Ferdig for nå.';
@@ -3612,9 +3918,71 @@ function wireScrollHide() {
   });
 }
 
+/**
+ * Tell the reader when their device has no Norwegian voice.
+ *
+ * Every read-aloud feature falls back to an English voice otherwise, which
+ * for pronunciation practice is worse than silence — and nothing on screen
+ * would explain why «kjøpe» comes out sounding like English. The fix is an
+ * operating-system setting, so the banner says which one.
+ *
+ * Dismissal sticks: someone who has installed a voice, or who does not care,
+ * should not be told twice.
+ */
+const VOICE_BANNER_KEY = 'norsk:voiceBannerDismissed';
+
+function showVoiceBanner() {
+  const banner = document.getElementById('voice-banner');
+  if (!banner) return;
+
+  let dismissed = false;
+  try {
+    dismissed = localStorage.getItem(VOICE_BANNER_KEY) === '1';
+  } catch {
+    /* treat as not dismissed */
+  }
+  // Nothing to warn about if the browser cannot speak at all: the buttons
+  // are not drawn either, so there is no broken promise to explain.
+  if (dismissed || !canSpeak() || hasNorwegianVoice()) {
+    banner.hidden = true;
+    return;
+  }
+
+  banner.replaceChildren();
+  const text = document.createElement('div');
+  text.className = 'banner-text';
+  const strong = document.createElement('strong');
+  strong.textContent = 'Ingen norsk stemme på denne enheten. ';
+  text.append(strong, voiceHelp());
+  banner.append(text);
+
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.className = 'icon-btn banner-close';
+  close.setAttribute('aria-label', 'Lukk');
+  close.textContent = '×';
+  close.addEventListener('click', () => {
+    banner.hidden = true;
+    try {
+      localStorage.setItem(VOICE_BANNER_KEY, '1');
+    } catch {
+      /* ignore */
+    }
+    measureChromeSoon();
+  });
+  banner.append(close);
+  banner.hidden = false;
+  measureChromeSoon();
+}
+
 function wireChrome() {
   wireCardDrag();
   wireScrollHide();
+  watchChrome();
+  // Voices load asynchronously in Chrome, so check now and again when the
+  // list arrives.
+  showVoiceBanner();
+  globalThis.speechSynthesis?.addEventListener?.('voiceschanged', showVoiceBanner);
   // The wordmark is the way out of anywhere; on a phone that is the course.
   const brand = document.getElementById('brand');
   if (brand) {

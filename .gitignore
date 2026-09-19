@@ -11,8 +11,8 @@
 # Logs
 *.log
 
-# Local dev server state
-.serve.pid
+# Local dev server state (one pair per port)
+.serve.*.pid
 
 # Temp files written by test/render.mjs (deleted on success)
 .probe-*.html

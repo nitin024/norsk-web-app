@@ -208,9 +208,13 @@ class Element {
   releasePointerCapture() {}
 
   // --- events / layout stubs ---
-  addEventListener(type, fn) {
+  addEventListener(type, fn, options) {
     if (!this.listeners.has(type)) this.listeners.set(type, []);
-    this.listeners.get(type).push(fn);
+    // Capture listeners run before bubbling ones on the same element, which
+    // is how a handler cancels the event for the handlers after it.
+    const capture = options === true || (options && options.capture);
+    if (capture) this.listeners.get(type).unshift(fn);
+    else this.listeners.get(type).push(fn);
   }
   removeEventListener(type, fn) {
     const list = this.listeners.get(type) ?? [];
@@ -218,12 +222,27 @@ class Element {
     if (i !== -1) list.splice(i, 1);
   }
   dispatch(type, event = {}) {
-    for (const fn of this.listeners.get(type) ?? []) fn({ type, target: this, ...event });
+    // Real events carry these; handlers call them.
+    const base = {
+      type,
+      target: this,
+      preventDefault() {},
+      stopPropagation() {},
+      stopImmediatePropagation() {},
+    };
+    let stopped = false;
+    base.stopImmediatePropagation = () => {
+      stopped = true;
+    };
+    for (const fn of [...(this.listeners.get(type) ?? [])]) {
+      if (stopped) break;
+      fn({ ...base, ...event });
+    }
     const on = this[`on${type}`];
-    if (typeof on === 'function') on({ type, target: this, ...event });
+    if (!stopped && typeof on === 'function') on({ ...base, ...event });
   }
   click() {
-    this.dispatch('click', { preventDefault() {} });
+    this.dispatch('click');
   }
   focus() {
     this.ownerDocument.activeElement = this;
@@ -380,6 +399,64 @@ export function installGlobals(doc, root) {
 
   // The ring schedules its fill on the next frame.
   define('requestAnimationFrame', (fn) => setTimeout(() => fn(Date.now()), 0));
+
+  // Speech: a recorder rather than a stub, so tests can assert what the app
+  // asked to have spoken. `spoken` is the transcript.
+  const spoken = [];
+  // Utterances carry listeners, because word-by-word highlighting is driven
+  // by their `boundary` events.
+  define('SpeechSynthesisUtterance', class {
+    constructor(text) {
+      this.text = text;
+      this._on = new Map();
+    }
+    addEventListener(type, fn) {
+      if (!this._on.has(type)) this._on.set(type, []);
+      this._on.get(type).push(fn);
+    }
+    dispatch(type, event = {}) {
+      for (const fn of this._on.get(type) ?? []) fn({ type, ...event });
+    }
+  });
+  // Voices are a list a test can swap, so the missing-voice path is testable.
+  let voices = [{ lang: 'nb-NO', name: 'Test' }];
+  const voiceListeners = [];
+  globalThis.__setVoices = (list) => {
+    voices = list;
+    for (const fn of voiceListeners) fn({ type: 'voiceschanged' });
+  };
+  define('speechSynthesis', {
+    getVoices: () => voices,
+    addEventListener(type, fn) {
+      if (type === 'voiceschanged') voiceListeners.push(fn);
+    },
+    speak(u) {
+      spoken.push(u.text);
+      // The last utterance, so a test can step it word by word.
+      globalThis.__utterance = u;
+    },
+    cancel() {},
+  });
+  globalThis.__spoken = spoken;
+
+  /**
+   * Replay an utterance the way a speech engine would: one `boundary` per
+   * word, then `end`. Returns what was highlighted after each word.
+   */
+  globalThis.__speakWords = (limit = Infinity) => {
+    const u = globalThis.__utterance;
+    if (!u) return [];
+    const seen = [];
+    let n = 0;
+    for (const m of u.text.matchAll(/\S+/g)) {
+      if (n++ >= limit) return seen;
+      u.dispatch('boundary', { name: 'word', charIndex: m.index, charLength: m[0].length });
+      const lit = doc.getElementById('reader').querySelectorAll('.w').filter((w) => w.classList.contains('is-speaking'));
+      seen.push(lit.length === 1 ? lit[0].textContent : `${lit.length} lit`);
+    }
+    u.dispatch('end');
+    return seen;
+  };
 
   globalThis.window = {
     addEventListener: (type, fn) => doc.addEventListener(type, fn),
