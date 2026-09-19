@@ -182,6 +182,8 @@ function resetChrome() {
   document.getElementById('dict-controls').hidden = true;
   document.getElementById('scratch-controls').hidden = true;
   document.getElementById('mode-bar').hidden = true;
+  const rail = document.getElementById('letter-rail');
+  if (rail) rail.hidden = true;
   currentParaId = null;
   stopSpeaking();
 }
@@ -1139,7 +1141,11 @@ function renderDictList() {
   }
 
   const ordered = orderedEntries(matches);
-  if (dictView === 'cards') return renderDictCards(reader, ordered);
+  if (dictView === 'cards') {
+    const rail = document.getElementById('letter-rail');
+    if (rail) rail.hidden = true;
+    return renderDictCards(reader, ordered);
+  }
 
   reader.append(dictOrderRow());
 
@@ -1147,12 +1153,15 @@ function renderDictList() {
     // Group by initial letter, honouring Norwegian collation.
     let letter = null;
     let list = null;
+    const present = [];
     for (const item of ordered) {
       const initial = item.lemma[0].toUpperCase();
       if (initial !== letter) {
         letter = initial;
+        present.push(letter);
         const h = document.createElement('h2');
         h.className = 'dict-letter';
+        h.id = `letter-${letter}`;
         h.textContent = letter;
         reader.append(h);
         list = document.createElement('ul');
@@ -1161,8 +1170,12 @@ function renderDictList() {
       }
       list.append(dictRow(item));
     }
+    renderLetterRail(present);
   } else {
-    // Shuffled: letter headings would be meaningless, so it is one flat list.
+    // Shuffled: letter headings would be meaningless, so it is one flat list
+    // and the rail has nothing to point at.
+    const rail = document.getElementById('letter-rail');
+    if (rail) rail.hidden = true;
     const list = document.createElement('ul');
     list.className = 'dict-list';
     for (const item of ordered) list.append(dictRow(item));
@@ -1319,6 +1332,56 @@ function renderDictCards(reader, deck) {
   };
   show();
   announce(`${deck.length} kort`);
+}
+
+// The Norwegian alphabet, in collation order. æ ø å sort after z.
+const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ'.split('');
+
+/**
+ * A rail of letters down the edge of the dictionary, the way a phone contact
+ * list works. 1080 entries is too many to reach by scrolling.
+ *
+ * Letters with no entries are shown but inert, so the rail keeps a stable
+ * shape as a search narrows the list; jumping to a missing letter would be a
+ * silent no-op otherwise.
+ */
+function renderLetterRail(present) {
+  const rail = document.getElementById('letter-rail');
+  if (!rail) return;
+  const have = new Set(present);
+  rail.replaceChildren();
+
+  for (const letter of ALPHABET) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'rail-letter' + (have.has(letter) ? '' : ' is-empty');
+    btn.textContent = letter;
+    if (!have.has(letter)) {
+      btn.disabled = true;
+      btn.setAttribute('aria-hidden', 'true');
+      btn.tabIndex = -1;
+    } else {
+      btn.setAttribute('aria-label', `Hopp til ${letter}`);
+      btn.addEventListener('click', () => {
+        const target = document.getElementById(`letter-${letter}`);
+        if (!target) return;
+        // scrollIntoView overshoots here: the sticky letter headings above
+        // the target collapse as the page scrolls, so the distance changes
+        // underneath the animation. Compute the absolute position instead.
+        //
+        // The heading is itself sticky, so once it reaches the top of the
+        // list it parks under the frozen chrome rather than scrolling past
+        // it. Landing the heading exactly at that line puts its first word
+        // just below; no chrome offset is subtracted, or the whole letter
+        // ends up above the fold.
+        const top = target.getBoundingClientRect().top + (window.scrollY ?? 0);
+        window.scrollTo?.({ top: Math.max(0, top), behavior: 'smooth' });
+        announce(letter);
+      });
+    }
+    rail.append(btn);
+  }
+  rail.hidden = false;
 }
 
 function dictRow({ lemma, entry }) {

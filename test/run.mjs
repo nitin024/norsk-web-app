@@ -351,6 +351,56 @@ check('dict: card flips, and grading feeds the spaced schedule', () => {
   $('dict-search').dispatch('input');
   assert.equal(globalThis.localStorage.getItem('norsk:dictView'), 'list');
 });
+check('dict: the letter rail covers the Norwegian alphabet', () => {
+  const rail = $('letter-rail');
+  assert.equal(rail.hidden, false, 'rail should show in the alphabetical list');
+  const letters = rail.querySelectorAll('.rail-letter').map((b) => b.textContent);
+  assert.equal(letters.length, 29, 'A–Å is 29 letters');
+  assert.equal(letters.slice(-3).join(''), 'ÆØÅ', 'æ ø å sort after z');
+});
+
+check('dict: every rail letter points at a heading that exists', () => {
+  const live = $('letter-rail')
+    .querySelectorAll('.rail-letter')
+    .filter((b) => !b.classList.contains('is-empty'));
+  assert.atLeast(live.length, 20, 'most letters should have entries');
+  for (const btn of live) {
+    const heading = $(`letter-${btn.textContent}`);
+    if (!heading) throw new Error(`rail offers ${btn.textContent} but there is no heading`);
+  }
+});
+
+check('dict: a search greys out the letters it removes', () => {
+  $('dict-search').value = 'barn';
+  $('dict-search').dispatch('input');
+  const rail = $('letter-rail');
+  const letters = rail.querySelectorAll('.rail-letter');
+  assert.equal(letters.length, 29, 'the rail keeps its shape as the list narrows');
+  const empty = letters.filter((b) => b.classList.contains('is-empty'));
+  assert.atLeast(empty.length, 20, 'most letters have no match for "barn"');
+  // An inert letter must not be reachable by keyboard or screen reader.
+  assert.equal(empty[0].disabled, true);
+  assert.equal(empty[0].getAttribute('aria-hidden'), 'true');
+  $('dict-search').value = '';
+  $('dict-search').dispatch('input');
+});
+
+check('dict: the rail is hidden when the order is not alphabetical', () => {
+  reader().querySelectorAll('.chip').find((c) => c.textContent === 'Tilfeldig').click();
+  assert.equal($('letter-rail').hidden, true, 'a shuffled list has no letters to jump to');
+  reader().querySelectorAll('.chip').find((c) => c.textContent === 'A–Å').click();
+  assert.equal($('letter-rail').hidden, false);
+});
+
+check('dict: the rail does not follow you out of the dictionary', () => {
+  globalThis.location.hash = '#/tekster';
+  doc.dispatch('hashchange');
+  assert.equal($('letter-rail').hidden, true);
+  globalThis.location.hash = '#/ordbok';
+  doc.dispatch('hashchange');
+  assert.equal($('letter-rail').hidden, false);
+});
+
 check('dict cards: order chips offer fixed, random and alphabetical', () => {
   $('dict-search').value = 'barn';
   $('dict-search').dispatch('input');

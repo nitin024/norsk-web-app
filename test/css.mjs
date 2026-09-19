@@ -191,6 +191,35 @@ check('tap targets meet the 44px minimum', () => {
   }
 });
 
+check('completion and interaction use different colours', () => {
+  // Green means two things in this app: "you can act on this" (--accent) and
+  // "you finished this" (--done). If a completion state borrows --accent,
+  // a checkmark reads as a button.
+  for (const sel of [
+    '.badge-done',
+    '.exercise.is-right',
+    '.dictation-input.is-right',
+    '.cloze-input.is-right',
+    '.ring-fill',
+    '.course-mark',
+    '.rule.is-passed .rule-title::after',
+  ]) {
+    const r = rule(css, sel);
+    if (!r) fail(`${sel} has no rule`);
+    if (/var\(--accent[^-]/.test(r) || /var\(--accent\)/.test(r)) {
+      fail(`${sel} uses --accent; completion states belong on --done`);
+    }
+    if (!/var\(--done/.test(r)) fail(`${sel} should use --done`);
+  }
+});
+
+check('both themes define the done colour', () => {
+  for (const block of [css, css.slice(css.indexOf('prefers-color-scheme: dark'))]) {
+    if (!/--done:\s*#[0-9a-f]{6}/i.test(block)) fail('no --done in one of the themes');
+    if (!/--done-soft:\s*#[0-9a-f]{6}/i.test(block)) fail('no --done-soft in one of the themes');
+  }
+});
+
 check('dark theme redefines the palette', () => {
   if (!/@media \(prefers-color-scheme: dark\)/.test(css)) fail('no dark-mode block');
   for (const token of ['--bg', '--ink', '--accent']) {

@@ -35,6 +35,15 @@ Where the app stands and what is left. Delete a line when it ships.
   before this app has fetched its lexicon) or `--virtual-time-budget` (under
   which the module intermittently never evaluated). Unique debug port and
   profile per run, killed hard on exit. 16 checks, ~4s, no flakes.
+- **Dictionary letter rail.** A–Å down the right edge of the alphabetical
+  list, the way a contact list works. Letters with no matches stay in place
+  but greyed and inert, so the rail keeps its shape as a search narrows the
+  list. Hidden for shuffled orders and card view.
+- **Two greens, two meanings.** `--accent` (teal) means "you can act on this";
+  `--done` (olive) means "you finished this" and carries every completion
+  state: checkmarks, correct answers, the ring fill, done badges, a finished
+  timer. ~80 degrees of hue apart in both themes, all above 4.5:1 contrast,
+  and a CSS test fails if a completion state borrows `--accent`.
 - **Reading chrome out of the way.** The mode chips moved from above the text
   into their own bar docked over the tab bar, and the exam note collapses to
   its label. Scrolling down in a text slides both bars away; any scroll up or
@@ -57,18 +66,13 @@ None.
 
 Ordered by how much they change daily use.
 
-1. **One accent colour for "you did this".** Right now green means active
-   word, correct answer, done step and current tab. Split into two: accent for
-   interactive, a muted green only for completion.
-2. **Let the dictionary jump by letter.** A thin A–Å rail down the right edge
-   for 1080 entries, the way a phone contact list works.
-3. **Show the review queue as a stack.** One card floating over the next two
+1. **Show the review queue as a stack.** One card floating over the next two
    gives a sense of how much is left without a counter.
-4. **Long-press a word to hear it** without opening the card, for reading
+2. **Long-press a word to hear it** without opening the card, for reading
    aloud along with the text.
-5. **Dark mode contrast pass.** The muted ink on dark backgrounds sits near the
+3. **Dark mode contrast pass.** The muted ink on dark backgrounds sits near the
    accessibility floor in a few places (`--ink-faint` on `--surface`).
-6. **A real empty state for Egen tekst.** A short example paste and one line
+4. **A real empty state for Egen tekst.** A short example paste and one line
     saying what it does, instead of a blank box.
 
 ## Pending features

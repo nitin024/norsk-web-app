@@ -19,6 +19,13 @@
   --accent: #1f5f4f;
   --accent-soft: #e3efea;
 
+  /* Two greens, doing two jobs. --accent means "you can act on this": a
+     tappable word, the current tab, a link. --done means "you finished
+     this": a correct answer, a completed step, a filled ring. Keeping them
+     apart is what lets a checkmark read as a result rather than a control. */
+  --done: #4a6b16;
+  --done-soft: #eaf0d8;
+
   --t-xs: 13px;
   --t-sm: 15px;
   --t-md: 17px;
@@ -58,6 +65,8 @@
     --rule-soft: #24211c;
     --accent: #7fc9b2;
     --accent-soft: #1f2f2a;
+    --done: #b7d16a;
+    --done-soft: #262b18;
   }
 }
 
@@ -71,6 +80,8 @@
   --rule-soft: #24211c;
   --accent: #7fc9b2;
   --accent-soft: #1f2f2a;
+  --done: #b7d16a;
+  --done-soft: #262b18;
 }
 
 * {
@@ -674,6 +685,75 @@ body[data-view='home'] .reader {
   padding: 0;
 }
 
+/* --- the letter rail -----------------------------------------------------
+   Pinned to the right edge of the dictionary. Deliberately narrow and quiet:
+   it is a shortcut, not a control anyone needs to find. */
+
+.letter-rail {
+  position: fixed;
+  right: 2px;
+  top: calc(var(--topbar-h) + var(--dict-controls-h));
+  bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 26px;
+  padding: var(--s-2) 0;
+  /* The rail must not block taps on the rows behind it. */
+  pointer-events: none;
+}
+
+.rail-letter {
+  pointer-events: auto;
+  flex: 0 1 auto;
+  width: 26px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.45;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rail-letter:active {
+  color: var(--accent);
+}
+
+/* A letter with no entries is greyed rather than removed, so the rail keeps
+   its shape as a search narrows the list. --rule is nearly the background,
+   which is the point: present but plainly inert. */
+.rail-letter.is-empty {
+  color: var(--rule);
+  cursor: default;
+}
+
+@media (forced-colors: active) {
+  .rail-letter {
+    color: LinkText;
+  }
+  .rail-letter.is-empty {
+    color: GrayText;
+  }
+}
+
+/* The rail overlaps the scrollbar gutter, so the rows need room to its left. */
+body[data-view='dict'] .reader {
+  padding-right: calc(var(--s-4) + 26px);
+}
+
+@media (min-width: 900px) {
+  .letter-rail {
+    bottom: 0;
+  }
+}
+
 .dict-list li + li {
   border-top: 1px solid var(--rule-soft);
 }
@@ -950,7 +1030,7 @@ body[data-view='home'] .reader {
 
 .badge-done {
   color: var(--bg);
-  background: var(--accent);
+  background: var(--done);
 }
 
 .home-status {
@@ -1069,7 +1149,7 @@ body[data-view='home'] .reader {
 }
 
 .scramble.is-right .scramble-answer {
-  border-bottom-color: var(--accent);
+  border-bottom-color: var(--done);
 }
 
 .scramble.is-wrong .scramble-answer {
@@ -1169,8 +1249,8 @@ body[data-view='home'] .reader {
 }
 
 .dictation-input.is-right {
-  border-color: var(--accent);
-  background: var(--accent-soft);
+  border-color: var(--done);
+  background: var(--done-soft);
 }
 
 .dictation-input.is-wrong {
@@ -1182,7 +1262,7 @@ body[data-view='home'] .reader {
   margin: 0;
   padding-left: var(--s-2);
   font-size: var(--t-sm);
-  color: var(--accent);
+  color: var(--done);
 }
 
 .drill {
@@ -1221,7 +1301,7 @@ body[data-view='home'] .reader {
 }
 
 .exercise.is-right {
-  border-color: var(--accent);
+  border-color: var(--done);
 }
 
 .exercise.is-wrong {
@@ -1247,7 +1327,7 @@ body[data-view='home'] .reader {
 
 .rule.is-passed .rule-title::after {
   content: ' ✓';
-  color: var(--accent);
+  color: var(--done);
 }
 
 .exam-steps {
@@ -1306,7 +1386,7 @@ body[data-view='home'] .reader {
 
 .ring-fill {
   fill: none;
-  stroke: var(--accent);
+  stroke: var(--done);
   stroke-width: 4;
   stroke-linecap: round;
   transition: stroke-dashoffset 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -1323,7 +1403,7 @@ body[data-view='home'] .reader {
 }
 
 .ring.is-complete .ring-label {
-  fill: var(--accent);
+  fill: var(--done);
   font-size: 16px;
 }
 
@@ -1370,7 +1450,7 @@ body[data-view='home'] .reader {
 }
 
 .course-mark {
-  color: var(--accent);
+  color: var(--done);
   font-weight: 600;
 }
 
@@ -1588,8 +1668,8 @@ body[data-view='home'] .reader {
 }
 
 .cloze-input.is-right {
-  border-bottom-color: var(--accent);
-  background: var(--accent-soft);
+  border-bottom-color: var(--done);
+  background: var(--done-soft);
 }
 
 .cloze-input.is-wrong {
@@ -1608,8 +1688,8 @@ body[data-view='home'] .reader {
   margin-left: var(--s-1);
   padding: 0 var(--s-1);
   border-radius: 4px;
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--done-soft);
+  color: var(--done);
   font-size: var(--t-sm);
   font-weight: 600;
 }
@@ -1639,7 +1719,7 @@ body[data-view='home'] .reader {
 }
 
 .timer-clock.is-done {
-  color: var(--accent);
+  color: var(--done);
 }
 
 .timer .scratch-actions {
